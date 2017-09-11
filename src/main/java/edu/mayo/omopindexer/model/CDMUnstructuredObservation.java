@@ -11,6 +11,8 @@ public class CDMUnstructuredObservation implements CDMModel {
     /** The textual contents of this unstructured observation */
     private final String mention;
 
+    private CDMUnstructuredObservation() {this(null);}
+
     public CDMUnstructuredObservation(String mention) {
         this.mention = mention;
     }

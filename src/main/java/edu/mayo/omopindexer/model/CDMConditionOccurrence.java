@@ -20,6 +20,8 @@ public class CDMConditionOccurrence implements CDMModel {
      */
     private final CDMDate date;
 
+    private CDMConditionOccurrence() {this(null, null);}
+
     public CDMConditionOccurrence(String occurrenceMention, CDMDate date) {
         this.mention = occurrenceMention;
         this.date = date;

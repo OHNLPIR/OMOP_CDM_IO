@@ -29,6 +29,8 @@ public class CDMPerson implements CDMModel {
      */
     private CDMPerson_AGE_LIMITS[] exclusions;
 
+    private CDMPerson() {this(null, null, null, null, null);}
+
     public CDMPerson(CDMPerson_GENDER gender, CDMPerson_ETHNICITY ethnicity, Long locationId, Integer age, String age_text, CDMPerson_AGE_LIMITS... exclusions) {
         this.gender = gender;
         this.ethnicity = ethnicity;
@@ -93,7 +95,7 @@ public class CDMPerson implements CDMModel {
         if (locationId != null) ret.put("locationID", locationId);
         if (age != null) ret.put("age", age);
         if (age_text != null) ret.put("age_text", age_text);
-        if (exclusions != null) {
+        if (exclusions != null && exclusions.length > 0) {
             StringBuilder sB = new StringBuilder();
             boolean flag = false;
             for (CDMPerson_AGE_LIMITS exclusion : exclusions) {

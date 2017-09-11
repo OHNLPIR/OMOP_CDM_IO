@@ -19,6 +19,8 @@ public class CDMMeasurement implements CDMModel {
     /** A numeric value for the measurement, expressed as a non floating-point (for precision) decimal*/
     private final BigDecimal value;
 
+    private CDMMeasurement() {this(null, null, null);}
+
     public CDMMeasurement(Long measurementUID, Long operator_concept_id, BigDecimal value) {
         this.measurementUID = measurementUID;
         this.operator_concept_id = operator_concept_id;

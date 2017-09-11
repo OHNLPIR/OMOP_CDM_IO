@@ -28,6 +28,8 @@ public class CDMDate implements CDMModel {
      */
     private final CDMDate_Subject subject;
 
+    private CDMDate() {this(null, null, null, null);}
+
     public CDMDate(Date date, Date date2, CDMDate_Type type, CDMDate_Subject subject) {
         this.date = date;
         this.date2 = date2;

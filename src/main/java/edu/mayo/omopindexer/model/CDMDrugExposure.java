@@ -19,6 +19,8 @@ public class CDMDrugExposure implements CDMModel {
     /** The effective drug dose of this exposure */
     private final BigDecimal effectiveDrugDose;
 
+    private CDMDrugExposure() {this(null, null, null, null);}
+
     public CDMDrugExposure(String mention, CDMDate date, Integer quantity, BigDecimal effectiveDrugDose) {
         this.mention = mention;
         this.date = date;
