@@ -3,10 +3,7 @@ package edu.mayo.omopindexer.io.serializer;
 import edu.mayo.omopindexer.model.CDMModel;
 import org.json.JSONObject;
 
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /** Transforms a document that contains a certain set of models into a JSON indexable by ElasticSearch */
 public class DocumentSerializer {
@@ -16,6 +13,18 @@ public class DocumentSerializer {
     private String documentText;
     /** A mapping by type of OMOP CDM models associated with this document */
     private Map<String, List<CDMModel>> models;
+
+    public DocumentSerializer(String documentID, String documentText, CDMModel... docModels) {
+        this.documentID = documentID;
+        this.documentText = documentText;
+        this.models = new HashMap<>();
+        for (CDMModel model : docModels) {
+            if (!this.models.containsKey(model.getName())) {
+                this.models.put(model.getName(), new LinkedList<>());
+            }
+            this.models.get(model.getName()).add(model);
+        }
+    }
 
     /** @return A que of JSON Objects, first element will always be the parent document and subsequent JSONs its
      * associated model instances */
