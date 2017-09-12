@@ -19,6 +19,7 @@ public class CDMMeasurement implements CDMModel {
     /** A numeric value for the measurement, expressed as a non floating-point (for precision) decimal*/
     private final BigDecimal value;
 
+    /** Included for reflection compatibility: do not use, do not remove */
     private CDMMeasurement() {this(null, null, null);}
 
     public CDMMeasurement(Long measurementUID, Long operator_concept_id, BigDecimal value) {

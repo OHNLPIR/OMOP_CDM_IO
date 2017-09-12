@@ -1,6 +1,5 @@
 package edu.mayo.omopindexer.model;
 
-import jdk.nashorn.internal.runtime.JSONFunctions;
 import org.json.JSONObject;
 
 import java.util.Date;
@@ -21,6 +20,7 @@ public class CDMDate implements CDMModel {
     private final Date date2;
     /**
      * The {@link edu.mayo.omopindexer.model.CDMDate.CDMDate_Type} of the date(s)
+     * @deprecated no longer useful with adoption of COMPOSITE type
      */
     private final CDMDate_Type type;
     /**
@@ -28,16 +28,25 @@ public class CDMDate implements CDMModel {
      */
     private final CDMDate_Subject subject;
 
-    private CDMDate() {this(null, null, null, null);}
+    /**
+     * A special case field for string durations that cannot be stored as a timestamp
+     */
+    private String duration;
 
-    public CDMDate(Date date, Date date2, CDMDate_Type type, CDMDate_Subject subject) {
+    private CDMDate() {
+        this(null, null, null, null, null);
+    }
+
+    public CDMDate(Date date, Date date2, CDMDate_Type type, CDMDate_Subject subject, String durationText) {
         this.date = date;
         this.date2 = date2;
         this.type = type;
         this.subject = subject;
+        this.duration = durationText;
     }
 
     /**
+     * @deprecated Unused since adoption of COMPOSITE type
      * @return this CDMDate's {@link #type}
      */
     public CDMDate_Type getType() {
@@ -52,9 +61,11 @@ public class CDMDate implements CDMModel {
     }
 
     /**
+     * @deprecated Unused since adoption of COMPOSITE type
      * @return The date(s) denoted by this date object, in long-long format (milliseconds since 1/1/1970 00:00:00 GMT)
      * if {@link edu.mayo.omopindexer.model.CDMDate.CDMDate_Type}
      * indicates single dates, or if missing one or both dates, will replace the relevant long with the string "UNKNOWN"
+     * If a duration string is also present, it will be appended to te end
      * @throws RuntimeException if no date type is supplied or if type handling is not present in this method
      */
     public String getStandardizedDate() {
@@ -63,11 +74,17 @@ public class CDMDate implements CDMModel {
         }
         switch (getType()) {
             case START:
-                if (date != null) return date.getTime() + "-UNKNOWN";
-                else return "UNKNOWN-UNKNOWN";
+                if (date != null) {
+                    return date.getTime() + "-UNKNOWN";
+                } else {
+                    return "UNKNOWN-UNKNOWN";
+                }
             case END:
-                if (date != null) return "UNKNOWN-" + date.getTime();
-                else return "UNKNOWN-UNKNOWN";
+                if (date != null) {
+                    return "UNKNOWN-" + date.getTime();
+                } else {
+                    return "UNKNOWN-UNKNOWN";
+                }
             case PERIOD:
             case DURATION:
                 String firstDate = date == null ? "UNKNOWN" : date.getTime() + "";
@@ -84,15 +101,17 @@ public class CDMDate implements CDMModel {
 
     public JSONObject getAsJSON() {
         JSONObject ret = new JSONObject();
-        ret.put("date", getStandardizedDate());
+        ret.put("startDate", date == null ? "UNKNOWN" : date.getTime());
+        ret.put("endDate", date2 == null ? "UNKNOWN" : date2.getTime());
         ret.put("type", getType().getTypeName());
-        ret.put("subject", getSubject().getTypeName());
-        if (getType().equals(CDMDate_Type.DURATION)) {
-            if (date == null || date2 == null) {
-                ret.put("duration", "UNKNOWN");
-            } else {
-                ret.put("duration", date2.getTime() - date.getTime()); // Stores the difference as milliseconds
-            }
+        ret.put("subject", subject == null ? "UNKNOWN" : getSubject().getTypeName());
+        if (date == null || date2 == null) {
+            ret.put("durationQuant", "UNKNOWN");
+        } else {
+            ret.put("durationQuant", date2.getTime() - date.getTime()); // Stores the difference as milliseconds
+        }
+        if (duration != null) {
+            ret.put("duration", duration);
         }
         return ret;
     }
@@ -118,12 +137,14 @@ public class CDMDate implements CDMModel {
     /**
      * Enumeration for use with {@link edu.mayo.omopindexer.model.CDMDate} denoting the type of date represented
      * <b>Any modifications to this enumerations must also be reflected in {@link CDMDate#getStandardizedDate()}!</b>
+     * @deprecated Unused since adoption of COMPOSITE type, included for legacy reasons
      */
     public enum CDMDate_Type {
         START("START"),
         END("END"),
         PERIOD("PERIOD"),
-        DURATION("DURATION");
+        DURATION("DURATION"),
+        COMPOSITE("COMPOSITE"); // Indicates that this type supports representations of all of the above
 
         private String typeName;
 

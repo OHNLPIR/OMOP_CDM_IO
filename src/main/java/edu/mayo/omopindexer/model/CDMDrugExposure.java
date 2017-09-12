@@ -10,25 +10,43 @@ import java.util.Map;
  * Drugs include prescription and over-the-counter medicines, vaccines, and large-molecule biologic therapies.
  */
 public class CDMDrugExposure implements CDMModel {
-    /** The textual mention of the drug exposure event */
+    /**
+     * The textual mention of the drug exposure event
+     */
     private final String mention;
-    /** A {@link edu.mayo.omopindexer.model.CDMDate} representation of this drug's relevant administration dates */
+    /**
+     * A {@link edu.mayo.omopindexer.model.CDMDate} representation of this drug's relevant administration dates
+     */
     private final CDMDate date;
-    /** A quantity associated with this drug exposure */
-    private final Integer quantity;
-    /** The effective drug dose of this exposure */
-    private final BigDecimal effectiveDrugDose;
+    /**
+     * A quantity associated with this drug exposure
+     */
+    private final Double quantity;
+    /**
+     * A unit associated with this drug exposure quantity
+     */
+    private final String unit;
+    /**
+     * The effective drug dose of this exposure
+     */
+    private final String effectiveDrugDose;
 
-    private CDMDrugExposure() {this(null, null, null, null);}
+    /** Included for reflection compatibility: do not use, do not remove */
+    private CDMDrugExposure() {
+        this(null, null, null, null, null);
+    }
 
-    public CDMDrugExposure(String mention, CDMDate date, Integer quantity, BigDecimal effectiveDrugDose) {
+    public CDMDrugExposure(String mention, CDMDate date, Double quantity, String unit, String effectiveDrugDose) {
         this.mention = mention;
         this.date = date;
         this.quantity = quantity;
+        this.unit = unit;
         this.effectiveDrugDose = effectiveDrugDose;
     }
 
-    /** @return The textual mention of this drug exposure event */
+    /**
+     * @return The textual mention of this drug exposure event
+     */
     public String getMention() {
         return mention;
     }
@@ -40,13 +58,24 @@ public class CDMDrugExposure implements CDMModel {
         return date;
     }
 
-    /** @return The quantity associated with this drug exposure */
-    public Integer getQuantity() {
+    /**
+     * @return The quantity associated with this drug exposure
+     */
+    public Double getQuantity() {
         return quantity;
     }
 
-    /** @return The effective drug dose for this exposure */
-    public BigDecimal getEffectiveDrugDose() {
+    /**
+     * @return The unit associated with this quantity measurement
+     */
+    public String getUnit() {
+        return unit;
+    }
+
+    /**
+     * @return The effective drug dose for this exposure
+     */
+    public String getEffectiveDrugDose() {
         return effectiveDrugDose;
     }
 

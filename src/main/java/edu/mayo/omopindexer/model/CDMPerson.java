@@ -29,6 +29,7 @@ public class CDMPerson implements CDMModel {
      */
     private CDMPerson_AGE_LIMITS[] exclusions;
 
+    /** Included for reflection compatibility: do not use, do not remove */
     private CDMPerson() {this(null, null, null, null, null);}
 
     public CDMPerson(CDMPerson_GENDER gender, CDMPerson_ETHNICITY ethnicity, Long locationId, Integer age, String age_text, CDMPerson_AGE_LIMITS... exclusions) {

@@ -34,13 +34,14 @@ public class ElasticSearchIndexer {
     static {
         try {
             init();
+            initializeESIndex();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     /** Loads JSON Configuration Parameters **/
-    public static void init() throws FileNotFoundException {
+    private static void init() throws FileNotFoundException {
         JSONTokener tokenizer =
                 new JSONTokener(ElasticSearchIndexer.class.getResourceAsStream("/configuration.json"));
         JSONObject obj = new JSONObject(tokenizer);
@@ -54,7 +55,7 @@ public class ElasticSearchIndexer {
     }
 
     /** Constructs indexes in Elasticsearch as appropriate based on configuration values */
-    public static void initializeESIndex() throws IOException, ClassNotFoundException, NoSuchMethodException,
+    private static void initializeESIndex() throws IOException, ClassNotFoundException, NoSuchMethodException,
             IllegalAccessException, InvocationTargetException, InstantiationException {
         // Construct mapping information for index
         // Get Model files via reflection
