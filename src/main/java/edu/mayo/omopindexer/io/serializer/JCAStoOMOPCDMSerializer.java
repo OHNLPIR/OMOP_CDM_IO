@@ -16,8 +16,10 @@ import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.TimeZone;
 
 /**
  * Converts incoming JCAS structures with assumed cTAKES type system into the OMOP CDM data model,
@@ -38,11 +40,11 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
             TemporalRelation durRel = mention.getDuration();
             CDMDate date;
             if (durRel != null) {
-                Time t1 = (Time) durRel.getArg1();
+                Time t1 = (Time) durRel.getArg1(); // TODO: fairly safe to say this is wrong
                 Time t2 = (Time) durRel.getArg2();
-                date = generateDateModel(t1, t2);
+                date = generateDateModel(null, null, null, CDMDate.CDMDate_Subject.CONDITION);
             } else {
-                date = generateDateModel(mention.getStartTime(), mention.getEndTime());
+                date = generateDateModel(null, null, null, CDMDate.CDMDate_Subject.CONDITION);
             }
             generatedModels.add(new CDMConditionOccurrence(mentionText, date));
         }
@@ -53,10 +55,10 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
             CDMDate date;
             if (durRel != null) {
                 Time t1 = (Time) durRel.getArg1();
-                Time t2 = (Time) durRel.getArg2();
-                date = generateDateModel(t1, t2);
+                Time t2 = (Time) durRel.getArg2(); // TODO here as well
+                date = generateDateModel(null, null, null, CDMDate.CDMDate_Subject.CONDITION);
             } else {
-                date = generateDateModel(mention.getStartTime(), mention.getEndTime());
+                date = generateDateModel(null, null, null, CDMDate.CDMDate_Subject.CONDITION);
             }
             generatedModels.add(new CDMConditionOccurrence(mentionText, date));
         }
@@ -89,19 +91,31 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
     }
 
     /**
-     * @param date A cTAKES Date Annotation
+     * @param date A cTAKES Date Annotation to convert
      * @return Converts cTAKES {@link org.apache.ctakes.typesystem.type.refsem.Date date} annotations to
      * programmatically usable java {@link java.util.Date dates}
      * @see org.apache.ctakes.typesystem.type.refsem.Date
      */
     private java.util.Date cTAKESDateToJavaDate(Date date) {
-        String yearString = date.getYear();
-        String monthString = date.getMonth();
-        String dayString = date.getDay();
+        String yearString = date.getYear().replaceAll("[^0-9a-zA-Z]", "");
+        String monthString = date.getMonth().replaceAll("[^0-9a-zA-Z]", "");
+        String dayString = date.getDay().replaceAll("[^0-9a-zA-Z]", "");
+        int year = Integer.valueOf(yearString); // TODO: validation
+        int month;
+        if (monthString.matches("[0-9]+")) {
+            month = Integer.valueOf(monthString);
+        } else {
+            month = 1; //TODO
+        }
+        int day = Integer.valueOf(dayString);
+        Calendar c = Calendar.getInstance();
+        c.setTimeZone(TimeZone.getTimeZone("UTC"));
+        c.set(year, month - 1, day); // Use numeric values for now
+        return c.getTime();
     }
 
-    private CDMDate generateDateModel(Date date1, Date date2, String durationString, CDMDate.CDMDate_Subject subject) {
-        return new CDMDate(cTAKESDateToJavaDate(date1), cTAKESDateToJavaDate(date2), CDMDate.CDMDate_Type.COMPOSITE, subject, durationString);
+    private CDMDate generateDateModel(Date date1, Date date2, Object duration, CDMDate.CDMDate_Subject subject) {
+        return new CDMDate(cTAKESDateToJavaDate(date1), cTAKESDateToJavaDate(date2), CDMDate.CDMDate_Type.COMPOSITE, subject, duration);
     }
 
 

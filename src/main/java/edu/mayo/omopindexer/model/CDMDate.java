@@ -29,15 +29,16 @@ public class CDMDate implements CDMModel {
     private final CDMDate_Subject subject;
 
     /**
-     * A special case field for string durations that cannot be stored as a timestamp
+     * A special case field for string durations that cannot be stored as a timestamp (either duration in milliseconds
+     * or a string representation)
      */
-    private String duration;
+    private Object duration;
 
     private CDMDate() {
         this(null, null, null, null, null);
     }
 
-    public CDMDate(Date date, Date date2, CDMDate_Type type, CDMDate_Subject subject, String durationText) {
+    public CDMDate(Date date, Date date2, CDMDate_Type type, CDMDate_Subject subject, Object durationText) {
         this.date = date;
         this.date2 = date2;
         this.type = type;
@@ -105,13 +106,17 @@ public class CDMDate implements CDMModel {
         ret.put("endDate", date2 == null ? "UNKNOWN" : date2.getTime());
         ret.put("type", getType().getTypeName());
         ret.put("subject", subject == null ? "UNKNOWN" : getSubject().getTypeName());
-        if (date == null || date2 == null) {
-            ret.put("durationQuant", "UNKNOWN");
+        if (duration != null && duration instanceof Long) {
+            ret.put("durationQuant", duration);
         } else {
-            ret.put("durationQuant", date2.getTime() - date.getTime()); // Stores the difference as milliseconds
-        }
-        if (duration != null) {
-            ret.put("duration", duration);
+            if (date == null || date2 == null) {
+                ret.put("durationQuant", "UNKNOWN");
+            } else {
+                ret.put("durationQuant", date2.getTime() - date.getTime()); // Stores the difference as milliseconds
+            }
+            if (duration != null) {
+                ret.put("duration", duration);
+            }
         }
         return ret;
     }
