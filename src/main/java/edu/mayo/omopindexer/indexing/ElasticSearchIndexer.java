@@ -76,7 +76,7 @@ public class ElasticSearchIndexer {
             JSONObject _parent = new JSONObject();
             _parent.put("type", "document");
             childObject.put("_parent", _parent);
-            childMappings.put(model.getName(), childObject);
+            childMappings.put(model.getModelTypeName(), childObject);
         }
         mapping.put("document", new JSONObject());
         for (Map.Entry<String, JSONObject> e : childMappings.entrySet()) {

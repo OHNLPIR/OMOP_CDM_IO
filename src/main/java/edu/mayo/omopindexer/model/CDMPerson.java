@@ -85,7 +85,7 @@ public class CDMPerson implements CDMModel {
         return exclusions;
     }
 
-    public String getName() {
+    public String getModelTypeName() {
         return "Person";
     }
 

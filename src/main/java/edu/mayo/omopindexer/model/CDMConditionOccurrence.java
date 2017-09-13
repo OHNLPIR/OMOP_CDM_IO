@@ -43,7 +43,7 @@ public class CDMConditionOccurrence implements CDMModel {
     }
 
 
-    public String getName() {
+    public String getModelTypeName() {
         return "ConditionOccurrence";
     }
 

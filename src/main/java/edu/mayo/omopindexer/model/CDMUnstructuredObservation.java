@@ -23,7 +23,7 @@ public class CDMUnstructuredObservation implements CDMModel {
         return mention;
     }
 
-    public String getName() {
+    public String getModelTypeName() {
         return "UnstructuredObservation";
     }
 

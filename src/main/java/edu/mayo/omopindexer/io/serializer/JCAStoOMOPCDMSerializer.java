@@ -80,6 +80,9 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
             generatedModels.add(new CDMDrugExposure(mention.getSubject(), date, quant, quantUnit, dosageValue));
         }
 
+        // Measurement
+
+
         // Send to ElasticSearch
         // - Serialize
         DocumentSerializer serializer = new DocumentSerializer(id, text, generatedModels.toArray(new CDMModel[0]));

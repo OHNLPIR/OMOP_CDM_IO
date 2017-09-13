@@ -43,7 +43,7 @@ public class CDMMeasurement implements CDMModel {
         return value;
     }
 
-    public String getName() {
+    public String getModelTypeName() {
         return "Measurement";
     }
 

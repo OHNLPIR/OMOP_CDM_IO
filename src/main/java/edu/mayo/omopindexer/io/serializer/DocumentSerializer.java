@@ -19,10 +19,10 @@ public class DocumentSerializer {
         this.documentText = documentText;
         this.models = new HashMap<>();
         for (CDMModel model : docModels) {
-            if (!this.models.containsKey(model.getName())) {
-                this.models.put(model.getName(), new LinkedList<>());
+            if (!this.models.containsKey(model.getModelTypeName())) {
+                this.models.put(model.getModelTypeName(), new LinkedList<>());
             }
-            this.models.get(model.getName()).add(model);
+            this.models.get(model.getModelTypeName()).add(model);
         }
     }
 
@@ -38,7 +38,7 @@ public class DocumentSerializer {
         for (Map.Entry<String, List<CDMModel>> e : models.entrySet()) {
             for (CDMModel m : e.getValue()) {
                 JSONObject child = m.getAsJSON();
-                child.put("type", m.getName());
+                child.put("type", m.getModelTypeName());
                 ret.add(child);
             }
         }

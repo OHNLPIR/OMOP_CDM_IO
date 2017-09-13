@@ -79,7 +79,7 @@ public class CDMDrugExposure implements CDMModel {
         return effectiveDrugDose;
     }
 
-    public String getName() {
+    public String getModelTypeName() {
         return "DrugExposure";
     }
 
