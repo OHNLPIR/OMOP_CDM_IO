@@ -9,6 +9,7 @@ import org.apache.uima.collection.CollectionException;
 import org.apache.uima.collection.CollectionReader_ImplBase;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.util.Level;
 import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 
@@ -102,6 +103,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 documentID.setDocumentID(patientID + "_" + docID + "_" + queueDocID);
                 documentID.addToIndexes();
                 header.setValue(headerText);
+                getLogger().log(Level.INFO, documentID.getDocumentID());
             }
             header.addToIndexes();
 
