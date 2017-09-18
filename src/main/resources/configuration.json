@@ -1,0 +1,13 @@
+{
+  "_host": "Server IP or username",
+  "host": "localhost",
+
+  "_port": "PARAMETER CURRENTLY IGNORED: Integer Port Number for Elasticsearch Index (default: 9300)",
+  "port": 9300,
+
+  "_cluster": "The name of the ElasticSearch cluster (default: elasticsearch)",
+  "cluster": "elasticsearch",
+
+  "_index_name": "The name of the index",
+  "index_name": "index"
+}
