@@ -10,6 +10,7 @@ import org.apache.uima.collection.CollectionReader_ImplBase;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Progress;
+import org.apache.uima.util.ProgressImpl;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 throw new ResourceInitializationException("directory_not_found", new Object[]{"InputDirectory", this.getMetaData().getName(), inputDir.getPath()});
             }
             for(int i = 0; i < files.length; ++i) {
-                if (!files[i].isDirectory() && files[i].getName().endsWith(".xmi")) {
+                if (!files[i].isDirectory()) {
                     this.mFiles.add(files[i]);
                 }
             }
@@ -88,6 +89,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                     readQueue = null; // Document complete, reset queue and advance
                     mCurrentIndex++;
                 }
+                header.setValue(headerText);
             }
             header.addToIndexes();
 
@@ -111,12 +113,13 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
 
     @Override
     public boolean hasNext() throws IOException, CollectionException {
-        return false;
+        return this.mCurrentIndex < this.mFiles.size() || readQueue != null;
     }
 
     @Override
     public Progress[] getProgress() {
-        return new Progress[0];
+        return new Progress[]{new ProgressImpl(this.mCurrentIndex, this.mFiles.size(), "entities")};
+
     }
 
     @Override
