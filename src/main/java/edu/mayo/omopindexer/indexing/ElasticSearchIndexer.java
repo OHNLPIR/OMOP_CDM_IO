@@ -114,7 +114,7 @@ public class ElasticSearchIndexer {
         ES_CLIENT.prepareIndex(INDEX, "document", docID).setSource(parent.toString()).execute().actionGet(); // TODO this needs to be optimized
         JSONObject nextChild;
         while ((nextChild = jsons.pollFirst()) != null) {
-            ES_CLIENT.prepareIndex(INDEX, nextChild.getString("type")).setParent(docID).setSource(nextChild).execute().actionGet(); // TODO possible resource leak with reindexing documents/infinite number of children...maybe purge all children when docujment already in index?
+            ES_CLIENT.prepareIndex(INDEX, nextChild.getString("type")).setParent(docID).setSource(nextChild.toString()).execute().actionGet(); // TODO possible resource leak with reindexing documents/infinite number of children...maybe purge all children when docujment already in index?
         }
     }
 }

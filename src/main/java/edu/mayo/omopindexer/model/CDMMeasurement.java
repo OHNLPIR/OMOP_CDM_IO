@@ -17,14 +17,14 @@ public class CDMMeasurement implements CDMModel {
     /** The concept id of the operator applying to this measurement, e.g. ids for <, ≤, =, ≥, > */
     private final Long operator_concept_id;
     /** A numeric value for the measurement, expressed as a non floating-point (for precision) decimal*/
-    private final BigDecimal value;
+    private final Double value;
     /** The string value that this measurement pertains to */
     private final String textRef;
 
     /** Included for reflection compatibility: do not use, do not remove */
     private CDMMeasurement() {this(null, null, null, null);}
 
-    public CDMMeasurement(String textRef, Long measurementUID, Long operator_concept_id, BigDecimal value) {
+    public CDMMeasurement(String textRef, Long measurementUID, Long operator_concept_id, Double value) {
         this.textRef = textRef;
         this.measurementUID = measurementUID;
         this.operator_concept_id = operator_concept_id;
@@ -42,7 +42,7 @@ public class CDMMeasurement implements CDMModel {
     }
 
     /** @return the numeric value of this measurement */
-    public BigDecimal getValue() {
+    public Double getValue() {
         return value;
     }
 
@@ -57,7 +57,7 @@ public class CDMMeasurement implements CDMModel {
 
     public JSONObject getAsJSON() {
         JSONObject ret = new JSONObject();
-        if (textRef != null) ret.put("raw", textRef);
+        if (textRef != null) ret.put("measurement", textRef);
         if (measurementUID != null) ret.put("measurementid", measurementUID);
         if (operator_concept_id != null) ret.put("operator_concept_id", operator_concept_id);
         if (value != null) ret.put("value", value.toString());
