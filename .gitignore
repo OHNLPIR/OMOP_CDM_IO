@@ -1,6 +1,6 @@
 ### Project Specific ###
 src/main/resources/configuration.json
-data
+/data
 
 ### Eclipse ###
 
