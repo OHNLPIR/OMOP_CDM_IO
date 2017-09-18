@@ -1,6 +1,6 @@
 package edu.mayo.omopindexer.indexing;
 
-import edu.mayo.omopindexer.io.serializer.DocumentSerializer;
+import edu.mayo.omopindexer.io.DocumentSerializer;
 import edu.mayo.omopindexer.model.CDMModel;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;

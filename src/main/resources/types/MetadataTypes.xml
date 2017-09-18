@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="TypeSystemDescription.xsl"?>
+
+<typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
+    <types>
+        <typeDescription>
+            <name>edu.mayo.omopindexer.types.BioBankCNHeader</name>
+            <description/>
+            <supertypeName>uima.cas.TOP</supertypeName>
+            <features>
+                <featureDescription>
+                    <name>value</name>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+            </features>
+        </typeDescription>
+    </types>
+</typeSystemDescription>

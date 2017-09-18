@@ -1,4 +1,4 @@
-package edu.mayo.omopindexer.io.serializer;
+package edu.mayo.omopindexer.io;
 
 import edu.mayo.omopindexer.model.CDMModel;
 import org.json.JSONObject;
