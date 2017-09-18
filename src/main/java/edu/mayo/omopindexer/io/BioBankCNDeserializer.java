@@ -64,7 +64,6 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 // Populate document ID
                 File f = mFiles.get(mCurrentIndex);
                 InputStream fileInputStream = new FileInputStream(f);
-                BufferedReader fileReader = new BufferedReader(new InputStreamReader(fileInputStream));
                 queueDocID = createDocID(f);
 
                 // Fill the queue text
@@ -72,9 +71,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 fileInputStream.read(contents);
                 readQueue = new String(contents);
             }
-            DocumentID documentID = new DocumentID(cas);
-            documentID.setDocumentID(queueDocID);
-            documentID.addToIndexes();
+
             BioBankCNHeader header = new BioBankCNHeader(cas);
             Matcher m = HEADER_PATTERN.matcher(readQueue);
             if (m.find()) { // Has a header (should always be true)
@@ -89,6 +86,21 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                     readQueue = null; // Document complete, reset queue and advance
                     mCurrentIndex++;
                 }
+                Pattern patientIDPattern = Pattern.compile("PATIENT_ID:([^\\|]+)");
+                String patientID = "";
+                Pattern docIDPattern = Pattern.compile("DOC_ID:([^\\|]+)");
+                String docID = "";
+                Matcher m2 = patientIDPattern.matcher(headerText);
+                if (m2.find()) {
+                    patientID = m2.group(1);
+                }
+                m2 = docIDPattern.matcher(headerText);
+                if (m2.find()) {
+                    docID = m2.group(1);
+                }
+                DocumentID documentID = new DocumentID(cas);
+                documentID.setDocumentID(patientID + "_" + docID + "_" + queueDocID);
+                documentID.addToIndexes();
                 header.setValue(headerText);
             }
             header.addToIndexes();

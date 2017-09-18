@@ -31,7 +31,7 @@ public class DocumentSerializer {
     public Deque<JSONObject> toElasticSearchIndexableJSONs() {
         // Construct the parent document to index
         JSONObject parent = new JSONObject();
-        parent.put("DocumentID", documentID + UUID.randomUUID());
+        parent.put("DocumentID", documentID);
         parent.put("RawText", documentText);
         // Construct a list of children models to also index and associate
         LinkedList<JSONObject> ret = new LinkedList<JSONObject>();
