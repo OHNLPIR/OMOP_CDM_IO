@@ -14,13 +14,21 @@ import org.apache.ctakes.typesystem.type.textsem.SignSymptomMention;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FeatureStructure;
+import org.apache.uima.cas.impl.CASSerializer;
+import org.apache.uima.cas.impl.XmiCasSerializer;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.apache.uima.util.XMLSerializer;
+import org.xml.sax.SAXException;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -141,11 +149,20 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         if (pIDMatcher.find()) {
             patientID = pIDMatcher.group(1);
         }
-
+        // TODO actually use this information somehow (i.e. by pulling from structured data
         // Send to ElasticSearch
         // - Serialize
         DocumentSerializer serializer = new DocumentSerializer(id, text, generatedModels.toArray(new CDMModel[0]));
         ElasticSearchIndexer.indexSerialized(serializer);
+        XmiCasSerializer out = new XmiCasSerializer(jCas.getTypeSystem());
+        try {
+            XMLSerializer xml = new XMLSerializer(new FileOutputStream(new File("out", id + ".xmi")), false);
+            out.serialize(jCas.getCas(), xml.getContentHandler());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (SAXException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

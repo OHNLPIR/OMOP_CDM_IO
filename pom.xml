@@ -33,6 +33,7 @@
                             <!-- REQUIRED -->
                             <typeSystemIncludes>
                                 <typeSystemInclude>src/main/resources/types/MetadataTypes.xml</typeSystemInclude>
+                                <typeSystemInclude>src/main/resources/types/CDMTypes.xml</typeSystemInclude>
                             </typeSystemIncludes>
 
                             <!-- OPTIONAL -->

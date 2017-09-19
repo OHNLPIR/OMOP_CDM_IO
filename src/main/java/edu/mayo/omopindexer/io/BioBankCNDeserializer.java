@@ -78,15 +78,17 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
             if (m.find()) { // Has a header (should always be true)
                 String headerText = m.group();
                 int offsetEnd = m.end();
+                String text;
                 if (m.find()) { // has another header after
                     int start = m.start(); // starting index
-                    cas.setDocumentText(readQueue.substring(offsetEnd, start)); // Content between first and second header
+                    text = readQueue.substring(offsetEnd, start); // Content between first and second header
                     readQueue = readQueue.substring(start);
                 } else {
-                    cas.setDocumentText(readQueue.substring(offsetEnd)); // After first header
+                    text = readQueue.substring(offsetEnd); // After first header
                     readQueue = null; // Document complete, reset queue and advance
                     mCurrentIndex++;
                 }
+                cas.setDocumentText(text);
                 Pattern patientIDPattern = Pattern.compile("PATIENT_ID:([^\\|]+)");
                 String patientID = "";
                 Pattern docIDPattern = Pattern.compile("DOC_ID:([^\\|]+)");

@@ -2,9 +2,13 @@ package edu.mayo.omopindexer;
 
 import edu.mayo.omopindexer.io.BioBankCNDeserializer;
 import edu.mayo.omopindexer.io.JCAStoOMOPCDMSerializer;
+import org.apache.ctakes.assertion.medfacts.cleartk.*;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
+import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
 import org.apache.ctakes.drugner.ae.DrugMentionAnnotator;
+import org.apache.ctakes.temporal.ae.*;
+import org.apache.ctakes.temporal.pipelines.FullTemporalExtractionPipeline;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.collection.CollectionReaderDescription;
@@ -12,7 +16,9 @@ import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.tools.components.XmiWriterCasConsumer;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -37,6 +43,7 @@ public class SimpleIndexPipeline {
 //        );//
         AggregateBuilder builder = new AggregateBuilder();
         // Run cTAKES
+        // - Base Features
         builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
         builder.add(DefaultJCasTermAnnotator.createAnnotatorDescription());
 //        builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
@@ -46,7 +53,20 @@ public class SimpleIndexPipeline {
 //        builder.add(ConditionalCleartkAnalysisEngine.createAnnotatorDescription());
 //        builder.add(GenericCleartkAnalysisEngine.createAnnotatorDescription());
 //        builder.add(SubjectCleartkAnalysisEngine.createAnnotatorDescription());
+        // - Drug Extraction
         builder.add(AnalysisEngineFactory.createEngineDescription(DrugMentionAnnotator.class));
+        // - Temporal extraction
+        builder.add(BackwardsTimeAnnotator
+                .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
+        builder.add(EventAnnotator
+                .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
+        builder.add( AnalysisEngineFactory.createEngineDescription( FullTemporalExtractionPipeline.CopyPropertiesToTemporalEventAnnotator.class ) );
+        builder.add(DocTimeRelAnnotator
+                .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
+        builder.add(EventTimeSelfRelationAnnotator
+                .createEngineDescription("/org/apache/ctakes/temporal/ae/eventtime/model.jar"));
+        builder.add(EventEventRelationAnnotator
+                .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventevent/model.jar"));
         // Convert to OMOP CDM and write to ElasticSearch
         builder.add(JCAStoOMOPCDMSerializer.createAnnotatorDescription());
         AnalysisEngineDescription pipeline = builder.createAggregateDescription();
