@@ -1,5 +1,6 @@
 package edu.mayo.omopindexer;
 
+import com.google.common.collect.Lists;
 import edu.mayo.omopindexer.io.BioBankCNDeserializer;
 import edu.mayo.omopindexer.io.JCAStoOMOPCDMSerializer;
 import org.apache.ctakes.assertion.medfacts.cleartk.*;
@@ -9,13 +10,19 @@ import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
 import org.apache.ctakes.drugner.ae.DrugMentionAnnotator;
 import org.apache.ctakes.temporal.ae.*;
 import org.apache.ctakes.temporal.pipelines.FullTemporalExtractionPipeline;
+import org.apache.ctakes.typesystem.type.refsem.Event;
+import org.apache.ctakes.typesystem.type.refsem.EventProperties;
+import org.apache.ctakes.typesystem.type.textsem.EventMention;
 import org.apache.uima.UIMAException;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.collection.CollectionReaderDescription;
 import org.apache.uima.fit.factory.AggregateBuilder;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
+import org.apache.uima.fit.util.JCasUtil;
+import org.apache.uima.jcas.JCas;
 import org.apache.uima.tools.components.XmiWriterCasConsumer;
 
 import java.io.File;
@@ -61,6 +68,7 @@ public class SimpleIndexPipeline {
         builder.add(EventAnnotator
                 .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
         builder.add( AnalysisEngineFactory.createEngineDescription( FullTemporalExtractionPipeline.CopyPropertiesToTemporalEventAnnotator.class ) );
+        builder.add(AnalysisEngineFactory.createEngineDescription(AddEvent.class));
         builder.add(DocTimeRelAnnotator
                 .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
         builder.add(EventTimeSelfRelationAnnotator
@@ -73,5 +81,28 @@ public class SimpleIndexPipeline {
 
         // Execute pipeline
         SimplePipeline.runPipeline(reader, pipeline);
+    }
+
+    /** As used in cTAKES-Temporal-Demo **/
+    public static class AddEvent extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+        @Override
+        public void process(JCas jCas) throws AnalysisEngineProcessException {
+            for (EventMention emention : Lists.newArrayList(JCasUtil.select(
+                    jCas,
+                    EventMention.class))) {
+                EventProperties eventProperties = new org.apache.ctakes.typesystem.type.refsem.EventProperties(jCas);
+
+                // create the event object
+                Event event = new Event(jCas);
+
+                // add the links between event, mention and properties
+                event.setProperties(eventProperties);
+                emention.setEvent(event);
+
+                // add the annotations to the indexes
+                eventProperties.addToIndexes();
+                event.addToIndexes();
+            }
+        }
     }
 }

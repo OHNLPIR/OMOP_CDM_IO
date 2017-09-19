@@ -1,5 +1,6 @@
 package edu.mayo.omopindexer.io;
 
+import edu.mayo.omopindexer.RegexpStatements;
 import edu.mayo.omopindexer.indexing.ElasticSearchIndexer;
 import edu.mayo.omopindexer.model.*;
 import edu.mayo.omopindexer.types.BioBankCNHeader;
@@ -7,18 +8,14 @@ import org.apache.ctakes.typesystem.type.refsem.Date;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.syntax.Chunk;
-import org.apache.ctakes.typesystem.type.textsem.DiseaseDisorderMention;
-import org.apache.ctakes.typesystem.type.textsem.MeasurementAnnotation;
-import org.apache.ctakes.typesystem.type.textsem.MedicationMention;
-import org.apache.ctakes.typesystem.type.textsem.SignSymptomMention;
+import org.apache.ctakes.typesystem.type.textsem.*;
+import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FeatureStructure;
-import org.apache.uima.cas.impl.CASSerializer;
 import org.apache.uima.cas.impl.XmiCasSerializer;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
-import org.apache.uima.fit.factory.TypeSystemDescriptionFactory;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
@@ -50,21 +47,59 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         String id = JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID();
         // Create indexes of covered/covering classes for performance reasons when we need to associate multiple mentions
         // with one another
+        // Used for dosage identification
         Map<MedicationMention, Collection<Chunk>> medicationToChunk =
                 JCasUtil.indexCovering(jCas, MedicationMention.class, Chunk.class);
         Map<Chunk, Collection<MeasurementAnnotation>> chunkToMeasurement = JCasUtil.indexCovered(jCas, Chunk.class, MeasurementAnnotation.class);
+        // TODO will probably have to split as one of the intermediate annotators removes chunks breaking measurement detection
+        // Used for temporal identification
+        Map<DiseaseDisorderMention, Collection<Sentence>> diseaseToSentence = JCasUtil.indexCovering(jCas, DiseaseDisorderMention.class, Sentence.class);
+        Map<SignSymptomMention, Collection<Sentence>> signSymptomToSentence = JCasUtil.indexCovering(jCas, SignSymptomMention.class, Sentence.class);
+        Map<MedicationMention, Collection<Sentence>> medicationToSentence = JCasUtil.indexCovering(jCas, MedicationMention.class, Sentence.class);
+        Map<Sentence, Collection<TimeMention>> sentenceToTime = JCasUtil.indexCovered(jCas, Sentence.class, TimeMention.class);
+
+
+
         // Condition Occurrences
         // - Disease and Disorder
         for (DiseaseDisorderMention mention : JCasUtil.select(jCas, DiseaseDisorderMention.class)) {
+            // - Handle Text
             String mentionText = appendUmlsConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
-            CDMDate date = null; // TODO: Handle Date
+            // - Handle date
+            List<CDMDate> dates = new LinkedList<>();
+            CDMDate date;
+            for (Sentence s : diseaseToSentence.get(mention)) {
+                for (TimeMention t : sentenceToTime.get(s)) {
+                    String timeText = t.getCoveredText();
+                    dates.addAll(generateDateModels(timeText, CDMDate.CDMDate_Subject.CONDITION));
+                }
+            }
+            if (dates.size() > 1) {
+                date = condenseDateModels(dates);
+            } else {
+                date = dates.get(0);
+            }
             generatedModels.add(new CDMConditionOccurrence(mentionText, date));
         }
 
         // - Sign and Symptom
         for (SignSymptomMention mention : JCasUtil.select(jCas, SignSymptomMention.class)) {
+            // - Handle Text
             String mentionText = appendUmlsConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
-            CDMDate date = null; // TODO: Handle Date
+            // - Handle date
+            List<CDMDate> dates = new LinkedList<>();
+            CDMDate date;
+            for (Sentence s : signSymptomToSentence.get(mention)) {
+                for (TimeMention t : sentenceToTime.get(s)) {
+                    String timeText = t.getCoveredText();
+                    dates.addAll(generateDateModels(timeText, CDMDate.CDMDate_Subject.CONDITION));
+                }
+            }
+            if (dates.size() > 1) {
+                date = condenseDateModels(dates);
+            } else {
+                date = dates.get(0);
+            }
             generatedModels.add(new CDMConditionOccurrence(mentionText, date));
         }
 
@@ -73,7 +108,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         // - Medication TODO: Ask Sijia about pulling from MedXN?
         for (MedicationMention mention : JCasUtil.select(jCas, MedicationMention.class)) {
             String mentionText = appendUmlsConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
-            // Try to find associated dosage information (measurement in same chunk)
+            // - Try to find associated dosage information (measurement in same chunk)
             Set<MeasurementAnnotation> foundMeasurements = new HashSet<>();
             for (Chunk c : medicationToChunk.get(mention)) { // Guaranteed not to be null; mention will always be in a chunk
                 foundMeasurements.addAll(chunkToMeasurement.getOrDefault(c, new LinkedList<>()));
@@ -90,7 +125,21 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
                 }
                 effectiveDrugDose = currMax.getCoveredText(); //TODO is this quantity or effective?
             }
-            generatedModels.add(new CDMDrugExposure(mentionText, null, null, null, effectiveDrugDose)); // TODO
+            // - Handle Date
+            List<CDMDate> dates = new LinkedList<>();
+            CDMDate date;
+            for (Sentence s : medicationToSentence.get(mention)) {
+                for (TimeMention t : sentenceToTime.get(s)) {
+                    String timeText = t.getCoveredText();
+                    dates.addAll(generateDateModels(timeText, CDMDate.CDMDate_Subject.DRUG));
+                }
+            }
+            if (dates.size() > 1) {
+                date = condenseDateModels(dates);
+            } else {
+                date = dates.get(0);
+            }
+            generatedModels.add(new CDMDrugExposure(mentionText, date, null, null, effectiveDrugDose)); // TODO
         }
 
         // Measurement
@@ -222,9 +271,50 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         return c.getTime();
     }
 
+    private Collection<CDMDate> generateDateModels(String dateString, CDMDate.CDMDate_Subject subject) {
+        // Try period matching first
+        Collection<CDMDate> ret = new LinkedList<>();
+        Pattern freqMatcher = Pattern.compile(RegexpStatements.FREQPERIOD, Pattern.CASE_INSENSITIVE);
+        Matcher m = freqMatcher.matcher(dateString);
+        if (m.find()) {
+            // see regex string documentation
+            String freq1 = m.group(1);
+            String freq2 = m.group(2);
+            String freq3 = m.group(3); // -ly special case
+            String freq4 = m.group(4);
+            String period1 = m.group(6);
+            String rangeIndicator = m.group(7);
+            String period2 = m.group(8);
+            String periodUnit = m.group(9);
+            String periodLy = m.group(10);
+            // Some cleanup
+            if (freq1 == null && freq4 != null) { // -ly special case
+                freq1 = "1";
+            }
+            if (freq1 == null && freq3 != null) { // -ly special case
+                freq1 = freq3;
+            }
+            if (rangeIndicator == null) {
+                period1 = (period1 == null ? "" : period1) + (period2 == null ? "" : period2);
+            }
+            if (periodLy != null && period1.length() == 0) {
+                period1 = "1"; // Has a ly
+                periodUnit = periodLy;
+            }
+            if (period1 != null) {
+            }
+        }
+        return ret;
+    }
+
     private CDMDate generateDateModel(Date date1, Date date2, Object duration, CDMDate.CDMDate_Subject subject) {
         return new CDMDate(cTAKESDateToJavaDate(date1), cTAKESDateToJavaDate(date2), CDMDate.CDMDate_Type.COMPOSITE, subject, duration);
     }
+
+    private CDMDate condenseDateModels(List<CDMDate> dates) {
+        return null;
+    }
+
 
 
 }
