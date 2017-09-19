@@ -1,1 +1,2 @@
 classpath*:types/*.xml
+classpath*:org/apache/ctakes/**/types/*.xml

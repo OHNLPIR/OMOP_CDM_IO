@@ -2,6 +2,7 @@ package edu.mayo.omopindexer.io;
 
 import edu.mayo.omopindexer.indexing.ElasticSearchIndexer;
 import edu.mayo.omopindexer.model.*;
+import edu.mayo.omopindexer.types.BioBankCNHeader;
 import org.apache.ctakes.typesystem.type.refsem.Date;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
@@ -21,7 +22,11 @@ import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.resource.ResourceInitializationException;
 
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Converts incoming JCAS structures with assumed cTAKES type system into the OMOP CDM data model,
@@ -114,6 +119,28 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
             }
         }
         // Person TODO MAPPINGS
+        // Pull obtainable information from headers
+        // - Capture birthday
+        BioBankCNHeader header = JCasUtil.selectSingle(jCas, BioBankCNHeader.class);
+        Pattern birthdayPattern = Pattern.compile("birth_date:([0-9]{8})");
+        Matcher birthdayMatcher = birthdayPattern.matcher(header.getValue());
+        java.util.Date birthday = null;
+        if (birthdayMatcher.find()) {
+            try {
+                SimpleDateFormat dF = new SimpleDateFormat("yyyyMMdd");
+                dF.setTimeZone(TimeZone.getTimeZone("GMT"));
+                birthday = dF.parse(birthdayMatcher.group(1));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        // - Capture patient ID
+        Pattern pIDPattern = Pattern.compile("PATIENT_ID:([^\\|]+)");
+        Matcher pIDMatcher = pIDPattern.matcher(header.getValue());
+        String patientID = null;
+        if (pIDMatcher.find()) {
+            patientID = pIDMatcher.group(1);
+        }
 
         // Send to ElasticSearch
         // - Serialize

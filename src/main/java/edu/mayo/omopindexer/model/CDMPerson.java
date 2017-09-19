@@ -3,6 +3,8 @@ package edu.mayo.omopindexer.model;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.Date;
+
 /**
  * Model for a Person in the OMOP CDM Model: The Person contains demographic attributes for the cohort.
  */
@@ -17,11 +19,8 @@ public class CDMPerson implements CDMModel {
     /** A location ID denoting this person's location */
     private Long locationId;
 
-    /** An integer value of this person's age */
-    private Integer age;
-
-    /** Any further text associated with a person's age (e.g. weeks, months, years, etc) */
-    private String age_text;
+    /** The person's date of birth*/
+    private Date dateOfBirth;
 
     /**
      * An array of age limits for <b>exclusion</b>
@@ -32,12 +31,11 @@ public class CDMPerson implements CDMModel {
     /** Included for reflection compatibility: do not use, do not remove */
     private CDMPerson() {this(null, null, null, null, null);}
 
-    public CDMPerson(CDMPerson_GENDER gender, CDMPerson_ETHNICITY ethnicity, Long locationId, Integer age, String age_text, CDMPerson_AGE_LIMITS... exclusions) {
+    public CDMPerson(CDMPerson_GENDER gender, CDMPerson_ETHNICITY ethnicity, Long locationId, Date birthDay, CDMPerson_AGE_LIMITS... exclusions) {
         this.gender = gender;
         this.ethnicity = ethnicity;
         this.locationId = locationId;
-        this.age = age;
-        this.age_text = age_text;
+        this.dateOfBirth = birthDay;
         this.exclusions = exclusions;
     }
 
@@ -63,21 +61,6 @@ public class CDMPerson implements CDMModel {
     }
 
     /**
-     * @return This person's {@link #age}
-     */
-    public int getAge() {
-        return age;
-    }
-
-    /**
-     * @see #age_text
-     * @return Any associated text with this person's age
-     */
-    public String getAge_text() {
-        return age_text;
-    }
-
-    /**
      * @see #exclusions
      * @return Any exclusions to this person's age denotation
      */
@@ -94,8 +77,7 @@ public class CDMPerson implements CDMModel {
         if (gender != null) ret.put("gender", gender.name());
         if (ethnicity != null) ret.put("ethnicity", ethnicity.fullyQualifiedName);
         if (locationId != null) ret.put("locationID", locationId);
-        if (age != null) ret.put("age", age);
-        if (age_text != null) ret.put("age_text", age_text);
+        if (dateOfBirth != null) ret.put("dob", dateOfBirth.getTime());
         if (exclusions != null && exclusions.length > 0) {
             StringBuilder sB = new StringBuilder();
             boolean flag = false;
@@ -110,6 +92,10 @@ public class CDMPerson implements CDMModel {
             ret.put("limits", sB.toString());
         }
         return ret;
+    }
+
+    public Date getDateOfBirth() {
+        return dateOfBirth;
     }
 
     /** An enumeration of genders **/
