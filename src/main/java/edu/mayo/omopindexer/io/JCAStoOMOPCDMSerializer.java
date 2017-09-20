@@ -67,7 +67,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
             String mentionText = appendUmlsConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
             // - Handle date
             List<CDMDate> dates = new LinkedList<>();
-            CDMDate date;
+            CDMDate date = null;
             for (Sentence s : diseaseToSentence.get(mention)) {
                 for (TimeMention t : sentenceToTime.get(s)) {
                     String timeText = t.getCoveredText();
@@ -76,7 +76,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
             }
             if (dates.size() > 1) {
                 date = condenseDateModels(dates);
-            } else {
+            } else if (dates.size() == 1) {
                 date = dates.get(0);
             }
             generatedModels.add(new CDMConditionOccurrence(mentionText, date));
@@ -88,7 +88,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
             String mentionText = appendUmlsConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
             // - Handle date
             List<CDMDate> dates = new LinkedList<>();
-            CDMDate date;
+            CDMDate date = null;
             for (Sentence s : signSymptomToSentence.get(mention)) {
                 for (TimeMention t : sentenceToTime.get(s)) {
                     String timeText = t.getCoveredText();
@@ -97,7 +97,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
             }
             if (dates.size() > 1) {
                 date = condenseDateModels(dates);
-            } else {
+            } else if (dates.size() == 1) {
                 date = dates.get(0);
             }
             generatedModels.add(new CDMConditionOccurrence(mentionText, date));
@@ -127,7 +127,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
             }
             // - Handle Date
             List<CDMDate> dates = new LinkedList<>();
-            CDMDate date;
+            CDMDate date = null;
             for (Sentence s : medicationToSentence.get(mention)) {
                 for (TimeMention t : sentenceToTime.get(s)) {
                     String timeText = t.getCoveredText();
@@ -136,7 +136,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
             }
             if (dates.size() > 1) {
                 date = condenseDateModels(dates);
-            } else {
+            } else if (dates.size() == 1) {
                 date = dates.get(0);
             }
             generatedModels.add(new CDMDrugExposure(mentionText, date, null, null, effectiveDrugDose)); // TODO
