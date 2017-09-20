@@ -47,7 +47,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 throw new ResourceInitializationException("directory_not_found", new Object[]{"InputDirectory", this.getMetaData().getName(), inputDir.getPath()});
             }
             for(int i = 0; i < files.length; ++i) {
-                if (!files[i].isDirectory()) {
+                if (!files[i].isDirectory() && files[i].getPath().toLowerCase().endsWith(".txt")) {
                     this.mFiles.add(files[i]);
                 }
             }
