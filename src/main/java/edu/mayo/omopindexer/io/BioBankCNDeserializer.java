@@ -20,7 +20,8 @@ import java.util.regex.Pattern;
 
 @PipeBitInfo(
         name = "BioBank CN Reader",
-        description = "Specialized deserializer for reading BioBank clinical notes, adapted from UIMA's FilesInCollectionReader",
+        description = "Specialized deserializer for reading BioBank clinical notes, adapted from UIMA's FilesInCollectionReader. " +
+                "Do not use on other data sets, it will not work.",
         role = PipeBitInfo.Role.READER,
         products = {PipeBitInfo.TypeProduct.DOCUMENT_ID}
 )
@@ -33,7 +34,8 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
     private File inputDir;
 
     private String queueDocID;
-    private String readQueue;
+    private String readQueue1; // Does not strip section headers
+    int numSectionsRead;
 
 
     @Override
@@ -61,7 +63,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
     public void getNext(CAS aCas) throws IOException, CollectionException {
         try {
             JCas cas = aCas.getJCas();
-            if (readQueue == null) { // Initialize queue
+            if (readQueue1 == null) { // Initialize queue
                 // Populate document ID
                 File f = mFiles.get(mCurrentIndex);
                 InputStream fileInputStream = new FileInputStream(f);
@@ -70,39 +72,96 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 // Fill the queue text
                 byte[] contents = new byte[(int)f.length()];
                 fileInputStream.read(contents);
-                readQueue = new String(contents);
+                readQueue1 = new String(contents);
+                numSectionsRead = 1;
             }
 
             BioBankCNHeader header = new BioBankCNHeader(cas);
-            Matcher m = HEADER_PATTERN.matcher(readQueue);
+            Matcher m = HEADER_PATTERN.matcher(readQueue1);
+            String sectionID = "";
             if (m.find()) { // Has a header (should always be true)
                 String headerText = m.group();
                 int offsetEnd = m.end();
                 String text;
+                int temp = numSectionsRead; // Temp value for iteration
+                Pattern section = Pattern.compile("\\n[^\\n:]+:([0-9]+):\\n");
                 if (m.find()) { // has another header after
                     int start = m.start(); // starting index
-                    text = readQueue.substring(offsetEnd, start); // Content between first and second header
-                    readQueue = readQueue.substring(start);
+                    text = readQueue1.substring(offsetEnd, start); // Content between first and second header
+                    Matcher sectionMatcher = section.matcher(text);
+                    while (temp > 0) { // Skip ahead to current section
+                        sectionMatcher.find(); // Guaranteed to work
+                        temp -= 1;
+                    }
+                    int startIndex = sectionMatcher.end() + offsetEnd;
+                    int endIndex;
+                    sectionID = sectionMatcher.group(1);
+                    if (sectionMatcher.find()) { // Has another section heading
+                        endIndex = sectionMatcher.start() + offsetEnd;
+                        text = readQueue1.substring(startIndex, endIndex);
+                        numSectionsRead++;
+                    } else { // No more section headings under this header;
+                        text = readQueue1.substring(startIndex);
+                        numSectionsRead = 1;
+                        readQueue1 = readQueue1.substring(start);
+                    }
                 } else {
-                    text = readQueue.substring(offsetEnd); // After first header
-                    readQueue = null; // Document complete, reset queue and advance
-                    mCurrentIndex++;
+                    text = readQueue1.substring(offsetEnd); // After first header
+                    Matcher sectionMatcher = section.matcher(text);
+                    while (temp > 0) {
+                        sectionMatcher.find(); // Guaranteed to work
+                        temp -= 1;
+                    }
+                    int startIndex = sectionMatcher.end() + offsetEnd;
+                    int endIndex;
+                    sectionID = sectionMatcher.group(1);
+                    if (sectionMatcher.find()) { // Has another section heading
+                        endIndex = sectionMatcher.start() + offsetEnd;
+                        text = readQueue1.substring(startIndex, endIndex);
+                        numSectionsRead++;
+                    } else { // No more section headings under this header;
+                        text = readQueue1.substring(startIndex);
+                        numSectionsRead = 1;
+                        readQueue1 = null; // Document complete, reset queue and advance
+                        mCurrentIndex++;
+                    }
                 }
                 cas.setDocumentText(text);
-                Pattern patientIDPattern = Pattern.compile("PATIENT_ID:([^\\|]+)");
-                String patientID = "";
-                Pattern docIDPattern = Pattern.compile("DOC_ID:([^\\|]+)");
-                String docID = "";
-                Matcher m2 = patientIDPattern.matcher(headerText);
-                if (m2.find()) {
-                    patientID = m2.group(1);
+                Pattern mcnPattern = Pattern.compile("MCN:([^\\|]+)");
+                Pattern docLinkPattern = Pattern.compile("DOC_LINK_ID:([^\\|]+)");
+                Pattern docRevisionPattern = Pattern.compile("DOC_REVISION_ID:([^\\|]+)");
+                Pattern cn1Pattern = Pattern.compile("cn1_event_cd:([^\\|]+)");
+                Pattern timePattern = Pattern.compile("encounter_tmr:([0-9]{4})([0-9]{2})([0-9]{2})T[0-9]+", Pattern.CASE_INSENSITIVE);
+                String mcn = "";
+                m = mcnPattern.matcher(headerText);
+                if (m.find()) {
+                    mcn = m.group(1);
                 }
-                m2 = docIDPattern.matcher(headerText);
-                if (m2.find()) {
-                    docID = m2.group(1);
+                String docLink = "";
+                m = docLinkPattern.matcher(headerText);
+                if (m.find()) {
+                    docLink = m.group(1);
+                }
+                String docRev = "";
+                m = docRevisionPattern.matcher(headerText);
+                if (m.find()) {
+                    docRev = m.group(1);
+                }
+                String cn1 = "";
+                m = cn1Pattern.matcher(headerText);
+                if (m.find()) {
+                    cn1 = m.group(1);
+                }
+                String timestamp = "";
+                m = timePattern.matcher(headerText);
+                if (m.find()) {
+                    String year = m.group(1);
+                    String month = m.group(2);
+                    String day = m.group(3);
+                    timestamp = month + "-" + day + "-" + year;
                 }
                 DocumentID documentID = new DocumentID(cas);
-                documentID.setDocumentID(patientID + "_" + docID + "_" + queueDocID);
+                documentID.setDocumentID(mcn + "_" + docLink + "_" + docRev + "_" + cn1 + "_" + timestamp + "_" + sectionID);
                 documentID.addToIndexes();
                 header.setValue(headerText);
                 getLogger().log(Level.INFO, documentID.getDocumentID());
@@ -129,7 +188,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
 
     @Override
     public boolean hasNext() throws IOException, CollectionException {
-        return this.mCurrentIndex < this.mFiles.size() || readQueue != null;
+        return this.mCurrentIndex < this.mFiles.size() || readQueue1 != null;
     }
 
     @Override
