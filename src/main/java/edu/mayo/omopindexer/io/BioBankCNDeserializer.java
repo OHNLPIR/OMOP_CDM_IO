@@ -1,6 +1,7 @@
 package edu.mayo.omopindexer.io;
 
 import edu.mayo.omopindexer.types.BioBankCNHeader;
+import edu.mayo.omopindexer.types.BioBankCNSectionHeader;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.uima.cas.CAS;
@@ -78,13 +79,14 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
 
             BioBankCNHeader header = new BioBankCNHeader(cas);
             Matcher m = HEADER_PATTERN.matcher(readQueue1);
+            String sectionName = "";
             String sectionID = "";
             if (m.find()) { // Has a header (should always be true)
                 String headerText = m.group();
                 int offsetEnd = m.end();
                 String text;
                 int temp = numSectionsRead; // Temp value for iteration
-                Pattern section = Pattern.compile("\\n[^\\n:]+:([0-9]+):\\n");
+                Pattern section = Pattern.compile("\\n([^\\n:]+):([0-9]+):\\n");
                 if (m.find()) { // has another header after
                     int start = m.start(); // starting index
                     text = readQueue1.substring(offsetEnd, start); // Content between first and second header
@@ -95,7 +97,8 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                     }
                     int startIndex = sectionMatcher.end() + offsetEnd;
                     int endIndex;
-                    sectionID = sectionMatcher.group(1);
+                    sectionName = sectionMatcher.group(1);
+                    sectionID = sectionMatcher.group(2);
                     if (sectionMatcher.find()) { // Has another section heading
                         endIndex = sectionMatcher.start() + offsetEnd;
                         text = readQueue1.substring(startIndex, endIndex);
@@ -114,6 +117,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                     }
                     int startIndex = sectionMatcher.end() + offsetEnd;
                     int endIndex;
+                    sectionName = sectionMatcher.group(1);
                     sectionID = sectionMatcher.group(1);
                     if (sectionMatcher.find()) { // Has another section heading
                         endIndex = sectionMatcher.start() + offsetEnd;
@@ -163,6 +167,10 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 DocumentID documentID = new DocumentID(cas);
                 documentID.setDocumentID(mcn + "_" + docLink + "_" + docRev + "_" + cn1 + "_" + timestamp + "_" + sectionID);
                 documentID.addToIndexes();
+                BioBankCNSectionHeader sectionHeader = new BioBankCNSectionHeader(cas);
+                sectionHeader.setSectionID(sectionID);
+                sectionHeader.setSectionName(sectionName);
+                sectionHeader.addToIndexes();
                 header.setValue(headerText);
                 getLogger().log(Level.INFO, documentID.getDocumentID());
             }

@@ -25,7 +25,7 @@
                 </featureDescription>
                 <featureDescription>
                     <name>sectionID</name>
-                    <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
                 </featureDescription>
             </features>
         </typeDescription>
