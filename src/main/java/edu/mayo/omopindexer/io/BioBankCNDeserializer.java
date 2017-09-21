@@ -126,7 +126,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                         mCurrentIndex++;
                     }
                 }
-                cas.setDocumentText(text);
+                cas.setDocumentText(text.trim());
                 Pattern mcnPattern = Pattern.compile("MCN:([^\\|]+)");
                 Pattern docLinkPattern = Pattern.compile("DOC_LINK_ID:([^\\|]+)");
                 Pattern docRevisionPattern = Pattern.compile("DOC_REVISION_ID:([^\\|]+)");
