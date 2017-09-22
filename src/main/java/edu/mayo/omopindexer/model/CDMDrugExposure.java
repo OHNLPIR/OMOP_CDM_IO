@@ -96,7 +96,7 @@ public class CDMDrugExposure implements CDMModel {
     public JSONObject getJSONMapping() {
         JSONObject ret = new JSONObject();
         ret.put("drug_exposure", constructTypeObject("string"));
-        ret.put("quantity", constructTypeObject("integer"));
+        ret.put("quantity", constructTypeObject("float"));
         ret.put("effectiveDrugDose", constructTypeObject("string"));
         ret.put("date", constructNestedDateTypeObject());
         return ret;

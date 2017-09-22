@@ -125,7 +125,8 @@ public class CDMDate implements CDMModel {
         ret.put("date1", constructTypeObject("date"));
         ret.put("date2", constructTypeObject("date"));
         ret.put("type", constructTypeObject("string"));
-        ret.put("timestamp", constructTypeObject("String"));
+        ret.put("subject", constructTypeObject("string"));
+        ret.put("timestamp", constructTypeObject("string"));
         return ret;
     }
 

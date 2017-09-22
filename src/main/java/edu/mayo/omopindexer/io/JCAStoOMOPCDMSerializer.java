@@ -205,6 +205,10 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         ElasticSearchIndexer.indexSerialized(serializer);
         XmiCasSerializer out = new XmiCasSerializer(jCas.getTypeSystem());
         try {
+            File f = new File("out");
+            if (!f.exists()) {
+                f.mkdirs();
+            }
             XMLSerializer xml = new XMLSerializer(new FileOutputStream(new File("out", id + ".xmi")), false);
             out.serialize(jCas.getCas(), xml.getContentHandler());
         } catch (FileNotFoundException e) {
