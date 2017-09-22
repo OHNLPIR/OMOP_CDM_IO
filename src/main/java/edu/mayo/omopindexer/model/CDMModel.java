@@ -13,7 +13,7 @@ public interface CDMModel {
     /** An enumeration of model class file names (non-fully-qualified): <b>add new model files here or they will not be
      *  registered into the elasticsearch index! </b>
      */
-    enum Types {
+    enum Types { // Dates are intentionally excluded due to special case handling
         CDMConditionOccurrence,
         CDMDrugExposure,
         CDMMeasurement,

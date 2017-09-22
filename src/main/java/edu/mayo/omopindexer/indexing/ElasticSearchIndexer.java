@@ -1,6 +1,7 @@
 package edu.mayo.omopindexer.indexing;
 
 import edu.mayo.omopindexer.io.DocumentSerializer;
+import edu.mayo.omopindexer.model.CDMDate;
 import edu.mayo.omopindexer.model.CDMModel;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
@@ -21,6 +22,7 @@ import java.util.*;
 
 /**
  * Handler class with static methods for the ElasticSearch indexing pipeline
+ * TODO: delete first + children if exists
  */
 public class ElasticSearchIndexer {
 
@@ -73,9 +75,9 @@ public class ElasticSearchIndexer {
         for (CDMModel model : models) {
             // https://www.elastic.co/guide/en/elasticsearch/reference/1.7/mapping-parent-field.html
             JSONObject childObject = new JSONObject();
-            JSONObject _parent = new JSONObject();
-            _parent.put("type", "document");
-            childObject.put("_parent", _parent);
+                JSONObject _parent = new JSONObject();
+                _parent.put("type", "document");
+                childObject.put("_parent", _parent);
             JSONObject properties = new JSONObject();
             for (Map.Entry<String, Object> e : model.getJSONMapping().toMap().entrySet()) {
                 properties.put(e.getKey(), e.getValue());

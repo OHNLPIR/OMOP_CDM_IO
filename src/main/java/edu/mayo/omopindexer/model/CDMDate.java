@@ -129,6 +129,11 @@ public class CDMDate implements CDMModel {
         return ret;
     }
 
+    // Included for convenience
+    public static JSONObject getJSONMappingStatic() {
+        return new CDMDate().getJSONMapping();
+    }
+
     private JSONObject constructTypeObject(String type) {
         JSONObject ret = new JSONObject();
         ret.put("type", type);

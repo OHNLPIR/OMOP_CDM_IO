@@ -49,21 +49,33 @@ public class CDMConditionOccurrence implements CDMModel {
 
     public JSONObject getAsJSON() {
         JSONObject ret = new JSONObject();
-        if (mention != null) ret.put("condition_occurrence", mention);
-        if (date != null) {
-            for (Map.Entry<String, Object> e : date.getAsJSON().toMap().entrySet()) {
-                ret.put(e.getKey(), e.getValue());
-            }
-        }
+        ret.put("condition_occurrence", mention);
+        // TODO date
         return ret;
     }
 
     @Override
     public JSONObject getJSONMapping() {
         JSONObject ret = new JSONObject();
-        JSONObject conditionOccurrenceType = new JSONObject();
-        conditionOccurrenceType.put("type", "string");
-        ret.put("condition_occurrence", conditionOccurrenceType);
+        ret.put("condition_occurrence", constructTypeObject("string"));
+        ret.put("date", constructNestedDateTypeObject());
+        return ret;
+    }
+
+    private JSONObject constructTypeObject(String type) {
+        JSONObject ret = new JSONObject();
+        ret.put("type", type);
+        return ret;
+    }
+
+    private JSONObject constructNestedDateTypeObject() {
+        JSONObject ret = new JSONObject();
+        ret.put("type", "nested");
+        JSONObject properties = new JSONObject();
+        for (Map.Entry<String, Object> e : CDMDate.getJSONMappingStatic().toMap().entrySet()) {
+            properties.put(e.getKey(), e.getValue());
+        }
+        ret.put("properties", properties);
         return ret;
     }
 }

@@ -29,7 +29,7 @@ public class CDMUnstructuredObservation implements CDMModel {
 
     public JSONObject getAsJSON() {
         JSONObject ret = new JSONObject();
-        if (mention != null) ret.put("observation", mention);
+        ret.put("observation", mention);
         return ret;
     }
 

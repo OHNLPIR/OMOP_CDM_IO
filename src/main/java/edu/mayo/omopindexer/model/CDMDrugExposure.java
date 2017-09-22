@@ -85,9 +85,10 @@ public class CDMDrugExposure implements CDMModel {
 
     public JSONObject getAsJSON() {
         JSONObject ret = new JSONObject();
-        ret.put("drug_exposure", mention != null ? mention : "");
-        ret.put("quantity", quantity != null ? quantity : "");
-        ret.put("effectiveDrugDose", effectiveDrugDose != null ? effectiveDrugDose : "");
+        ret.put("drug_exposure", mention);
+        ret.put("quantity", quantity);
+        ret.put("effectiveDrugDose", effectiveDrugDose);
+        // TODO date
         return ret;
     }
 
@@ -97,12 +98,24 @@ public class CDMDrugExposure implements CDMModel {
         ret.put("drug_exposure", constructTypeObject("string"));
         ret.put("quantity", constructTypeObject("integer"));
         ret.put("effectiveDrugDose", constructTypeObject("string"));
+        ret.put("date", constructNestedDateTypeObject());
         return ret;
     }
 
     private JSONObject constructTypeObject(String type) {
         JSONObject ret = new JSONObject();
         ret.put("type", type);
+        return ret;
+    }
+
+    private JSONObject constructNestedDateTypeObject() {
+        JSONObject ret = new JSONObject();
+        ret.put("type", "nested");
+        JSONObject properties = new JSONObject();
+        for (Map.Entry<String, Object> e : CDMDate.getJSONMappingStatic().toMap().entrySet()) {
+            properties.put(e.getKey(), e.getValue());
+        }
+        ret.put("properties", properties);
         return ret;
     }
 }
