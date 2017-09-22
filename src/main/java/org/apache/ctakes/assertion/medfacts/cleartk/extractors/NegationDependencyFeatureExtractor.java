@@ -54,6 +54,7 @@ public class NegationDependencyFeatureExtractor implements
             throws CleartkExtractorException {
         List<Feature> feats = new ArrayList<>();
         Sentence sent = null;
+        // Mod::perf use (what should already be an existing) annotation index instead
         AnnotationCache.AnnotationTree index = AnnotationCache.getAnnotationCache(DocumentIDAnnotationUtil.getDocumentID(jcas), jcas);
         List<Sentence> sents = new LinkedList<>(index.getCovering(focusAnnotation.getBegin(), focusAnnotation.getEnd(), Sentence.class));
         if(sents != null && sents.size() > 0){

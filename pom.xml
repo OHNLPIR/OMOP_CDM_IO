@@ -86,6 +86,15 @@
                 <version>3.1.0</version>
                 <configuration>
                     <minimizeJar>false</minimizeJar>
+                    <filters>
+                        <filter>
+                            <artifact>org.apache.ctakes:*</artifact>
+                            <excludes>
+                                <exclude>org/apache/ctakes/assertion/medfacts/cleartk/AssertionCleartkAnalysisEngine.class</exclude>
+                                <exclude>org/apache/ctakes/assertion/medfacts/cleartk/extractors/NegationDependencyFeatureExtractor.class</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                 </configuration>
                 <executions>
                     <execution>
