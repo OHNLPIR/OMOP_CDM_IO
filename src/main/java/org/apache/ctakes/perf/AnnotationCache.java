@@ -1,4 +1,4 @@
-package org.apache.ctakes.assertion.medfacts.cleartk.perf;
+package org.apache.ctakes.perf;
 
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.jcas.JCas;

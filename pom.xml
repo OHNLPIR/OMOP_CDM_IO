@@ -90,6 +90,10 @@
                         <filter>
                             <artifact>org.apache.ctakes:*</artifact>
                             <excludes>
+                                <!-- Modifications to Temporal -->
+                                <exclude>org/apache/ctakes/temporal/pipelines/FullTemporalExtractionPipeline.class</exclude>
+                                <exclude>org/apache/ctakes/temporal/pipelines/FullTemporalExtractionPipeline$CopyPropertiesToTemporalEventAnnotator.class</exclude>
+                                <!-- Modifications to Assertions -->
                                 <exclude>org/apache/ctakes/assertion/medfacts/cleartk/AssertionCleartkAnalysisEngine.class</exclude>
                                 <exclude>org/apache/ctakes/assertion/medfacts/cleartk/extractors/NegationDependencyFeatureExtractor.class</exclude>
                             </excludes>
