@@ -110,6 +110,13 @@
                                 <exclude>org/apache/ctakes/assertion/medfacts/cleartk/extractors/NegationDependencyFeatureExtractor.class</exclude>
                             </excludes>
                         </filter>
+                        <filter>
+                            <artifact>org.apache.uima:uimafit-core</artifact>
+                            <excludes>
+                                <!-- Modifications to UIMA -->
+                                <exclude>org/apache/uima/fit/pipeline/SimplePipeline.class</exclude>
+                            </excludes>
+                        </filter>
                     </filters>
                 </configuration>
                 <executions>
