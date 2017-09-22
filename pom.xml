@@ -92,6 +92,8 @@
                             <excludes>
                                 <!-- Modifications to Temporal -->
                                 <exclude>org/apache/ctakes/temporal/ae/DocTimeRelAnnotator.class</exclude>
+                                <exclude>org/apache/ctakes/temporal/ae/EventTimeSelfRelationAnnotator.class</exclude>
+                                <exclude>org/apache/ctakes/temporal/ae/TemporalRelationExtractorAnnotator.class</exclude>
                                 <exclude>org/apache/ctakes/temporal/feature/TimeXExtractor.class</exclude>
                                 <exclude>org/apache/ctakes/temporal/feature/EventPropertyExtractor.class</exclude>
                                 <exclude>org/apache/ctakes/temporal/feature/DateTimeMeasurementExtractor.class</exclude>
