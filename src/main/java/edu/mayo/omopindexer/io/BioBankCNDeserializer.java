@@ -118,7 +118,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                     int startIndex = sectionMatcher.end() + offsetEnd;
                     int endIndex;
                     sectionName = sectionMatcher.group(1);
-                    sectionID = sectionMatcher.group(1);
+                    sectionID = sectionMatcher.group(2);
                     if (sectionMatcher.find()) { // Has another section heading
                         endIndex = sectionMatcher.start() + offsetEnd;
                         text = readQueue1.substring(startIndex, endIndex);
