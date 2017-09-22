@@ -1,0 +1,67 @@
+============================================================
+Mappings Type Specification for OMOP CDM Elasticsearch Index
+============================================================
+
+Document:
+- Header: String
+- Section_Name: String
+- Section_ID: int
+- Children:
+	- ConditionOccurrence:
+		- condition_occurrence: String
+		- date: Date[]
+	- DrugExposure:
+		- drug_exposure: String
+		- quantity: float
+		- effectiveDrugDose: String
+		- date: Date[]
+	- Measurement:
+		- value: float
+		- measurement: String
+		- measurementid: long
+		- operator_concept_id: int
+	- Person:
+		- gender: String [MALE, FEMALE, UNKNOWN]
+		- ethnicity: String [American Indian or Alaska Native, Asian, Black or African American, Hispanic or Latino, Native Hawaiian or Other Pacific Islander, White)
+		- locationid: long
+		- dob: date
+		- limits: String[] [UPPER, LOWER, OTHER]
+	- UnstructuredObservation:
+		- observation: String
+Date:
+- begin_date: date
+- end_date: date
+- type: string [START, END, PERIOD, DURATION]
+- subject: string [DRUG, CONDITION]
+- timestamp: string (ISO 8601 5.5.3.2 used for PERIOD and DURATION representations)
+
+============================================================
+cTAKES -> OMOP CDM Mappings
+============================================================
+- ConditionOccurrence:
+	- condition_occurrence: [DiseaseDisorderMention|SignSymptomMention]->Covered Text + UMLS Concepts
+	- date[]: TimeMentions in same Sentence as a [DiseaseDisorderMention|SignSymptomMention]
+- DrugExposure:
+	- drug_exposure: MedicationMention->Covered Text + UMLS Concepts
+	- quantity: [UNMAPPED]
+	- effectiveDrugDose: MeasurementAnnotations in the aggregate of all chunks holding the MedicationMention
+	- date[]: TimeMentions in same Sentence as a MedicationMention
+- Measurement:
+	- value: MeasurementAnnotation->Covered Text->RegEx
+	- measurement: MeasurementAnnotation->Covered Text
+	- measurementid: [UNMAPPED]
+	- operator_concept_id: [UNMAPPED]
+- Person:
+	- gender: [UNMAPPED]
+	- ethnicity: [UNMAPPED]
+	- locationid: [UNMAPPED]
+	- dob: [UNMAPPED]
+	- limits: [UNMAPPED]
+- UnstructuredObservation:
+	- observation: [UNMAPPED]
+Date:
+- begin_date: TimeMention->Covered Text->RegEx->Standardization
+- end_date: TimeMention->Covered Text->RegEx->Standardization
+- type: Determined based on RegEx rule used to match
+- subject: Determined based on way it was found (discovered during ConditionOccurrence or DrugExposure mapping)
+- timestamp: TimeMention->Covered Text->RegEx->Standardization
