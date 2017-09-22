@@ -122,8 +122,8 @@ public class CDMDate implements CDMModel {
     @Override
     public JSONObject getJSONMapping() {
         JSONObject ret = new JSONObject();
-        ret.put("date1", constructTypeObject("date"));
-        ret.put("date2", constructTypeObject("date"));
+        ret.put("begin_date", constructTypeObject("date"));
+        ret.put("end_date", constructTypeObject("date"));
         ret.put("type", constructTypeObject("string"));
         ret.put("subject", constructTypeObject("string"));
         ret.put("timestamp", constructTypeObject("string"));

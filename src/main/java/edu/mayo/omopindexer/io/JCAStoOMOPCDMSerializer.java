@@ -4,6 +4,7 @@ import edu.mayo.omopindexer.RegexpStatements;
 import edu.mayo.omopindexer.indexing.ElasticSearchIndexer;
 import edu.mayo.omopindexer.model.*;
 import edu.mayo.omopindexer.types.BioBankCNHeader;
+import edu.mayo.omopindexer.types.BioBankCNSectionHeader;
 import org.apache.ctakes.typesystem.type.refsem.Date;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
@@ -57,9 +58,6 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         Map<SignSymptomMention, Collection<Sentence>> signSymptomToSentence = JCasUtil.indexCovering(jCas, SignSymptomMention.class, Sentence.class);
         Map<MedicationMention, Collection<Sentence>> medicationToSentence = JCasUtil.indexCovering(jCas, MedicationMention.class, Sentence.class);
         Map<Sentence, Collection<TimeMention>> sentenceToTime = JCasUtil.indexCovered(jCas, Sentence.class, TimeMention.class);
-
-
-
         // Condition Occurrences
         // - Disease and Disorder
         for (DiseaseDisorderMention mention : JCasUtil.select(jCas, DiseaseDisorderMention.class)) {
@@ -200,8 +198,13 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         }
         // TODO actually use this information somehow (i.e. by pulling from structured data
         // Send to ElasticSearch
+        // - Pull Metadata
+        String headerText = header.getValue();
+        BioBankCNSectionHeader section = JCasUtil.selectSingle(jCas, BioBankCNSectionHeader.class);
+        String sectionName = section.getSectionName();
+        String sectionID = section.getSectionID();
         // - Serialize
-        DocumentSerializer serializer = new DocumentSerializer(id, text, generatedModels.toArray(new CDMModel[0]));
+        DocumentSerializer serializer = new DocumentSerializer(id, text, headerText, sectionName, sectionID, generatedModels.toArray(new CDMModel[0]));
         ElasticSearchIndexer.indexSerialized(serializer);
         XmiCasSerializer out = new XmiCasSerializer(jCas.getTypeSystem());
         try {

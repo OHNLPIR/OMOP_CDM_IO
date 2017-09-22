@@ -7,6 +7,12 @@ import java.util.*;
 
 /** Transforms a document that contains a certain set of models into a JSON indexable by ElasticSearch */
 public class DocumentSerializer {
+    /** The section name of this document */
+    private final String sectionName;
+    /** The section ID of this document */
+    private final String sectionID;
+    /** The document header of this document **/
+    private final String documentHeader;
     /** The ID of the Document */
     private String documentID;
     /** The raw text of the Document */
@@ -14,9 +20,12 @@ public class DocumentSerializer {
     /** A mapping by type of OMOP CDM models associated with this document */
     private Map<String, List<CDMModel>> models;
 
-    public DocumentSerializer(String documentID, String documentText, CDMModel... docModels) {
+    public DocumentSerializer(String documentID, String documentText, String documentHeader, String sectionName, String sectionID, CDMModel... docModels) {
         this.documentID = documentID;
         this.documentText = documentText;
+        this.documentHeader = documentHeader;
+        this.sectionName = sectionName;
+        this.sectionID = sectionID;
         this.models = new HashMap<>();
         for (CDMModel model : docModels) {
             if (!this.models.containsKey(model.getModelTypeName())) {
@@ -33,6 +42,9 @@ public class DocumentSerializer {
         JSONObject parent = new JSONObject();
         parent.put("DocumentID", documentID);
         parent.put("RawText", documentText);
+        parent.put("Header", documentHeader);
+        parent.put("Section_Name", sectionName);
+        parent.put("Section_ID", Integer.valueOf(sectionID));
         // Construct a list of children models to also index and associate
         LinkedList<JSONObject> ret = new LinkedList<JSONObject>();
         for (Map.Entry<String, List<CDMModel>> e : models.entrySet()) {
