@@ -25,6 +25,22 @@ public class AnnotationCache {
     public static ConcurrentHashMap<String, AtomicBoolean> ANN_CACHE_LOCKS = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<String, AnnotationCache.AnnotationTree> ANN_CACHE = new ConcurrentHashMap<>();
 
+    /** Serves as a fast lookup, but has possibility of returning null if not initialized */
+    public static AnnotationTree getAnnotationCacheFast(String meta, JCas cas) {
+        final AtomicBoolean lock = ANN_CACHE_LOCKS.get(meta);
+        if (lock == null) {
+            return getAnnotationCache(meta, cas);
+        }
+        synchronized (lock) {
+            while (!lock.get()) {
+                try {
+                    lock.wait(100);
+                } catch (InterruptedException ignored) {
+                }
+            }
+        }
+        return ANN_CACHE.get(meta);
+    }
 
     public static AnnotationTree getAnnotationCache(String meta, JCas cas) {
         FSIterator<TOP> it = cas.getJFSIndexRepository().getAllIndexedFS(Annotation.type);
