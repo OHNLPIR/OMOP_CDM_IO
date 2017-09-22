@@ -32,4 +32,17 @@ public class CDMUnstructuredObservation implements CDMModel {
         if (mention != null) ret.put("observation", mention);
         return ret;
     }
+
+    @Override
+    public JSONObject getJSONMapping() {
+        JSONObject ret = new JSONObject();
+        ret.put("observation", constructTypeObject("string"));
+        return ret;
+    }
+
+    private JSONObject constructTypeObject(String type) {
+        JSONObject ret = new JSONObject();
+        ret.put("type", type);
+        return ret;
+    }
 }

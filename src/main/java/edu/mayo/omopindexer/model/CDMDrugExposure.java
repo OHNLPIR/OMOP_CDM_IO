@@ -87,12 +87,22 @@ public class CDMDrugExposure implements CDMModel {
         JSONObject ret = new JSONObject();
         ret.put("drug_exposure", mention != null ? mention : "");
         ret.put("quantity", quantity != null ? quantity : "");
-        if (date != null) {
-            for (Map.Entry<String, Object> e : date.getAsJSON().toMap().entrySet()) {
-                ret.put(e.getKey(), e.getValue());
-            }
-        }
         ret.put("effectiveDrugDose", effectiveDrugDose != null ? effectiveDrugDose : "");
+        return ret;
+    }
+
+    @Override
+    public JSONObject getJSONMapping() {
+        JSONObject ret = new JSONObject();
+        ret.put("drug_exposure", constructTypeObject("string"));
+        ret.put("quantity", constructTypeObject("integer"));
+        ret.put("effectiveDrugDose", constructTypeObject("string"));
+        return ret;
+    }
+
+    private JSONObject constructTypeObject(String type) {
+        JSONObject ret = new JSONObject();
+        ret.put("type", type);
         return ret;
     }
 }

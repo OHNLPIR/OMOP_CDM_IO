@@ -76,6 +76,11 @@ public class ElasticSearchIndexer {
             JSONObject _parent = new JSONObject();
             _parent.put("type", "document");
             childObject.put("_parent", _parent);
+            JSONObject properties = new JSONObject();
+            for (Map.Entry<String, Object> e : model.getJSONMapping().toMap().entrySet()) {
+                properties.put(e.getKey(), e.getValue());
+            }
+            childObject.put("properties", properties);
             childMappings.put(model.getModelTypeName(), childObject);
         }
         mapping.put("document", new JSONObject());
@@ -85,6 +90,7 @@ public class ElasticSearchIndexer {
         // Wrapper object sent to ES
         JSONObject submitToES = new JSONObject();
         submitToES.put("mappings", mapping);
+        System.out.print(submitToES.toString());
         try {
             String base = "http://" + HOST + ":9200" + "/" + INDEX;
             URL indexURL = new URL(base);

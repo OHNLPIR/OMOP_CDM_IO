@@ -308,7 +308,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
     }
 
     private CDMDate generateDateModel(Date date1, Date date2, Object duration, CDMDate.CDMDate_Subject subject) {
-        return new CDMDate(cTAKESDateToJavaDate(date1), cTAKESDateToJavaDate(date2), CDMDate.CDMDate_Type.COMPOSITE, subject, duration);
+        return null; //TODO
     }
 
     private CDMDate condenseDateModels(List<CDMDate> dates) {

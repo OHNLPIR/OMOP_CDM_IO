@@ -8,13 +8,13 @@ public interface CDMModel {
     String getModelTypeName();
     /** @return the CDMModel in JSON format*/
     JSONObject getAsJSON();
-
+    /** @return A mapping of fields for elasticsearch for this particular model */
+    JSONObject getJSONMapping();
     /** An enumeration of model class file names (non-fully-qualified): <b>add new model files here or they will not be
      *  registered into the elasticsearch index! </b>
      */
     enum Types {
         CDMConditionOccurrence,
-        CDMDate,
         CDMDrugExposure,
         CDMMeasurement,
         CDMPerson,

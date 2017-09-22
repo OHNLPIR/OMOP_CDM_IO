@@ -12,17 +12,29 @@ import java.math.BigDecimal;
  * quantitative findings from pathology reports, etc.
  */
 public class CDMMeasurement implements CDMModel {
-    /** A unique identifier for the measurement */
+    /**
+     * A unique identifier for the measurement
+     */
     private final Long measurementUID;
-    /** The concept id of the operator applying to this measurement, e.g. ids for <, ≤, =, ≥, > */
+    /**
+     * The concept id of the operator applying to this measurement, e.g. ids for <, ≤, =, ≥, >
+     */
     private final Long operator_concept_id;
-    /** A numeric value for the measurement, expressed as a non floating-point (for precision) decimal*/
+    /**
+     * A numeric value for the measurement, expressed as a non floating-point (for precision) decimal
+     */
     private final Double value;
-    /** The string value that this measurement pertains to */
+    /**
+     * The string value that this measurement pertains to
+     */
     private final String textRef;
 
-    /** Included for reflection compatibility: do not use, do not remove */
-    private CDMMeasurement() {this(null, null, null, null);}
+    /**
+     * Included for reflection compatibility: do not use, do not remove
+     */
+    private CDMMeasurement() {
+        this(null, null, null, null);
+    }
 
     public CDMMeasurement(String textRef, Long measurementUID, Long operator_concept_id, Double value) {
         this.textRef = textRef;
@@ -31,22 +43,30 @@ public class CDMMeasurement implements CDMModel {
         this.value = value;
     }
 
-    /** @return The unique identifier of this measurement */
+    /**
+     * @return The unique identifier of this measurement
+     */
     public Long getMeasurementUID() {
         return measurementUID;
     }
 
-    /** @return The concept ID for this measurement's operator */
+    /**
+     * @return The concept ID for this measurement's operator
+     */
     public Long getOperatorConceptId() {
         return operator_concept_id;
     }
 
-    /** @return the numeric value of this measurement */
+    /**
+     * @return the numeric value of this measurement
+     */
     public Double getValue() {
         return value;
     }
 
-    /** @return The raw text of the measurement in question */
+    /**
+     * @return The raw text of the measurement in question
+     */
     public String getTextRef() {
         return textRef;
     }
@@ -61,6 +81,22 @@ public class CDMMeasurement implements CDMModel {
         if (measurementUID != null) ret.put("measurementid", measurementUID);
         if (operator_concept_id != null) ret.put("operator_concept_id", operator_concept_id);
         if (value != null) ret.put("value", value.toString());
+        return ret;
+    }
+
+    @Override
+    public JSONObject getJSONMapping() {
+        JSONObject ret = new JSONObject();
+        ret.put("measurement", constructTypeObject("string"));
+        ret.put("measurementid", constructTypeObject("long"));
+        ret.put("operator_concept_id", constructTypeObject("integer"));
+        ret.put("value", constructTypeObject("float"));
+        return ret;
+    }
+
+    private JSONObject constructTypeObject(String type) {
+        JSONObject ret = new JSONObject();
+        ret.put("type", type);
         return ret;
     }
 }

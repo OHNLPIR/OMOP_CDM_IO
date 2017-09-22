@@ -57,4 +57,13 @@ public class CDMConditionOccurrence implements CDMModel {
         }
         return ret;
     }
+
+    @Override
+    public JSONObject getJSONMapping() {
+        JSONObject ret = new JSONObject();
+        JSONObject conditionOccurrenceType = new JSONObject();
+        conditionOccurrenceType.put("type", "string");
+        ret.put("condition_occurrence", conditionOccurrenceType);
+        return ret;
+    }
 }
