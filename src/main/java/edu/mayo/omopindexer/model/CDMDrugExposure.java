@@ -1,8 +1,8 @@
 package edu.mayo.omopindexer.model;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -15,9 +15,9 @@ public class CDMDrugExposure implements CDMModel {
      */
     private final String mention;
     /**
-     * A {@link edu.mayo.omopindexer.model.CDMDate} representation of this drug's relevant administration dates
+     * An array of {@link edu.mayo.omopindexer.model.CDMDate} representing this drug's relevant administration dates
      */
-    private final CDMDate date;
+    private final CDMDate[] date;
     /**
      * A quantity associated with this drug exposure
      */
@@ -36,9 +36,9 @@ public class CDMDrugExposure implements CDMModel {
         this(null, null, null, null, null);
     }
 
-    public CDMDrugExposure(String mention, CDMDate date, Double quantity, String unit, String effectiveDrugDose) {
+    public CDMDrugExposure(String mention, Double quantity, String unit, String effectiveDrugDose, CDMDate... dates) {
         this.mention = mention;
-        this.date = date;
+        this.date = dates;
         this.quantity = quantity;
         this.unit = unit;
         this.effectiveDrugDose = effectiveDrugDose;
@@ -52,9 +52,9 @@ public class CDMDrugExposure implements CDMModel {
     }
 
     /**
-     * @return A {@link edu.mayo.omopindexer.model.CDMDate} representation of this drug's relevant administration dates
+     * @return An array of {@link edu.mayo.omopindexer.model.CDMDate} representing this drug's relevant administration dates
      */
-    public CDMDate getDate() {
+    public CDMDate[] getDates() {
         return date;
     }
 
@@ -88,7 +88,12 @@ public class CDMDrugExposure implements CDMModel {
         ret.put("drug_exposure", mention);
         ret.put("quantity", quantity);
         ret.put("effectiveDrugDose", effectiveDrugDose);
-        // TODO date
+        ret.put("unit", unit);
+        JSONArray dateArray = new JSONArray();
+        for (CDMDate date : getDates()) {
+            dateArray.put(date.getAsJSON());
+        }
+        ret.put("date", dateArray);
         return ret;
     }
 
@@ -98,6 +103,7 @@ public class CDMDrugExposure implements CDMModel {
         ret.put("drug_exposure", constructTypeObject("string"));
         ret.put("quantity", constructTypeObject("float"));
         ret.put("effectiveDrugDose", constructTypeObject("string"));
+        ret.put("unit", constructTypeObject("string"));
         ret.put("date", constructNestedDateTypeObject());
         return ret;
     }

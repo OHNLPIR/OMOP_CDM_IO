@@ -48,10 +48,10 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         String id = JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID();
         // Create indexes of covered/covering classes for performance reasons when we need to associate multiple mentions
         // with one another
-        // Used for dosage identification
-        Map<MedicationMention, Collection<Chunk>> medicationToChunk =
-                JCasUtil.indexCovering(jCas, MedicationMention.class, Chunk.class);
-        Map<Chunk, Collection<MeasurementAnnotation>> chunkToMeasurement = JCasUtil.indexCovered(jCas, Chunk.class, MeasurementAnnotation.class);
+        // Used for dosage identification TODO is supposed to be chunks, but chunks get removed by temporal annotator. Use sentence instead, evaluate performance impact later
+        Map<MedicationMention, Collection<Sentence>> medicationToChunk =
+                JCasUtil.indexCovering(jCas, MedicationMention.class, Sentence.class);
+        Map<Sentence, Collection<MeasurementAnnotation>> chunkToMeasurement = JCasUtil.indexCovered(jCas, Sentence.class, MeasurementAnnotation.class);
         // TODO will probably have to split as one of the intermediate annotators removes chunks breaking measurement detection
         // Used for temporal identification
         Map<DiseaseDisorderMention, Collection<Sentence>> diseaseToSentence = JCasUtil.indexCovering(jCas, DiseaseDisorderMention.class, Sentence.class);
@@ -64,20 +64,14 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
             // - Handle Text
             String mentionText = appendUmlsConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
             // - Handle date
-            List<CDMDate> dates = new LinkedList<>();
-            CDMDate date = null;
+            List<String> dateMentions = new LinkedList<>();
             for (Sentence s : diseaseToSentence.get(mention)) {
                 for (TimeMention t : sentenceToTime.get(s)) {
                     String timeText = t.getCoveredText();
-                    dates.addAll(generateDateModels(timeText, CDMDate.CDMDate_Subject.CONDITION));
+                    dateMentions.add(timeText);
                 }
             }
-            if (dates.size() > 1) {
-                date = condenseDateModels(dates);
-            } else if (dates.size() == 1) {
-                date = dates.get(0);
-            }
-            generatedModels.add(new CDMConditionOccurrence(mentionText, date));
+            generatedModels.add(new CDMConditionOccurrence(mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
         }
 
         // - Sign and Symptom
@@ -85,20 +79,14 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
             // - Handle Text
             String mentionText = appendUmlsConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
             // - Handle date
-            List<CDMDate> dates = new LinkedList<>();
-            CDMDate date = null;
+            List<String> dateMentions = new LinkedList<>();
             for (Sentence s : signSymptomToSentence.get(mention)) {
                 for (TimeMention t : sentenceToTime.get(s)) {
                     String timeText = t.getCoveredText();
-                    dates.addAll(generateDateModels(timeText, CDMDate.CDMDate_Subject.CONDITION));
+                    dateMentions.add(timeText);
                 }
             }
-            if (dates.size() > 1) {
-                date = condenseDateModels(dates);
-            } else if (dates.size() == 1) {
-                date = dates.get(0);
-            }
-            generatedModels.add(new CDMConditionOccurrence(mentionText, date));
+            generatedModels.add(new CDMConditionOccurrence(mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
         }
 
 
@@ -108,7 +96,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
             String mentionText = appendUmlsConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
             // - Try to find associated dosage information (measurement in same chunk)
             Set<MeasurementAnnotation> foundMeasurements = new HashSet<>();
-            for (Chunk c : medicationToChunk.get(mention)) { // Guaranteed not to be null; mention will always be in a chunk
+            for (Sentence c : medicationToChunk.get(mention)) { // Guaranteed not to be null; mention will always be in a chunk
                 foundMeasurements.addAll(chunkToMeasurement.getOrDefault(c, new LinkedList<>()));
             }
             String effectiveDrugDose = null;
@@ -124,20 +112,14 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
                 effectiveDrugDose = currMax.getCoveredText(); //TODO is this quantity or effective?
             }
             // - Handle Date
-            List<CDMDate> dates = new LinkedList<>();
-            CDMDate date = null;
+            List<String> dateMentions = new LinkedList<>();
             for (Sentence s : medicationToSentence.get(mention)) {
                 for (TimeMention t : sentenceToTime.get(s)) {
                     String timeText = t.getCoveredText();
-                    dates.addAll(generateDateModels(timeText, CDMDate.CDMDate_Subject.DRUG));
+                    dateMentions.add(timeText);
                 }
             }
-            if (dates.size() > 1) {
-                date = condenseDateModels(dates);
-            } else if (dates.size() == 1) {
-                date = dates.get(0);
-            }
-            generatedModels.add(new CDMDrugExposure(mentionText, date, null, null, effectiveDrugDose)); // TODO
+            generatedModels.add(new CDMDrugExposure(mentionText, null, null, effectiveDrugDose, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0]))); // TODO
         }
 
         // Measurement
@@ -224,7 +206,8 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
     /**
      * Appends UMLS concepts to the mention string to enable elasticsearch lookups: format string {cui} {tui}
      * {vocab}{code} {vocab2}{code2}
-     * @param mentionText The text mention to expand
+     *
+     * @param mentionText   The text mention to expand
      * @param ontologyArray The ontology array containing UMLS concepts
      * @return An expanded string containing umls concepts
      */
@@ -278,6 +261,10 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         return c.getTime();
     }
 
+    private Collection<CDMDate> generateDateModels(Collection<String> dateString, CDMDate.CDMDate_Subject subject) {
+        return new LinkedList<>(); // TODO
+    }
+
     private Collection<CDMDate> generateDateModels(String dateString, CDMDate.CDMDate_Subject subject) {
         // Try period matching first
         Collection<CDMDate> ret = new LinkedList<>();
@@ -321,7 +308,6 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
     private CDMDate condenseDateModels(List<CDMDate> dates) {
         return null;
     }
-
 
 
 }

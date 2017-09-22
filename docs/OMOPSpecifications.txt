@@ -13,6 +13,7 @@ Document:
 	- DrugExposure:
 		- drug_exposure: String
 		- quantity: float
+		- unit: String
 		- effectiveDrugDose: String
 		- date: Date[]
 	- Measurement:
@@ -44,6 +45,7 @@ cTAKES -> OMOP CDM Mappings
 - DrugExposure:
 	- drug_exposure: MedicationMention->Covered Text + UMLS Concepts
 	- quantity: [UNMAPPED]
+	- unit: [UNMAPPED]
 	- effectiveDrugDose: MeasurementAnnotations in the aggregate of all chunks holding the MedicationMention
 	- date[]: TimeMentions in same Sentence as a MedicationMention
 - Measurement:

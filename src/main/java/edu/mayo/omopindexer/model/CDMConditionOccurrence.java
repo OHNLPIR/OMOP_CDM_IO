@@ -1,5 +1,6 @@
 package edu.mayo.omopindexer.model;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.Map;
@@ -15,23 +16,23 @@ public class CDMConditionOccurrence implements CDMModel {
     private final String mention;
 
     /**
-     *  A {@link edu.mayo.omopindexer.model.CDMDate} representation of this occurrence's date information with the
-     *  appropriate {@link edu.mayo.omopindexer.model.CDMDate.CDMDate_Type} depending on available information
+     *  An array of {@link edu.mayo.omopindexer.model.CDMDate} representations for this occurrence's date information
+     *  with the appropriate {@link edu.mayo.omopindexer.model.CDMDate.CDMDate_Type} for each
      */
-    private final CDMDate date;
+    private final CDMDate[] date;
 
     /** Included for reflection compatibility: do not use, do not remove */
     private CDMConditionOccurrence() {this(null, null);}
 
-    public CDMConditionOccurrence(String occurrenceMention, CDMDate date) {
+    public CDMConditionOccurrence(String occurrenceMention, CDMDate... dates) {
         this.mention = occurrenceMention;
-        this.date = date;
+        this.date = dates;
     }
 
     /**
-     * @return The {@link #date} associated with this occurrence
+     * @return An array of {@link CDMDate} associated with this occurrence
      */
-    public CDMDate getDate() {
+    public CDMDate[] getDates() {
         return date;
     }
 
@@ -50,7 +51,11 @@ public class CDMConditionOccurrence implements CDMModel {
     public JSONObject getAsJSON() {
         JSONObject ret = new JSONObject();
         ret.put("condition_occurrence", mention);
-        // TODO date
+        JSONArray dateArray = new JSONArray();
+        for (CDMDate date : getDates()) {
+            dateArray.put(date.getAsJSON());
+        }
+        ret.put("date", dateArray);
         return ret;
     }
 
