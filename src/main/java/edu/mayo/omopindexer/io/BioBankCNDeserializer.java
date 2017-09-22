@@ -104,7 +104,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                         text = readQueue1.substring(startIndex, endIndex);
                         numSectionsRead++;
                     } else { // No more section headings under this header;
-                        text = readQueue1.substring(startIndex);
+                        text = readQueue1.substring(startIndex, start); // Go from start of section to beginning of header
                         numSectionsRead = 1;
                         readQueue1 = readQueue1.substring(start);
                     }
