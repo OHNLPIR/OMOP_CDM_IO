@@ -183,11 +183,9 @@ public class EventTimeSelfRelationAnnotator extends TemporalRelationExtractorAnn
     public List<IdentifiedAnnotationPair> getCandidateRelationArgumentPairs(
             JCas jCas,
             Annotation sentence) {
-        Map<EventMention, Collection<EventMention>> coveringMap =
-                JCasUtil.indexCovering(jCas, EventMention.class, EventMention.class);
         // mod::perf get cache (should already be initialized)
         String documentId = DocumentIDAnnotationUtil.getDocumentID(jCas);
-        AnnotationCache.AnnotationTree index = AnnotationCache.getAnnotationCache(documentId, jCas);
+        AnnotationCache.AnnotationTree index = AnnotationCache.getAnnotationCacheFast(documentId, jCas);
 
         List<IdentifiedAnnotationPair> pairs = Lists.newArrayList();
         // mod::perf
@@ -208,7 +206,7 @@ public class EventTimeSelfRelationAnnotator extends TemporalRelationExtractorAnn
                     // mod::perf
                     for (TimeMention time : index.getCovered(sentence.getBegin(), sentence.getEnd(), TimeMention.class)) {
 
-                        Collection<EventMention> eventList = coveringMap.get(event);
+                        Collection<EventMention> eventList = index.getCovering(event.getBegin(), event.getEnd(), EventMention.class);
                         for(EventMention covEvent : eventList){
                             pairs.add(new IdentifiedAnnotationPair(covEvent, time));
                         }
