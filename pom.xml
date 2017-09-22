@@ -91,6 +91,9 @@
                             <artifact>org.apache.ctakes:*</artifact>
                             <excludes>
                                 <!-- Modifications to Temporal -->
+                                <exclude>org/apache/ctakes/temporal/ae/DocTimeRelAnnotator.class</exclude>
+                                <exclude>org/apache/ctakes/temporal/feature/TimeXExtractor.class</exclude>
+                                <exclude>org/apache/ctakes/temporal/feature/EventPropertyExtractor.class</exclude>
                                 <exclude>org/apache/ctakes/temporal/pipelines/FullTemporalExtractionPipeline.class</exclude>
                                 <exclude>org/apache/ctakes/temporal/pipelines/FullTemporalExtractionPipeline$CopyPropertiesToTemporalEventAnnotator.class</exclude>
                                 <!-- Modifications to Assertions -->
