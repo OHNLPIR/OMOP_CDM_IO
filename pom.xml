@@ -97,6 +97,7 @@
                                 <exclude>org/apache/ctakes/temporal/feature/DateTimeMeasurementExtractor.class</exclude>
                                 <exclude>org/apache/ctakes/temporal/feature/ClosestVerbExtractor.class</exclude>
                                 <exclude>org/apache/ctakes/temporal/feature/NearbyVerbTenseXExtractor.class</exclude>
+                                <exclude>org/apache/ctakes/temporal/feature/SectionHeaderExtractor.class</exclude>
                                 <exclude>org/apache/ctakes/temporal/pipelines/FullTemporalExtractionPipeline.class</exclude>
                                 <exclude>org/apache/ctakes/temporal/pipelines/FullTemporalExtractionPipeline$CopyPropertiesToTemporalEventAnnotator.class</exclude>
                                 <!-- Modifications to Assertions -->
