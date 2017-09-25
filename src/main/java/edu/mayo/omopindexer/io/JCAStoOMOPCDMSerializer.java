@@ -120,7 +120,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
                     dateMentions.add(timeText);
                 }
             }
-            generatedModels.add(new CDMDrugExposure(mentionText, null, null, effectiveDrugDose, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0]))); // TODO
+            generatedModels.add(new CDMDrugExposure(mentionText, null, null, effectiveDrugDose, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.DRUG).toArray(new CDMDate[0]))); // TODO
         }
 
         // Measurement
@@ -312,7 +312,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         if (input.length() > 1) {
             switch (input.substring(0, 2)) {
                 case "ho":
-                    return "T%dh";
+                    return "T%dH";
                 case "da":
                     return "%dD";
                 case "mo":
