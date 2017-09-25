@@ -5,6 +5,7 @@ import edu.mayo.omopindexer.indexing.ElasticSearchIndexer;
 import edu.mayo.omopindexer.model.*;
 import edu.mayo.omopindexer.types.BioBankCNHeader;
 import edu.mayo.omopindexer.types.BioBankCNSectionHeader;
+import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import org.apache.ctakes.typesystem.type.refsem.Date;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
@@ -238,76 +239,203 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
     }
 
     /**
-     * @param date A cTAKES Date Annotation to convert
-     * @return Converts cTAKES {@link org.apache.ctakes.typesystem.type.refsem.Date date} annotations to
-     * programmatically usable java {@link java.util.Date dates}
-     * @see org.apache.ctakes.typesystem.type.refsem.Date
+     * Generates date models from Stirng
+     *
+     * @param dateStrings A collection of Strings to parse
+     * @param subject     The {@link edu.mayo.omopindexer.model.CDMDate.CDMDate_Subject} that these date strings pertain to
+     * @return A collection of generated models
      */
-    private java.util.Date cTAKESDateToJavaDate(Date date) {
-        String yearString = date.getYear().replaceAll("[^0-9a-zA-Z]", "");
-        String monthString = date.getMonth().replaceAll("[^0-9a-zA-Z]", "");
-        String dayString = date.getDay().replaceAll("[^0-9a-zA-Z]", "");
-        int year = Integer.valueOf(yearString); // TODO: validation
-        int month;
-        if (monthString.matches("[0-9]+")) {
-            month = Integer.valueOf(monthString);
-        } else {
-            month = 1; //TODO
-        }
-        int day = Integer.valueOf(dayString);
-        Calendar c = Calendar.getInstance();
-        c.setTimeZone(TimeZone.getTimeZone("UTC"));
-        c.set(year, month - 1, day); // Use numeric values for now
-        return c.getTime();
-    }
+    private Collection<CDMDate> generateDateModels(Collection<String> dateStrings, CDMDate.CDMDate_Subject subject) { // TODO implement non-frequencies
+        LinkedList<CDMDate> ret = new LinkedList<>();
+        for (String s : dateStrings) {
+            Matcher m = RegexpStatements.FREQPERIOD.matcher(s);
+            if (m.find()) {
+                // see regex string documentation
+                String freq1 = m.group(1);
+                String freq2 = m.group(2);
+                String freq3 = m.group(3); // -ly special case
+                String freq4 = m.group(4); //  every (other) special case
+                String everyOther = m.group(5); // - contains other
+                String period1 = m.group(7);
+                String rangeIndicator = m.group(8);
+                String period2 = m.group(9);
+                String periodUnit = m.group(10);
+                String periodLy = m.group(11);
+                // Some cleanup
+                if (freq1 == null && freq4 != null) { // -ly special case
+                    freq1 = "1";
+                }
+                if (freq1 == null && freq3 != null) { // -ly special case
+                    freq1 = freq3;
+                }
+                if (rangeIndicator == null) {
+                    period1 = (period1 == null ? "" : period1) + (period2 == null ? "" : period2);
+                }
+                if (periodLy != null && period1.length() == 0) {
+                    period1 = "1"; // Has a ly
+                    periodUnit = periodLy;
+                }
+                // - Do nothing with frequencies for now (not represented in date information
+                if (freq1 != null) {
+                }
+                if (freq2 != null) {
+                }
+                boolean periodModify = (freq4 != null && freq4.toLowerCase().contains("other")) || everyOther != null;
+                if (period1 != null && period1.length() > 0 && periodUnit != null) {
+                    period1 = normalizeNumber(s);
+                    if (periodModify) period1 = 2 * java.lang.Integer.valueOf(period1) + "";
+                    String input = transformUnitOfTime(periodUnit);
+                    ret.add(new CDMDate(null, null, CDMDate.CDMDate_Type.PERIOD, subject,
+                            input == null ? period1 + " " + periodUnit : "RP" + input.replace("%d", period1)));
+                } else if (periodUnit != null) { // Empty period/period not specified but unit present, assume 1 or 2
+                    String input = transformUnitOfTime(periodUnit);
+                    ret.add(new CDMDate(null, null, CDMDate.CDMDate_Type.PERIOD, subject, input == null ?
+                            (periodModify ? "2" : "1") + " " + periodUnit : "RP" + input.replace("%d", periodModify ? "2" : "1")));
+                }
+            }
 
-    private Collection<CDMDate> generateDateModels(Collection<String> dateString, CDMDate.CDMDate_Subject subject) {
-        return new LinkedList<>(); // TODO
-    }
-
-    private Collection<CDMDate> generateDateModels(String dateString, CDMDate.CDMDate_Subject subject) {
-        // Try period matching first
-        Collection<CDMDate> ret = new LinkedList<>();
-        Pattern freqMatcher = Pattern.compile(RegexpStatements.FREQPERIOD, Pattern.CASE_INSENSITIVE);
-        Matcher m = freqMatcher.matcher(dateString);
-        if (m.find()) {
-            // see regex string documentation
-            String freq1 = m.group(1);
-            String freq2 = m.group(2);
-            String freq3 = m.group(3); // -ly special case
-            String freq4 = m.group(4);
-            String period1 = m.group(6);
-            String rangeIndicator = m.group(7);
-            String period2 = m.group(8);
-            String periodUnit = m.group(9);
-            String periodLy = m.group(10);
-            // Some cleanup
-            if (freq1 == null && freq4 != null) { // -ly special case
-                freq1 = "1";
-            }
-            if (freq1 == null && freq3 != null) { // -ly special case
-                freq1 = freq3;
-            }
-            if (rangeIndicator == null) {
-                period1 = (period1 == null ? "" : period1) + (period2 == null ? "" : period2);
-            }
-            if (periodLy != null && period1.length() == 0) {
-                period1 = "1"; // Has a ly
-                periodUnit = periodLy;
-            }
-            if (period1 != null) {
-            }
         }
         return ret;
     }
 
-    private CDMDate generateDateModel(Date date1, Date date2, Object duration, CDMDate.CDMDate_Subject subject) {
-        return null; //TODO
-    }
-
-    private CDMDate condenseDateModels(List<CDMDate> dates) {
+    /**
+     * Converts various accepted inputs into ISO8601 standard
+     *
+     * @param input The input untransformed string
+     * @return A Unit of Time formatted string
+     */
+    public static String transformUnitOfTime(String input) {
+        input = input.toLowerCase();
+        if (input.endsWith("day") && input.length() > 3) { // Mon-Sun
+            return "wk";
+        }
+        if (input.length() > 1) {
+            switch (input.substring(0, 2)) {
+                case "ho":
+                    return "T%dh";
+                case "da":
+                    return "%dD";
+                case "mo":
+                    return "%dM";
+                case "mi":
+                    return "T%dM";
+                case "ye":
+                    return "%dY";
+                case "we":
+                    return "%dW";
+                case "se":
+                    return "T%ds";
+            }
+        } else {
+            switch (input) {
+                case "d":
+                    return "%dD";
+                case "m":
+                    return "T%dM";
+                case "y":
+                    return "%dY";
+                case "s":
+                    return "T%dS";
+                case "h":
+                    return "T%dH";
+                case "w":
+                    return "%dW";
+            }
+        }
         return null;
     }
 
+    /**
+     * Converts a string text input (e.g. "one", "two") into a number string (e.g. "1", "2")
+     *
+     * @param input text form of number
+     * @return numeric string version of input
+     **/
+    private String normalizeNumber(String input) {
+        // Process numeric
+        input = input.replaceAll(",", ""); // Remove grouping separators
+        if (input.matches("[0-9]+")) { // Direct parse
+            return Integer.valueOf(input) + "";
+        }
+        if (input.matches("[0-9]+(.[0-9]+)?")) {
+            return Double.valueOf(input) + "";
+        }
+        // Process text
+        int sum = 0;
+        String[] split = input.toLowerCase().split("[ -]");
+        // Arrive at final number via summation
+        for (String s : split) {
+            if (s.equalsIgnoreCase("and")) {
+                continue;
+            }
+            if (s.equalsIgnoreCase("twenty")) { // Annoying special case
+                sum += 20;
+                continue;
+            }
+            String prefix = s.substring(0, 3);
+            int temp = 0;
+            switch (prefix) {
+                case "zer":
+                    temp += 0;
+                    break;
+                case "one":
+                case "onc":
+                    temp += 1;
+                    break;
+                case "two":
+                case "twi":
+                    temp += 2;
+                    break;
+                case "thr":
+                case "thi":
+                    temp += 3;
+                    break;
+                case "fou":
+                    temp += 4;
+                    break;
+                case "fiv":
+                case "fif":
+                    temp += 5;
+                    break;
+                case "six":
+                    temp += 6;
+                    break;
+                case "sev":
+                    temp += 7;
+                    break;
+                case "eig":
+                    temp += 8;
+                    break;
+                case "nin":
+                    temp += 9;
+                    break;
+                case "ten":
+                    temp += 10;
+                    break;
+                case "ele":
+                    temp += 11;
+                    break;
+                case "twe":
+                    temp += 12;
+                    break;
+            }
+            if (s.endsWith("teen")) temp += 10;
+            if (s.endsWith("ty")) temp *= 10;
+            if (temp != -1) sum += temp;
+            if (s.equals("hundred")) {
+                if (sum == 0) sum += 100;
+                else sum *= 100;
+            }
+            if (s.equals("thousand")) {
+                if (sum == 0) sum += 1000;
+                else sum *= 1000;
+            }
+            if (s.equals("million")) {
+                if (sum == 0) sum += 1000000;
+                else sum *= 1000000;
+            }
+        }
+        return sum + "";
+    }
 
 }
