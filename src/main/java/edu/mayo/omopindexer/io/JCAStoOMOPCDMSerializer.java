@@ -283,12 +283,15 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
                 boolean periodModify = (freq4 != null && freq4.toLowerCase().contains("other")) || everyOther != null;
                 if (period1 != null && period1.length() > 0 && periodUnit != null) {
                     period1 = normalizeNumber(s);
+                    if (period1 == null) continue;
                     if (periodModify) period1 = 2 * java.lang.Integer.valueOf(period1) + "";
                     String input = transformUnitOfTime(periodUnit);
+                    if (input == null) continue;
                     ret.add(new CDMDate(null, null, CDMDate.CDMDate_Type.PERIOD, subject,
                             input == null ? period1 + " " + periodUnit : "RP" + input.replace("%d", period1)));
                 } else if (periodUnit != null) { // Empty period/period not specified but unit present, assume 1 or 2
                     String input = transformUnitOfTime(periodUnit);
+                    if (input == null) continue;
                     ret.add(new CDMDate(null, null, CDMDate.CDMDate_Type.PERIOD, subject, input == null ?
                             (periodModify ? "2" : "1") + " " + periodUnit : "RP" + input.replace("%d", periodModify ? "2" : "1")));
                 }
@@ -352,90 +355,96 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
      * @return numeric string version of input
      **/
     private String normalizeNumber(String input) {
-        // Process numeric
-        input = input.replaceAll(",", ""); // Remove grouping separators
-        if (input.matches("[0-9]+")) { // Direct parse
-            return Integer.valueOf(input) + "";
+        try {
+            // Process numeric
+            input = input.replaceAll(",", ""); // Remove grouping separators
+            if (input.matches("[0-9]+")) { // Direct parse
+                return Integer.valueOf(input) + "";
+            }
+            if (input.matches("[0-9]+(.[0-9]+)?")) {
+                return Double.valueOf(input) + "";
+            }
+            // Process text
+            int sum = 0;
+            String[] split = input.toLowerCase().split("[ -]");
+            // Arrive at final number via summation
+            for (String s : split) {
+                if (s.equalsIgnoreCase("and")) {
+                    continue;
+                }
+                if (s.equalsIgnoreCase("twenty")) { // Annoying special case
+                    sum += 20;
+                    continue;
+                }
+                String prefix = s.substring(0, 3);
+
+                int temp = 0;
+                switch (prefix) {
+                    case "zer":
+                        temp += 0;
+                        break;
+                    case "one":
+                    case "onc":
+                        temp += 1;
+                        break;
+                    case "two":
+                    case "twi":
+                        temp += 2;
+                        break;
+                    case "thr":
+                    case "thi":
+                        temp += 3;
+                        break;
+                    case "fou":
+                        temp += 4;
+                        break;
+                    case "fiv":
+                    case "fif":
+                        temp += 5;
+                        break;
+                    case "six":
+                        temp += 6;
+                        break;
+                    case "sev":
+                        temp += 7;
+                        break;
+                    case "eig":
+                        temp += 8;
+                        break;
+                    case "nin":
+                        temp += 9;
+                        break;
+                    case "ten":
+                        temp += 10;
+                        break;
+                    case "ele":
+                        temp += 11;
+                        break;
+                    case "twe":
+                        temp += 12;
+                        break;
+                }
+
+                if (s.endsWith("teen")) temp += 10;
+                if (s.endsWith("ty")) temp *= 10;
+                if (temp != -1) sum += temp;
+                if (s.equals("hundred")) {
+                    if (sum == 0) sum += 100;
+                    else sum *= 100;
+                }
+                if (s.equals("thousand")) {
+                    if (sum == 0) sum += 1000;
+                    else sum *= 1000;
+                }
+                if (s.equals("million")) {
+                    if (sum == 0) sum += 1000000;
+                    else sum *= 1000000;
+                }
+            }
+            return sum + "";
+        } catch (IndexOutOfBoundsException e) { // Input wasn't a number/was an unsupported number
+            return null; // Fail to null first
         }
-        if (input.matches("[0-9]+(.[0-9]+)?")) {
-            return Double.valueOf(input) + "";
-        }
-        // Process text
-        int sum = 0;
-        String[] split = input.toLowerCase().split("[ -]");
-        // Arrive at final number via summation
-        for (String s : split) {
-            if (s.equalsIgnoreCase("and")) {
-                continue;
-            }
-            if (s.equalsIgnoreCase("twenty")) { // Annoying special case
-                sum += 20;
-                continue;
-            }
-            String prefix = s.substring(0, 3);
-            int temp = 0;
-            switch (prefix) {
-                case "zer":
-                    temp += 0;
-                    break;
-                case "one":
-                case "onc":
-                    temp += 1;
-                    break;
-                case "two":
-                case "twi":
-                    temp += 2;
-                    break;
-                case "thr":
-                case "thi":
-                    temp += 3;
-                    break;
-                case "fou":
-                    temp += 4;
-                    break;
-                case "fiv":
-                case "fif":
-                    temp += 5;
-                    break;
-                case "six":
-                    temp += 6;
-                    break;
-                case "sev":
-                    temp += 7;
-                    break;
-                case "eig":
-                    temp += 8;
-                    break;
-                case "nin":
-                    temp += 9;
-                    break;
-                case "ten":
-                    temp += 10;
-                    break;
-                case "ele":
-                    temp += 11;
-                    break;
-                case "twe":
-                    temp += 12;
-                    break;
-            }
-            if (s.endsWith("teen")) temp += 10;
-            if (s.endsWith("ty")) temp *= 10;
-            if (temp != -1) sum += temp;
-            if (s.equals("hundred")) {
-                if (sum == 0) sum += 100;
-                else sum *= 100;
-            }
-            if (s.equals("thousand")) {
-                if (sum == 0) sum += 1000;
-                else sum *= 1000;
-            }
-            if (s.equals("million")) {
-                if (sum == 0) sum += 1000000;
-                else sum *= 1000000;
-            }
-        }
-        return sum + "";
     }
 
 }
