@@ -327,7 +327,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
                 case "we":
                     return "%dW";
                 case "se":
-                    return "T%ds";
+                    return "T%dS";
             }
         } else {
             switch (input) {
