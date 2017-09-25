@@ -85,10 +85,10 @@ public class CDMDrugExposure implements CDMModel {
 
     public JSONObject getAsJSON() {
         JSONObject ret = new JSONObject();
-        ret.put("drug_exposure", mention);
+        ret.put("drug_exposure", mention == null ? "" : mention);
         ret.put("quantity", quantity);
-        ret.put("effectiveDrugDose", effectiveDrugDose);
-        ret.put("unit", unit);
+        ret.put("effectiveDrugDose", effectiveDrugDose == null ? "" : effectiveDrugDose);
+        ret.put("unit", unit == null ? "" : unit);
         JSONArray dateArray = new JSONArray();
         for (CDMDate date : getDates()) {
             dateArray.put(date.getAsJSON());

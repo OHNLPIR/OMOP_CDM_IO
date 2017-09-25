@@ -74,8 +74,8 @@ public class CDMPerson implements CDMModel {
 
     public JSONObject getAsJSON() {
         JSONObject ret = new JSONObject();
-        if (gender != null) ret.put("gender", gender.name()); else ret.put("gender", (String)null);
-        if (ethnicity != null) ret.put("ethnicity", ethnicity.fullyQualifiedName); else ret.put("ethnicity", (String)null);
+        if (gender != null) ret.put("gender", gender.name()); else ret.put("gender", "");
+        if (ethnicity != null) ret.put("ethnicity", ethnicity.fullyQualifiedName); else ret.put("ethnicity", "");
         ret.put("locationid", locationId);
         if (dateOfBirth != null) ret.put("dob", dateOfBirth.getTime()); else ret.put("dob", (Long)null);
         if (exclusions != null && exclusions.length > 0) {
@@ -91,7 +91,7 @@ public class CDMPerson implements CDMModel {
             }
             ret.put("limits", sB.toString());
         } else {
-            ret.put("limits", (String)null);
+            ret.put("limits", "");
         }
         return ret;
     }

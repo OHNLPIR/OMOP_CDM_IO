@@ -77,7 +77,7 @@ public class CDMMeasurement implements CDMModel {
 
     public JSONObject getAsJSON() {
         JSONObject ret = new JSONObject();
-        ret.put("measurement", textRef);
+        ret.put("measurement", textRef == null ? "" : textRef);
         ret.put("measurementid", measurementUID);
         ret.put("operator_concept_id", operator_concept_id);
         if (value != null) ret.put("value", value); else ret.put("value", (Double)null);

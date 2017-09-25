@@ -103,19 +103,8 @@ public class CDMDate implements CDMModel {
         ret.put("date1", date == null ? null : date.getTime());
         ret.put("date2", date2 == null ? null : date2.getTime());
         ret.put("type", getType().getTypeName());
-        ret.put("subject", subject == null ? null : getSubject().getTypeName());
-        if (duration != null && duration instanceof Long) {
-            ret.put("durationQuant", duration);
-        } else {
-            if (date == null || date2 == null) {
-                ret.put("durationQuant", (Integer)null);
-            } else {
-                ret.put("durationQuant", date2.getTime() - date.getTime()); // Stores the difference as milliseconds
-            }
-            if (duration != null) {
-                ret.put("duration", duration);
-            }
-        }
+        ret.put("subject", subject == null ? "" : getSubject().getTypeName());
+        ret.put("timestamp", duration == null ? "" : duration);
         return ret;
     }
 

@@ -50,7 +50,7 @@ public class CDMConditionOccurrence implements CDMModel {
 
     public JSONObject getAsJSON() {
         JSONObject ret = new JSONObject();
-        ret.put("condition_occurrence", mention);
+        ret.put("condition_occurrence", mention == null ? "" : mention);
         JSONArray dateArray = new JSONArray();
         for (CDMDate date : getDates()) {
             dateArray.put(date.getAsJSON());
