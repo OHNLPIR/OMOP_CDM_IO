@@ -239,7 +239,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
     }
 
     /**
-     * Generates date models from Stirng
+     * Generates date models from String
      *
      * @param dateStrings A collection of Strings to parse
      * @param subject     The {@link edu.mayo.omopindexer.model.CDMDate.CDMDate_Subject} that these date strings pertain to
@@ -309,8 +309,10 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
      */
     public static String transformUnitOfTime(String input) {
         input = input.toLowerCase();
-        if (input.endsWith("day") && input.length() > 3) { // Mon-Sun
-            return "wk";
+        if (input.matches("[montuewdhfrisa]{3,6}days?")) { // Mon-Sun
+            return "%dW";
+        } else if (input.contains("today")) {
+
         }
         if (input.length() > 1) {
             switch (input.substring(0, 2)) {
