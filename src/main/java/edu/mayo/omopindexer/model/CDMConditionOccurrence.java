@@ -12,8 +12,8 @@ import java.util.Map;
  * Conditions are recorded in different sources and levels of standardization
  */
 public class CDMConditionOccurrence implements CDMModel {
-    /** The actual textual mention of this condition or occurrence */
-    private final String mention;
+    /** A mapping of condition occurrences to their vocabulary types */
+    private final Map<String, String> mention;
 
     /**
      *  An array of {@link edu.mayo.omopindexer.model.CDMDate} representations for this occurrence's date information
@@ -24,8 +24,8 @@ public class CDMConditionOccurrence implements CDMModel {
     /** Included for reflection compatibility: do not use, do not remove */
     private CDMConditionOccurrence() {this(null, null);}
 
-    public CDMConditionOccurrence(String occurrenceMention, CDMDate... dates) {
-        this.mention = occurrenceMention;
+    public CDMConditionOccurrence(Map<String, String> occurrenceMentions, CDMDate... dates) {
+        this.mention = occurrenceMentions;
         this.date = dates;
     }
 
@@ -37,9 +37,9 @@ public class CDMConditionOccurrence implements CDMModel {
     }
 
     /**
-     * @return The textual information associated with this occurrence
+     * @return A mapping of condition occurrences to their vocabulary types
      */
-    public String getOccurrenceText() {
+    public Map<String, String> getOccurrence() {
         return mention;
     }
 
@@ -50,7 +50,11 @@ public class CDMConditionOccurrence implements CDMModel {
 
     public JSONObject getAsJSON() {
         JSONObject ret = new JSONObject();
-        ret.put("condition_occurrence", mention == null ? "" : mention);
+        if (mention != null) {
+            for (Map.Entry<String, String> e : mention.entrySet()) {
+                ret.put("condition_occurrence_" + e.getKey(), e.getValue());
+            }
+        }
         JSONArray dateArray = new JSONArray();
         for (CDMDate date : getDates()) {
             dateArray.put(date.getAsJSON());

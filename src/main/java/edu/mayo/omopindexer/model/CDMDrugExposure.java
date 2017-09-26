@@ -11,9 +11,9 @@ import java.util.Map;
  */
 public class CDMDrugExposure implements CDMModel {
     /**
-     * The textual mention of the drug exposure event
+     * A mapping of drug exposures to their vocabulary type
      */
-    private final String mention;
+    private final Map<String, String> mention;
     /**
      * An array of {@link edu.mayo.omopindexer.model.CDMDate} representing this drug's relevant administration dates
      */
@@ -36,7 +36,7 @@ public class CDMDrugExposure implements CDMModel {
         this(null, null, null, null, null);
     }
 
-    public CDMDrugExposure(String mention, Double quantity, String unit, String effectiveDrugDose, CDMDate... dates) {
+    public CDMDrugExposure(Map<String, String> mention, Double quantity, String unit, String effectiveDrugDose, CDMDate... dates) {
         this.mention = mention;
         this.date = dates;
         this.quantity = quantity;
@@ -45,9 +45,9 @@ public class CDMDrugExposure implements CDMModel {
     }
 
     /**
-     * @return The textual mention of this drug exposure event
+     * @return A mapping of drug exposures to their vocabulary type
      */
-    public String getMention() {
+    public Map<String, String> getMentionMapping() {
         return mention;
     }
 
@@ -85,7 +85,11 @@ public class CDMDrugExposure implements CDMModel {
 
     public JSONObject getAsJSON() {
         JSONObject ret = new JSONObject();
-        ret.put("drug_exposure", mention == null ? "" : mention);
+        if (mention != null) {
+            for (Map.Entry<String, String> e : mention.entrySet()) {
+                ret.put("drug_exposure_" + e.getKey(), e.getValue());
+            }
+        }
         ret.put("quantity", quantity);
         ret.put("effectiveDrugDose", effectiveDrugDose == null ? "" : effectiveDrugDose);
         ret.put("unit", unit == null ? "" : unit);
@@ -100,7 +104,6 @@ public class CDMDrugExposure implements CDMModel {
     @Override
     public JSONObject getJSONMapping() {
         JSONObject ret = new JSONObject();
-        ret.put("drug_exposure", constructTypeObject("string"));
         ret.put("quantity", constructTypeObject("float"));
         ret.put("effectiveDrugDose", constructTypeObject("string"));
         ret.put("unit", constructTypeObject("string"));

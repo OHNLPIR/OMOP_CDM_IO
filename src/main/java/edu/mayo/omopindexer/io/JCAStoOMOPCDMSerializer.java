@@ -5,11 +5,8 @@ import edu.mayo.omopindexer.indexing.ElasticSearchIndexer;
 import edu.mayo.omopindexer.model.*;
 import edu.mayo.omopindexer.types.BioBankCNHeader;
 import edu.mayo.omopindexer.types.BioBankCNSectionHeader;
-import jdk.nashorn.internal.runtime.regexp.joni.Regex;
-import org.apache.ctakes.typesystem.type.refsem.Date;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
-import org.apache.ctakes.typesystem.type.syntax.Chunk;
 import org.apache.ctakes.typesystem.type.textsem.*;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
@@ -63,7 +60,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         // - Disease and Disorder
         for (DiseaseDisorderMention mention : JCasUtil.select(jCas, DiseaseDisorderMention.class)) {
             // - Handle Text
-            String mentionText = appendUmlsConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
+            Map<String, String> mentionText = expandUMLSConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
             // - Handle date
             List<String> dateMentions = new LinkedList<>();
             for (Sentence s : diseaseToSentence.get(mention)) {
@@ -78,7 +75,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         // - Sign and Symptom
         for (SignSymptomMention mention : JCasUtil.select(jCas, SignSymptomMention.class)) {
             // - Handle Text
-            String mentionText = appendUmlsConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
+            Map<String, String> mentionText = expandUMLSConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
             // - Handle date
             List<String> dateMentions = new LinkedList<>();
             for (Sentence s : signSymptomToSentence.get(mention)) {
@@ -92,16 +89,15 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
 
 
         // Drug Exposures
-        // - Medication TODO: Ask Sijia about pulling from MedXN?
+        // - Medication
         for (MedicationMention mention : JCasUtil.select(jCas, MedicationMention.class)) {
-            String mentionText = appendUmlsConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
+            Map<String, String> mentionText = expandUMLSConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
             // - Try to find associated dosage information (measurement in same chunk)
             Set<MeasurementAnnotation> foundMeasurements = new HashSet<>();
             for (Sentence c : medicationToChunk.get(mention)) { // Guaranteed not to be null; mention will always be in a chunk
                 foundMeasurements.addAll(chunkToMeasurement.getOrDefault(c, new LinkedList<>()));
             }
             String effectiveDrugDose = null;
-            // TODO: reevaluate implementation of below
             if (foundMeasurements.size() > 0) {
                 MeasurementAnnotation currMax = null;
                 for (MeasurementAnnotation m : foundMeasurements) { // Find largest covering annotation
@@ -205,30 +201,29 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
     }
 
     /**
-     * Appends UMLS concepts to the mention string to enable elasticsearch lookups: format string {cui} {tui}
-     * {vocab}{code} {vocab2}{code2}
+     * Returns a type->mention mapping with multiple mentions of the same type being space separated
      *
      * @param mentionText   The text mention to expand
      * @param ontologyArray The ontology array containing UMLS concepts
      * @return An expanded string containing umls concepts
      */
-    private String appendUmlsConcepts(String mentionText, FSArray ontologyArray) {
-        String ret = mentionText;
+    private Map<String, String> expandUMLSConcepts(String mentionText, FSArray ontologyArray) {
+        Map<String, String> ret = new HashMap<>();
+        ret.put("raw", mentionText);
         if (ontologyArray != null && ontologyArray.size() > 0) {
-            StringBuilder sB = new StringBuilder(mentionText);
             boolean flag = false;
             for (FeatureStructure fs : ontologyArray.toArray()) {
                 if (fs instanceof UmlsConcept) {
                     UmlsConcept concept = (UmlsConcept) fs;
                     if (!flag) {
-                        sB.append(" ").append(concept.getCui()).append(" ").append(concept.getTui());
+                        ret.put("cui", concept.getCui());
+                        ret.put("tui", concept.getTui());
                         flag = true;
                     }
-                    sB.append(" ").append(concept.getPreferredText()).append(" ").append(concept.getCodingScheme()).append("").append(concept.getCode());
+                    String scheme = concept.getCodingScheme();
+                    ret.compute(scheme + "_text", (k, v) -> v == null ? concept.getPreferredText() : (v.contains(concept.getPreferredText()) ? v : v.concat(" " + concept.getPreferredText())));
+                    ret.compute(scheme + "_code", (k, v) -> v == null ? concept.getCode() : (v.contains(concept.getCode()) ? v : v.concat(" " + concept.getCode())));
                 }
-            }
-            if (flag) {
-                ret = sB.toString();
             }
         }
         return ret;
