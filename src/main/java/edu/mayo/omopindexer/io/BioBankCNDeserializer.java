@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 public class BioBankCNDeserializer extends CollectionReader_ImplBase {
 
     public static final String PARAM_INPUTDIR = "InputDirectory";
-    private static final Pattern HEADER_PATTERN = Pattern.compile("(?:[\\w]+:[0-9\\w-:. ]+\\|){17}CN_CDA_MCR\\|(?:[\\w]+:[0-9\\w-:. ]+\\|?){2}", Pattern.CASE_INSENSITIVE);
+    private static final Pattern HEADER_PATTERN = Pattern.compile("(?:[\\w]+:[0-9\\w-:. ]+\\|){17}CN_CDA[^\\|]+\\|(?:[\\w]+:[0-9\\w-:. ]+\\|?){2}", Pattern.CASE_INSENSITIVE);
     private ArrayList<File> mFiles;
     private int mCurrentIndex;
     private File inputDir;
@@ -86,7 +86,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 int offsetEnd = m.end();
                 String text;
                 int temp = numSectionsRead; // Temp value for iteration
-                Pattern section = Pattern.compile("\\n([^\\n:]+):([0-9]+):\\n");
+                Pattern section = Pattern.compile("^([^\\n:]+):([0-9]+):", Pattern.MULTILINE);
                 if (m.find()) { // has another header after
                     int start = m.start(); // starting index
                     text = readQueue1.substring(offsetEnd, start); // Content between first and second header
