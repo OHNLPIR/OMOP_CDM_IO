@@ -162,7 +162,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                     String year = m.group(1);
                     String month = m.group(2);
                     String day = m.group(3);
-                    timestamp = month + "-" + day + "-" + year;
+                    timestamp = month + "_" + day + "_" + year;
                 }
                 DocumentID documentID = new DocumentID(cas);
                 documentID.setDocumentID(mcn + "_" + docLink + "_" + docRev + "_" + cn1 + "_" + timestamp + "_" + sectionID);
