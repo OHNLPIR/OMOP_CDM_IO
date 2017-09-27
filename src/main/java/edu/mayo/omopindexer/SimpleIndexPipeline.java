@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Files;
 import edu.mayo.omopindexer.io.BioBankCNDeserializer;
 import edu.mayo.omopindexer.io.JCAStoOMOPCDMSerializer;
+import edu.mayo.omopindexer.performance.DefaultJCasTermAnnotatorThreadSafe;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
-import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
 import org.apache.ctakes.drugner.ae.DrugMentionAnnotator;
 import org.apache.ctakes.temporal.ae.*;
 import org.apache.ctakes.temporal.pipelines.FullTemporalExtractionPipeline;
@@ -27,13 +27,11 @@ import java.io.*;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -182,7 +180,7 @@ public class SimpleIndexPipeline implements Runnable {
             // Run cTAKES
             // - Base Features
             builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
-            builder.add(DefaultJCasTermAnnotator.createAnnotatorDescription());
+            builder.add(DefaultJCasTermAnnotatorThreadSafe.createAnnotatorDescription());
 //        builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
 //        builder.add(PolarityCleartkAnalysisEngine.createAnnotatorDescription());
 //        builder.add(UncertaintyCleartkAnalysisEngine.createAnnotatorDescription());
