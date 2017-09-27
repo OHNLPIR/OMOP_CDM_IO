@@ -3,6 +3,7 @@ package edu.mayo.omopindexer.indexing;
 import edu.mayo.omopindexer.io.DocumentSerializer;
 import edu.mayo.omopindexer.model.CDMDate;
 import edu.mayo.omopindexer.model.CDMModel;
+import org.apache.commons.io.IOUtils;
 import org.apache.lucene.util.QueryBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
@@ -14,9 +15,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
@@ -47,9 +46,17 @@ public class ElasticSearchIndexer {
     }
 
     /** Loads JSON Configuration Parameters **/
-    private static void init() throws FileNotFoundException {
+    private static void init() throws IOException {
+        File jsonFile = new File("configuraiton.json");
+        if (!jsonFile.exists()) {
+            FileOutputStream fos = new FileOutputStream(jsonFile);
+            InputStream fis = ElasticSearchIndexer.class.getResourceAsStream("/configuration.json");
+            IOUtils.copy(fis, fos);
+            fis.close();
+            fos.close();
+        }
         JSONTokener tokenizer =
-                new JSONTokener(ElasticSearchIndexer.class.getResourceAsStream("/configuration.json"));
+                new JSONTokener(new FileInputStream(jsonFile));
         JSONObject obj = new JSONObject(tokenizer);
         HOST = obj.getString("host");
         PORT = obj.getInt("port");

@@ -93,6 +93,7 @@
                                 <!-- Modifications to LVG -->
                                 <exclude>org/apache/ctakes/lvg/resource/LvgCmdApiResourceImpl.class</exclude>
                                 <!-- Modifications to Dictionary Lookup -->
+                                <exclude>org/apache/ctakes/dictionary/lookup2/util/JdbcConnectionFactory.class</exclude>
                                 <exclude>org/apache/ctakes/dictionary/lookup2/util/UmlsUserApprover.class</exclude>
                                 <!-- Modifications to Temporal -->
                                 <exclude>org/apache/ctakes/temporal/ae/DocTimeRelAnnotator.class</exclude>

@@ -132,7 +132,7 @@ public class SimpleIndexPipeline implements Runnable {
             // --- Construct pools
             File pool = new File("pool");
             if (pool.exists()) {
-                System.out.println("Pool temp directory already exists, please remove prior to execution");
+                System.out.println("Pool temp directory already exists, please remove prior to execution or set -DskipPool=true");
                 System.exit(1);
             }
             pool.mkdirs();
@@ -214,16 +214,17 @@ public class SimpleIndexPipeline implements Runnable {
             // Execute pipeline
             SimplePipeline.runPipeline(reader, pipeline);
         } catch (Exception e) {
-            PrintStream temp = System.out; // TODO thread safety on output
-            try {
-                System.setOut(new PrintStream(new FileOutputStream(new File(UUID.randomUUID() + ".err"))));
-                e.printStackTrace(); // Exit with error
-                System.out.flush();
-                System.out.close();
-                System.setOut(temp);
-            } catch (FileNotFoundException e1) {
-                e1.printStackTrace();
-            }
+//            PrintStream temp = System.out; // TODO thread safety on output
+//            try {
+//                System.setOut(new PrintStream(new FileOutputStream(new File(UUID.randomUUID() + ".err"))));
+//                e.printStackTrace(); // Exit with error
+//                System.out.flush();
+//                System.out.close();
+//                System.setOut(temp);
+//            } catch (FileNotFoundException e1) {
+//                e1.printStackTrace();
+//            }
+            e.printStackTrace();
         }
     }
 

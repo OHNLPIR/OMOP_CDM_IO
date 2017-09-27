@@ -23,23 +23,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /** Thread-safe version of {@link org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator} */
 public class DefaultJCasTermAnnotatorThreadSafe extends AbstractJCasTermAnnotator {
 
-    private static AtomicBoolean LOCK = new AtomicBoolean(false);
+    private static final AtomicBoolean LOCK = new AtomicBoolean(false);
 
     public DefaultJCasTermAnnotatorThreadSafe() {
     }
 
     @Override public void initialize(UimaContext context) throws ResourceInitializationException {
         while (LOCK.getAndSet(true)) { // Flag was already true i.e. something else currently accessing
-            try {
-                LOCK.wait(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            synchronized (LOCK) {
+                try {
+                    LOCK.wait(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
         // Acquired lock and atomically changed flag from false to true
         super.initialize(context);
         LOCK.set(false);
-        LOCK.notifyAll();
+        synchronized (LOCK) {
+            LOCK.notifyAll();
+        }
     }
 
 
@@ -111,15 +115,19 @@ public class DefaultJCasTermAnnotatorThreadSafe extends AbstractJCasTermAnnotato
     @Override
     public void process(JCas jcas) throws AnalysisEngineProcessException {
         while (LOCK.getAndSet(true)) { // Flag was already true i.e. something else currently accessing
-            try {
-                LOCK.wait(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            synchronized (LOCK) {
+                try {
+                    LOCK.wait(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
         // Acquired lock and atomically changed flag from false to true
         super.process(jcas);
         LOCK.set(false);
-        LOCK.notifyAll();
+        synchronized (LOCK) {
+            LOCK.notifyAll();
+        }
     }
 }
