@@ -55,7 +55,7 @@ public class SimpleIndexPipeline {
         // - Copy over entire resources package
         File resource = new File("resources");
         resource.mkdirs(); // Should not be necessary but...
-        FileUtils.copyResourcesRecursively(SimpleIndexPipeline.class.getResource("/"), resource);
+        FileUtils.copyResourcesRecursively(new SimpleIndexPipeline().getClass().getResource("/resources"), resource);
 
         // Read in BioBank Clinical Notes via Collection Reader
         CollectionReaderDescription reader = CollectionReaderFactory.createReaderDescription(
