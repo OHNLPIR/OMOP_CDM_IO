@@ -36,6 +36,12 @@ import java.util.zip.ZipInputStream;
  */
 public class SimpleIndexPipeline implements Runnable {
 
+    private final String inputDir;
+
+    private SimpleIndexPipeline(String inputDir) {
+        this.inputDir = inputDir;
+    }
+
     /**
      * Runs the simple pipeline, <b>make sure to update static configuration constants</b>
      **/
@@ -93,31 +99,18 @@ public class SimpleIndexPipeline implements Runnable {
             t.printStackTrace();
             throw new IOException("Error, could not add URL to system classloader");
         }
-    }
-
-    /**
-     * As used in cTAKES-Temporal-Demo
-     **/
-    public static class AddEvent extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
-        @Override
-        public void process(JCas jCas) throws AnalysisEngineProcessException {
-            for (EventMention emention : Lists.newArrayList(JCasUtil.select(
-                    jCas,
-                    EventMention.class))) {
-                EventProperties eventProperties = new org.apache.ctakes.typesystem.type.refsem.EventProperties(jCas);
-
-                // create the event object
-                Event event = new Event(jCas);
-
-                // add the links between event, mention and properties
-                event.setProperties(eventProperties);
-                emention.setEvent(event);
-
-                // add the annotations to the indexes
-                eventProperties.addToIndexes();
-                event.addToIndexes();
-            }
+        // Execute pipeline with multiple threads
+        // - Split data depending on how many cores we have access too (-Dpipeline.threads or ~70% total)
+        long numCores;
+        if (System.getProperty("pipeline.threads") != null) {
+            numCores = Integer.valueOf(System.getProperty("pipeline.threads"));
+            System.out.println("Running pipeline with " + numCores + " threads");
+        } else {
+            numCores = Math.round(Runtime.getRuntime().availableProcessors() * 0.7);
+            System.out.println("-Dpipeline.threads not set, running pipeline with " + numCores + " threads based on system configuration");
         }
+
+
     }
 
     @Override public void run() {
@@ -125,7 +118,7 @@ public class SimpleIndexPipeline implements Runnable {
             // Read in BioBank Clinical Notes via Collection Reader
             CollectionReaderDescription reader = CollectionReaderFactory.createReaderDescription(
                     BioBankCNDeserializer.class,
-                    BioBankCNDeserializer.PARAM_INPUTDIR, "data"
+                    BioBankCNDeserializer.PARAM_INPUTDIR, inputDir
             );
 //        // Read in XMIs via Collection Reader
 //        CollectionReaderDescription reader = CollectionReaderFactory.createReaderDescription(
@@ -175,6 +168,31 @@ public class SimpleIndexPipeline implements Runnable {
                 System.setOut(temp);
             } catch (FileNotFoundException e1) {
                 e1.printStackTrace();
+            }
+        }
+    }
+
+    /**
+     * As used in cTAKES-Temporal-Demo
+     **/
+    public static class AddEvent extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
+        @Override
+        public void process(JCas jCas) throws AnalysisEngineProcessException {
+            for (EventMention emention : Lists.newArrayList(JCasUtil.select(
+                    jCas,
+                    EventMention.class))) {
+                EventProperties eventProperties = new org.apache.ctakes.typesystem.type.refsem.EventProperties(jCas);
+
+                // create the event object
+                Event event = new Event(jCas);
+
+                // add the links between event, mention and properties
+                event.setProperties(eventProperties);
+                emention.setEvent(event);
+
+                // add the annotations to the indexes
+                eventProperties.addToIndexes();
+                event.addToIndexes();
             }
         }
     }
