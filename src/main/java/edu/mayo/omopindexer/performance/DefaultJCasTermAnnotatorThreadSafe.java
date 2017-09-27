@@ -10,7 +10,9 @@ import org.apache.ctakes.dictionary.lookup2.textspan.TextSpan;
 import org.apache.ctakes.dictionary.lookup2.util.FastLookupToken;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
+import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
+import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
 import java.util.Collection;
@@ -99,10 +101,25 @@ public class DefaultJCasTermAnnotatorThreadSafe extends AbstractJCasTermAnnotato
     }
 
     public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
-        return AnalysisEngineFactory.createEngineDescription(DefaultJCasTermAnnotator.class, new Object[0]);
+        return AnalysisEngineFactory.createEngineDescription(DefaultJCasTermAnnotatorThreadSafe.class, new Object[0]);
     }
 
     public static AnalysisEngineDescription createAnnotatorDescription(String descriptorPath) throws ResourceInitializationException {
-        return AnalysisEngineFactory.createEngineDescription(DefaultJCasTermAnnotator.class, new Object[]{"DictionaryDescriptor", descriptorPath});
+        return AnalysisEngineFactory.createEngineDescription(DefaultJCasTermAnnotatorThreadSafe.class, new Object[]{"DictionaryDescriptor", descriptorPath});
+    }
+
+    @Override
+    public void process(JCas jcas) throws AnalysisEngineProcessException {
+        while (LOCK.getAndSet(true)) { // Flag was already true i.e. something else currently accessing
+            try {
+                LOCK.wait(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        // Acquired lock and atomically changed flag from false to true
+        super.process(jcas);
+        LOCK.set(false);
+        LOCK.notifyAll();
     }
 }

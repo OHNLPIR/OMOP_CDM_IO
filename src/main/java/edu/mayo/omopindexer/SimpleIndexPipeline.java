@@ -128,29 +128,31 @@ public class SimpleIndexPipeline implements Runnable {
             System.exit(1);
         }
         // -- Split data into pools
-        // --- Construct pools
-        File pool = new File("pool");
-        if (pool.exists()) {
-            System.out.println("Pool temp directory already exists, please remove prior to execution");
-            System.exit(1);
-        }
-        pool.mkdirs();
-        // Split data
-        List<File> files = Arrays.asList(inputDir.listFiles());
-        int currPartition = 0;
-        for (List<File> list : Lists.partition(files, (int) Math.ceil(files.size()/(double)numCores))) {
-            File copyFolder = new File(pool, "pool_" + currPartition);
-            if (!copyFolder.exists()) {
-                copyFolder.mkdirs();
+        if (System.getProperty("skipPool") != null) {
+            // --- Construct pools
+            File pool = new File("pool");
+            if (pool.exists()) {
+                System.out.println("Pool temp directory already exists, please remove prior to execution");
+                System.exit(1);
             }
-            for (File doc : list) {
-                Files.copy(doc, new File(copyFolder, doc.getName()));
+            pool.mkdirs();
+            // Split data
+            List<File> files = Arrays.asList(inputDir.listFiles());
+            int currPartition = 0;
+            for (List<File> list : Lists.partition(files, (int) Math.ceil(files.size() / (double) numCores))) {
+                File copyFolder = new File(pool, "pool_" + currPartition);
+                if (!copyFolder.exists()) {
+                    copyFolder.mkdirs();
+                }
+                for (File doc : list) {
+                    Files.copy(doc, new File(copyFolder, doc.getName()));
+                }
+                currPartition++;
             }
-            currPartition++;
-        }
 
-        if (numCores != currPartition) {
-            throw new RuntimeException("Something went terribly wrong, more partitions created than threads");
+            if (numCores != currPartition) {
+                throw new RuntimeException("Something went terribly wrong, more partitions created than threads");
+            }
         }
 
         // - Run the pipeline
@@ -165,7 +167,8 @@ public class SimpleIndexPipeline implements Runnable {
         }
     }
 
-    @Override public void run() {
+    @Override
+    public void run() {
         try {
             // Read in BioBank Clinical Notes via Collection Reader
             CollectionReaderDescription reader = CollectionReaderFactory.createReaderDescription(
