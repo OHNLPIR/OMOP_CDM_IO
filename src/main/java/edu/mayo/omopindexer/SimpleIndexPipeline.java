@@ -22,14 +22,19 @@ import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.lang.reflect.Method;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * A simple pipeline that can be elaborated upon. Runs a cTAKES pipeline on input documents, performs mapping, and then
  * indexes in ElasticSearch
  */
-public class SimpleIndexPipeline {
+public class SimpleIndexPipeline implements Runnable {
 
     /**
      * Runs the simple pipeline, <b>make sure to update static configuration constants</b>
@@ -52,54 +57,42 @@ public class SimpleIndexPipeline {
             System.out.println("Download the UMLS dictionary, and extract to the \"resources\" folder");
             System.exit(1);
         }
-        // - Copy over entire resources package
+        // - Copy over lvg resources
         File resource = new File("resources");
-        resource.mkdirs(); // Should not be necessary but...
-        FileUtils.copyResourcesRecursively(new SimpleIndexPipeline().getClass().getResource("/resources"), resource);
+        byte[] buf = new byte[1024];
+        ZipInputStream is = new ZipInputStream(SimpleIndexPipeline.class.getResourceAsStream("/lvg.zip"));
+        ZipEntry entry;
+        while ((entry = is.getNextEntry()) != null) {
+            File out = new File(resource, entry.getName());
+            if (entry.isDirectory()) {
+                out.mkdirs();
+            } else {
+                out.getParentFile().mkdirs();
+                FileOutputStream fos = new FileOutputStream(out);
+                int len;
+                while ((len = is.read(buf)) > 0) {
+                    fos.write(buf, 0, len);
+                }
 
-        // Read in BioBank Clinical Notes via Collection Reader
-        CollectionReaderDescription reader = CollectionReaderFactory.createReaderDescription(
-                BioBankCNDeserializer.class,
-                BioBankCNDeserializer.PARAM_INPUTDIR, "data"
-        );
-//        // Read in XMIs via Collection Reader
-//        CollectionReaderDescription reader = CollectionReaderFactory.createReaderDescription(
-//                XmiCollectionReaderCtakes.class,
-//                XmiCollectionReaderCtakes.PARAM_INPUTDIR, "data"
-//        );//
-        AggregateBuilder builder = new AggregateBuilder();
-        // Run cTAKES
-        // - Base Features
-        builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
-        builder.add(DefaultJCasTermAnnotator.createAnnotatorDescription());
-//        builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
-//        builder.add(PolarityCleartkAnalysisEngine.createAnnotatorDescription());
-//        builder.add(UncertaintyCleartkAnalysisEngine.createAnnotatorDescription());
-//        builder.add(HistoryCleartkAnalysisEngine.createAnnotatorDescription());
-//        builder.add(ConditionalCleartkAnalysisEngine.createAnnotatorDescription());
-//        builder.add(GenericCleartkAnalysisEngine.createAnnotatorDescription());
-//        builder.add(SubjectCleartkAnalysisEngine.createAnnotatorDescription());
-        // - Drug Extraction
-        builder.add(AnalysisEngineFactory.createEngineDescription(DrugMentionAnnotator.class));
-        // - Temporal extraction
-        builder.add(BackwardsTimeAnnotator
-                .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
-        builder.add(EventAnnotator
-                .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
-        builder.add(AnalysisEngineFactory.createEngineDescription(FullTemporalExtractionPipeline.CopyPropertiesToTemporalEventAnnotator.class));
-        builder.add(AnalysisEngineFactory.createEngineDescription(AddEvent.class));
-        builder.add(DocTimeRelAnnotator
-                .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
-        builder.add(EventTimeSelfRelationAnnotator
-                .createEngineDescription("/org/apache/ctakes/temporal/ae/eventtime/model.jar"));
-        builder.add(EventEventRelationAnnotator
-                .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventevent/model.jar"));
-        // Convert to OMOP CDM and write to ElasticSearch
-        builder.add(JCAStoOMOPCDMSerializer.createAnnotatorDescription());
-        AnalysisEngineDescription pipeline = builder.createAggregateDescription();
-
-        // Execute pipeline
-        SimplePipeline.runPipeline(reader, pipeline);
+                fos.flush();
+                fos.close();
+            }
+        }
+        is.closeEntry();
+        is.close();
+        // - Load lvg resources to classpath
+        URLClassLoader urlCL = (URLClassLoader) ClassLoader.getSystemClassLoader();
+        Class cLClazz = URLClassLoader.class;
+        // -- Access classloader method via reflection
+        try {
+            Method method = cLClazz.getDeclaredMethod("addURL", URL.class);
+            method.setAccessible(true);
+            // -- Invoke with resource folder URL
+            method.invoke(urlCL, resource.toURI().toURL());
+        } catch (Throwable t) {
+            t.printStackTrace();
+            throw new IOException("Error, could not add URL to system classloader");
+        }
     }
 
     /**
@@ -127,4 +120,62 @@ public class SimpleIndexPipeline {
         }
     }
 
+    @Override public void run() {
+        try {
+            // Read in BioBank Clinical Notes via Collection Reader
+            CollectionReaderDescription reader = CollectionReaderFactory.createReaderDescription(
+                    BioBankCNDeserializer.class,
+                    BioBankCNDeserializer.PARAM_INPUTDIR, "data"
+            );
+//        // Read in XMIs via Collection Reader
+//        CollectionReaderDescription reader = CollectionReaderFactory.createReaderDescription(
+//                XmiCollectionReaderCtakes.class,
+//                XmiCollectionReaderCtakes.PARAM_INPUTDIR, "data"
+//        );//
+            AggregateBuilder builder = new AggregateBuilder();
+            // Run cTAKES
+            // - Base Features
+            builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
+            builder.add(DefaultJCasTermAnnotator.createAnnotatorDescription());
+//        builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
+//        builder.add(PolarityCleartkAnalysisEngine.createAnnotatorDescription());
+//        builder.add(UncertaintyCleartkAnalysisEngine.createAnnotatorDescription());
+//        builder.add(HistoryCleartkAnalysisEngine.createAnnotatorDescription());
+//        builder.add(ConditionalCleartkAnalysisEngine.createAnnotatorDescription());
+//        builder.add(GenericCleartkAnalysisEngine.createAnnotatorDescription());
+//        builder.add(SubjectCleartkAnalysisEngine.createAnnotatorDescription());
+            // - Drug Extraction
+            builder.add(AnalysisEngineFactory.createEngineDescription(DrugMentionAnnotator.class));
+            // - Temporal extraction
+            builder.add(BackwardsTimeAnnotator
+                    .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
+            builder.add(EventAnnotator
+                    .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
+            builder.add(AnalysisEngineFactory.createEngineDescription(FullTemporalExtractionPipeline.CopyPropertiesToTemporalEventAnnotator.class));
+            builder.add(AnalysisEngineFactory.createEngineDescription(AddEvent.class));
+            builder.add(DocTimeRelAnnotator
+                    .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
+            builder.add(EventTimeSelfRelationAnnotator
+                    .createEngineDescription("/org/apache/ctakes/temporal/ae/eventtime/model.jar"));
+            builder.add(EventEventRelationAnnotator
+                    .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventevent/model.jar"));
+            // Convert to OMOP CDM and write to ElasticSearch
+            builder.add(JCAStoOMOPCDMSerializer.createAnnotatorDescription());
+            AnalysisEngineDescription pipeline = builder.createAggregateDescription();
+
+            // Execute pipeline
+            SimplePipeline.runPipeline(reader, pipeline);
+        } catch (Exception e) {
+            PrintStream temp = System.out; // TODO thread safety on output
+            try {
+                System.setOut(new PrintStream(new FileOutputStream(new File(UUID.randomUUID() + ".err"))));
+                e.printStackTrace(); // Exit with error
+                System.out.flush();
+                System.out.close();
+                System.setOut(temp);
+            } catch (FileNotFoundException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
 }
