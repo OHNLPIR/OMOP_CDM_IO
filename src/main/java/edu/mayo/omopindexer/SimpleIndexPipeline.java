@@ -128,7 +128,7 @@ public class SimpleIndexPipeline implements Runnable {
             System.exit(1);
         }
         // -- Split data into pools
-        if (System.getProperty("skipPool") != null) {
+        if (System.getProperty("skipPool") == null) {
             // --- Construct pools
             File pool = new File("pool");
             if (pool.exists()) {
