@@ -5,7 +5,9 @@ import com.google.common.io.Files;
 import edu.mayo.omopindexer.io.BioBankCNDeserializer;
 import edu.mayo.omopindexer.io.JCAStoOMOPCDMSerializer;
 import edu.mayo.omopindexer.performance.DefaultJCasTermAnnotatorThreadSafe;
+import org.apache.commons.io.FileUtils;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
+import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.ctakes.drugner.ae.DrugMentionAnnotator;
 import org.apache.ctakes.lvg.resource.LvgCmdApiResourceImpl;
 import org.apache.ctakes.temporal.ae.*;
@@ -23,12 +25,16 @@ import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
+import org.hsqldb.Server;
+import org.hsqldb.persist.HsqlProperties;
+import org.hsqldb.server.ServerAcl;
 
 import java.io.*;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -41,18 +47,19 @@ import java.util.zip.ZipInputStream;
  * A simple pipeline that can be elaborated upon. Runs a cTAKES pipeline on input documents, performs mapping, and then
  * indexes in ElasticSearch
  */
-public class SimpleIndexPipeline implements Runnable {
+public class SimpleIndexPipeline extends Thread {
 
     private final int inputDir;
 
     private SimpleIndexPipeline(int inputDir) {
+        super();
         this.inputDir = inputDir;
     }
 
     /**
      * Runs the simple pipeline, <b>make sure to update static configuration constants</b>
      **/
-    public static void main(String... args) throws UIMAException, IOException {
+    public static void main(String... args) throws UIMAException, IOException, ServerAcl.AclFormatException {
         // Bootstrapping for the sake of the end-user (cTAKES: "what are end-user readable error messages???")
         // - Check for UMLS user and password being set
         if (System.getProperty("ctakes.umlsuser") == null || System.getProperty("ctakes.umlspw") == null) {
@@ -70,6 +77,12 @@ public class SimpleIndexPipeline implements Runnable {
             System.out.println("Download the UMLS dictionary, and extract to the \"resources\" folder");
             System.exit(1);
         }
+        if (System.getProperty("dictionaryPath") == null) {
+            System.out.println("Path to dictionary definition not set.");
+            System.out.println("Set the -DdictionaryPath=path/to/lookup/script parameter");
+            System.exit(1);
+        }
+
         // - Copy over lvg resources
         File resource = new File("resources");
         byte[] buf = new byte[1024];
@@ -155,6 +168,26 @@ public class SimpleIndexPipeline implements Runnable {
             }
         }
 
+
+        // Set up databases for each of the threads (TODO: fix directly in cTAKES at some point)
+        String pathToScript = System.getProperty("dictionaryPath");
+        System.out.println("Using dictionary description " + pathToScript);
+        HsqlProperties properties = new HsqlProperties();
+        LinkedList<Thread> threads = new LinkedList<>();
+        for (int i = 0; i < numCores; i++) {
+            Thread t = new SimpleIndexPipeline(i);
+            threads.add(t);
+            File in = new File(pathToScript);
+            long id = t.getId();
+            File out = new File(in.getParent(), in.getName().replace(".script", "") + id);
+            FileUtils.copyFile(in, out);
+            properties.setProperty("server.database." + id, "file:/" + FileLocator.getFullPath(pathToScript.replace(".script", "") + id));
+            properties.setProperty("server.dbname." + id, "lookupdb");
+        }
+
+        Server server = new Server();
+        server.setProperties(properties);
+        server.start();
         // - Run the pipeline
         ExecutorService executor = Executors.newCachedThreadPool(); // Technically should set pool size, not really necessary since we artificially bound
         for (int i = 0; i < numCores; i++) {
