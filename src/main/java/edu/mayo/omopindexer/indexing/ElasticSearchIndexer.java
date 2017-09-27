@@ -3,11 +3,14 @@ package edu.mayo.omopindexer.indexing;
 import edu.mayo.omopindexer.io.DocumentSerializer;
 import edu.mayo.omopindexer.model.CDMDate;
 import edu.mayo.omopindexer.model.CDMModel;
+import org.apache.lucene.util.QueryBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.index.query.HasParentQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -119,7 +122,12 @@ public class ElasticSearchIndexer {
         Deque<JSONObject> jsons = document.toElasticSearchIndexableJSONs();
         JSONObject parent = jsons.pollFirst();
         String docID = parent.getString("DocumentID");
+        // Clean up any children if the document already exists as they were re-generated
+        HasParentQueryBuilder builder = QueryBuilders.hasParentQuery("document", QueryBuilders.termQuery("DocumentID", docID.toLowerCase()));
+
+        // Index document itself
         ES_CLIENT.prepareIndex(INDEX, "document", docID).setSource(parent.toString()).execute().actionGet(); // TODO this needs to be optimized
+        // Index its children
         JSONObject nextChild;
         while ((nextChild = jsons.pollFirst()) != null) {
             ES_CLIENT.prepareIndex(INDEX, nextChild.getString("type")).setParent(docID).setSource(nextChild.toString()).execute().actionGet(); // TODO possible resource leak with reindexing documents/infinite number of children...maybe purge all children when docujment already in index?

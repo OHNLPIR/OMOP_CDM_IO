@@ -3,9 +3,7 @@ package edu.mayo.omopindexer;
 import com.google.common.collect.Lists;
 import edu.mayo.omopindexer.io.BioBankCNDeserializer;
 import edu.mayo.omopindexer.io.JCAStoOMOPCDMSerializer;
-import org.apache.ctakes.assertion.medfacts.cleartk.*;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
-import org.apache.ctakes.dependency.parser.ae.ClearNLPDependencyParserAE;
 import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
 import org.apache.ctakes.drugner.ae.DrugMentionAnnotator;
 import org.apache.ctakes.temporal.ae.*;
@@ -23,7 +21,6 @@ import org.apache.uima.fit.factory.CollectionReaderFactory;
 import org.apache.uima.fit.pipeline.SimplePipeline;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
-import org.apache.uima.tools.components.XmiWriterCasConsumer;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +35,28 @@ public class SimpleIndexPipeline {
      * Runs the simple pipeline, <b>make sure to update static configuration constants</b>
      **/
     public static void main(String... args) throws UIMAException, IOException {
+        // Bootstrapping for the sake of the end-user (cTAKES: "what are end-user readable error messages???")
+        // - Check for UMLS user and password being set
+        if (System.getProperty("ctakes.umlsuser") == null || System.getProperty("ctakes.umlspw") == null) {
+            System.out.println("cTAKES requires a UMLS user as well as a UMLS password to be set for dictionary lookups");
+            System.out.println("Please rerun with additional arguments -Dctakes.umlsuser=user -Dctakes.umlspw=pass");
+            System.exit(1);
+        }
+        // - Check for dictionary resource:
+        File f = new File("resources/org/apache/ctakes/dictionary/lookup/");
+        if (!f.exists()) {
+            f = new File("resources");
+            f.mkdirs();
+            System.out.println("Missing cTAKES dictionary definitions: please go to ");
+            System.out.println("http://ctakes.apache.org/downloads.cgi");
+            System.out.println("Download the UMLS dictionary, and extract to the \"resources\" folder");
+            System.exit(1);
+        }
+        // - Copy over entire resources package
+        File resource = new File("resources");
+        resource.mkdirs(); // Should not be necessary but...
+        FileUtils.copyResourcesRecursively(SimpleIndexPipeline.class.getResource("/"), resource);
+
         // Read in BioBank Clinical Notes via Collection Reader
         CollectionReaderDescription reader = CollectionReaderFactory.createReaderDescription(
                 BioBankCNDeserializer.class,
@@ -67,7 +86,7 @@ public class SimpleIndexPipeline {
                 .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/timeannotator/model.jar"));
         builder.add(EventAnnotator
                 .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventannotator/model.jar"));
-        builder.add( AnalysisEngineFactory.createEngineDescription( FullTemporalExtractionPipeline.CopyPropertiesToTemporalEventAnnotator.class ) );
+        builder.add(AnalysisEngineFactory.createEngineDescription(FullTemporalExtractionPipeline.CopyPropertiesToTemporalEventAnnotator.class));
         builder.add(AnalysisEngineFactory.createEngineDescription(AddEvent.class));
         builder.add(DocTimeRelAnnotator
                 .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/doctimerel/model.jar"));
@@ -83,7 +102,9 @@ public class SimpleIndexPipeline {
         SimplePipeline.runPipeline(reader, pipeline);
     }
 
-    /** As used in cTAKES-Temporal-Demo **/
+    /**
+     * As used in cTAKES-Temporal-Demo
+     **/
     public static class AddEvent extends org.apache.uima.fit.component.JCasAnnotator_ImplBase {
         @Override
         public void process(JCas jCas) throws AnalysisEngineProcessException {
@@ -105,4 +126,5 @@ public class SimpleIndexPipeline {
             }
         }
     }
+
 }

@@ -282,18 +282,22 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
                     if (periodModify) period1 = 2 * java.lang.Integer.valueOf(period1) + "";
                     String input = transformUnitOfTime(periodUnit);
                     if (input == null) continue;
-                    ret.add(new CDMDate(null, null, CDMDate.CDMDate_Type.PERIOD, subject,
-                            input == null ? period1 + " " + periodUnit : "RP" + input.replace("%d", period1)));
+                    ret.add(new CDMDate(null, CDMDate.CDMDate_Type.PERIOD, subject,
+                            convertISO8601ToMillis(input.replace("%d", period1))));
                 } else if (periodUnit != null) { // Empty period/period not specified but unit present, assume 1 or 2
                     String input = transformUnitOfTime(periodUnit);
                     if (input == null) continue;
-                    ret.add(new CDMDate(null, null, CDMDate.CDMDate_Type.PERIOD, subject, input == null ?
-                            (periodModify ? "2" : "1") + " " + periodUnit : "RP" + input.replace("%d", periodModify ? "2" : "1")));
+                    ret.add(new CDMDate(null, CDMDate.CDMDate_Type.PERIOD, subject,
+                            convertISO8601ToMillis(input.replace("%d", periodModify ? "2" : "1"))));
                 }
             }
 
         }
         return ret;
+    }
+
+    private static long convertISO8601ToMillis(String iso8601String) {
+        return 0; // TODO
     }
 
     /**
