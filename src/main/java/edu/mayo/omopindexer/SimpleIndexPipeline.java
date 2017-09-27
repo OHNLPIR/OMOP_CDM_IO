@@ -7,6 +7,7 @@ import edu.mayo.omopindexer.io.JCAStoOMOPCDMSerializer;
 import edu.mayo.omopindexer.performance.DefaultJCasTermAnnotatorThreadSafe;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
 import org.apache.ctakes.drugner.ae.DrugMentionAnnotator;
+import org.apache.ctakes.lvg.resource.LvgCmdApiResourceImpl;
 import org.apache.ctakes.temporal.ae.*;
 import org.apache.ctakes.temporal.pipelines.FullTemporalExtractionPipeline;
 import org.apache.ctakes.typesystem.type.refsem.Event;

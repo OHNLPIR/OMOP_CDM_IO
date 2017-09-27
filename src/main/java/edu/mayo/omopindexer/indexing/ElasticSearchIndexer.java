@@ -31,6 +31,7 @@ public class ElasticSearchIndexer {
 
     private static String HOST;
     private static int PORT;
+    private static int HTTP_PORT;
     private static String CLUSTER;
     private static String INDEX;
     private static Client ES_CLIENT;
@@ -52,11 +53,12 @@ public class ElasticSearchIndexer {
         JSONObject obj = new JSONObject(tokenizer);
         HOST = obj.getString("host");
         PORT = obj.getInt("port");
+        HTTP_PORT = obj.getInt("http_port");
         CLUSTER = obj.getString("cluster");
         INDEX = obj.getString("index_name");
         Settings s = ImmutableSettings.settingsBuilder()
                 .put("cluster.name", CLUSTER).put("client.transport.sniff", true).build();
-        ES_CLIENT = new TransportClient(s).addTransportAddress(new InetSocketTransportAddress(HOST, 9300));
+        ES_CLIENT = new TransportClient(s).addTransportAddress(new InetSocketTransportAddress(HOST, PORT));
     }
 
     /** Constructs indexes in Elasticsearch as appropriate based on configuration values */
@@ -97,7 +99,7 @@ public class ElasticSearchIndexer {
         submitToES.put("mappings", mapping);
         System.out.print(submitToES.toString());
         try {
-            String base = "http://" + HOST + ":9200" + "/" + INDEX;
+            String base = "http://" + HOST + ":" + HTTP_PORT + "/" + INDEX;
             URL indexURL = new URL(base);
             HttpURLConnection conn = (HttpURLConnection) indexURL.openConnection();
             conn.setRequestMethod("PUT");
