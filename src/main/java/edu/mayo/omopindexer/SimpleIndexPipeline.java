@@ -1,6 +1,7 @@
 package edu.mayo.omopindexer;
 
 import com.google.common.collect.Lists;
+import com.google.common.io.Files;
 import edu.mayo.omopindexer.io.BioBankCNDeserializer;
 import edu.mayo.omopindexer.io.JCAStoOMOPCDMSerializer;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
@@ -26,7 +27,14 @@ import java.io.*;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -36,9 +44,9 @@ import java.util.zip.ZipInputStream;
  */
 public class SimpleIndexPipeline implements Runnable {
 
-    private final String inputDir;
+    private final int inputDir;
 
-    private SimpleIndexPipeline(String inputDir) {
+    private SimpleIndexPipeline(int inputDir) {
         this.inputDir = inputDir;
     }
 
@@ -99,18 +107,63 @@ public class SimpleIndexPipeline implements Runnable {
             t.printStackTrace();
             throw new IOException("Error, could not add URL to system classloader");
         }
-        // Execute pipeline with multiple threads
-        // - Split data depending on how many cores we have access too (-Dpipeline.threads or ~70% total)
-        long numCores;
+        // Execute pipeline with multiple threads and verify some parameters
+        // - Split data depending on how many cores we have access to (-Dpipeline.threads or ~70% total)
+        // -- Detect number of cores to use
+        int numCores;
         if (System.getProperty("pipeline.threads") != null) {
             numCores = Integer.valueOf(System.getProperty("pipeline.threads"));
             System.out.println("Running pipeline with " + numCores + " threads");
         } else {
-            numCores = Math.round(Runtime.getRuntime().availableProcessors() * 0.7);
+            numCores = (int) Math.round(Runtime.getRuntime().availableProcessors() * 0.7); // Should never be high enough to actually cause an overflow
+            if (numCores == 0) numCores = 1;
             System.out.println("-Dpipeline.threads not set, running pipeline with " + numCores + " threads based on system configuration");
         }
+        if (System.getProperty("inputDir") == null) {
+            System.out.println("-DinputDir not set, defaulting to \"data\"");
+        }
+        String input = System.getProperty("inputDir") == null ? "data" : System.getProperty("inputDir");
+        File inputDir = new File(input);
+        if (!inputDir.exists() || !inputDir.isDirectory() || inputDir.listFiles() == null) {
+            System.out.println("Invalid input directory " + inputDir.getAbsolutePath() + ": does not exist, is empty, or is not a directory");
+            System.exit(1);
+        }
+        // -- Split data into pools
+        // --- Construct pools
+        File pool = new File("pool");
+        if (pool.exists()) {
+            System.out.println("Pool temp directory already exists, please remove prior to execution");
+            System.exit(1);
+        }
+        pool.mkdirs();
+        // Split data
+        List<File> files = Arrays.asList(inputDir.listFiles());
+        int currPartition = 0;
+        for (List<File> list : Lists.partition(files, (int) Math.ceil(files.size()/(double)numCores))) {
+            File copyFolder = new File(pool, "pool_" + currPartition);
+            if (!copyFolder.exists()) {
+                copyFolder.mkdirs();
+            }
+            for (File doc : list) {
+                Files.copy(doc, new File(copyFolder, doc.getName()));
+            }
+            currPartition++;
+        }
 
+        if (numCores != currPartition) {
+            throw new RuntimeException("Something went terribly wrong, more partitions created than threads");
+        }
 
+        // - Run the pipeline
+        ExecutorService executor = Executors.newCachedThreadPool(); // Technically should set pool size, not really necessary since we artificially bound
+        for (int i = 0; i < numCores; i++) {
+            executor.submit(new SimpleIndexPipeline(i));
+        }
+        try {
+            executor.awaitTermination(Long.MAX_VALUE - 1, TimeUnit.DAYS); // Do not time out
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override public void run() {
@@ -118,7 +171,7 @@ public class SimpleIndexPipeline implements Runnable {
             // Read in BioBank Clinical Notes via Collection Reader
             CollectionReaderDescription reader = CollectionReaderFactory.createReaderDescription(
                     BioBankCNDeserializer.class,
-                    BioBankCNDeserializer.PARAM_INPUTDIR, inputDir
+                    BioBankCNDeserializer.PARAM_INPUTDIR, "pool/pool_" + inputDir
             );
 //        // Read in XMIs via Collection Reader
 //        CollectionReaderDescription reader = CollectionReaderFactory.createReaderDescription(
