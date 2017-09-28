@@ -5,6 +5,7 @@ import edu.mayo.omopindexer.indexing.ElasticSearchIndexer;
 import edu.mayo.omopindexer.model.*;
 import edu.mayo.omopindexer.types.BioBankCNHeader;
 import edu.mayo.omopindexer.types.BioBankCNSectionHeader;
+import org.apache.ctakes.perf.AnnotationCache;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.textsem.*;
@@ -18,6 +19,7 @@ import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
+import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.XMLSerializer;
 import org.xml.sax.SAXException;
@@ -41,6 +43,8 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
     public void process(JCas jCas) throws AnalysisEngineProcessException {
         // Initialize storage for models
         Collection<CDMModel> generatedModels = new LinkedList<>();
+        // Create storage of used annotations for unstructured observation use
+        Collection<Annotation> usedAnns = new LinkedList<>();
         // Retrieve Metadata Information
         String text = jCas.getDocumentText();
         String id = JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID();
@@ -59,6 +63,8 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         // Condition Occurrences
         // - Disease and Disorder
         for (DiseaseDisorderMention mention : JCasUtil.select(jCas, DiseaseDisorderMention.class)) {
+            // - Add to used
+            usedAnns.add(mention);
             // - Handle Text
             Map<String, String> mentionText = expandUMLSConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
             // - Handle date
@@ -74,6 +80,8 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
 
         // - Sign and Symptom
         for (SignSymptomMention mention : JCasUtil.select(jCas, SignSymptomMention.class)) {
+            // - Add to used
+            usedAnns.add(mention);
             // - Handle Text
             Map<String, String> mentionText = expandUMLSConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
             // - Handle date
@@ -91,6 +99,8 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         // Drug Exposures
         // - Medication
         for (MedicationMention mention : JCasUtil.select(jCas, MedicationMention.class)) {
+            // - Add to used
+            usedAnns.add(mention);
             Map<String, String> mentionText = expandUMLSConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
             // - Try to find associated dosage information (measurement in same chunk)
             Set<MeasurementAnnotation> foundMeasurements = new HashSet<>();
@@ -121,6 +131,8 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
 
         // Measurement
         for (MeasurementAnnotation mention : JCasUtil.select(jCas, MeasurementAnnotation.class)) {
+            // - Add to used
+            usedAnns.add(mention);
             String mentionText = mention.getCoveredText();
             // Do some basic preprocessing
             // - Detects when unit and numerics are combined into the same word
@@ -193,6 +205,15 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
             patientID = pIDMatcher.group(1);
         }
         // TODO actually use this information somehow (i.e. by pulling from structured data)
+        // Unstructured Observations
+        // - Create a secondary index to check for useful annotations in sentences
+        AnnotationCache.AnnotationTree tree = AnnotationCache.getAnnotationCache(id + "_used", text.length(), usedAnns);
+        for (Sentence s : JCasUtil.select(jCas, Sentence.class)) {
+            if (tree.getCollisions(s.getBegin(), s.getEnd(), Annotation.class).size() == 0) {
+                generatedModels.add(new CDMUnstructuredObservation(s.getCoveredText()));
+            }
+        }
+
         // Send to ElasticSearch
         // - Pull Metadata
         String headerText = header.getValue();
