@@ -58,7 +58,7 @@ cTAKES -> OMOP CDM Mappings
 	- age: HEADER->ACTIVITY_DTM - HEADER->DOB
 	- limits: [UNMAPPED]
 - UnstructuredObservation:
-	- observation: [UNMAPPED] - Any sentences that do not contain structured information
+	- observation: Sentence->Does Not Contain [DiseaseDisorderMention|SignSymptomMention|MedicationMention|MeasurementAnnotation]
 Date:
 - begin_date: TimeMention->Covered Text->RegEx->Standardization
 - end_date: TimeMention->Covered Text->RegEx->Standardization
