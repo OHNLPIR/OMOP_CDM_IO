@@ -10,11 +10,13 @@
             <features>
                 <featureDescription>
                     <name>value</name>
-                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                    <rangeTypeName>uima.cas.FSArray</rangeTypeName>
+                    <elementType>edu.mayo.omopindexer.types.StringStringMapEntry</elementType>
                 </featureDescription>
                 <featureDescription>
                     <name>date</name>
-                    <rangeTypeName>edu.mayo.omopindexer.types.DateCDM</rangeTypeName>
+                    <rangeTypeName>uima.cas.FSArray</rangeTypeName>
+                    <elementType>edu.mayo.omopindexer.types.DateCDM</elementType>
                 </featureDescription>
             </features>
         </typeDescription>
@@ -28,11 +30,29 @@
                     <rangeTypeName>uima.cas.Long</rangeTypeName>
                 </featureDescription>
                 <featureDescription>
-                    <name>date2</name>
-                    <rangeTypeName>uima.cas.Long</rangeTypeName>
+                    <name>type</name>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
                 </featureDescription>
                 <featureDescription>
                     <name>subject</name>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>timestamp</name>
+                    <rangeTypeName>uima.cas.Long</rangeTypeName>
+                </featureDescription>
+            </features>
+        </typeDescription>
+        <typeDescription>
+            <name>edu.mayo.omopindexer.types.StringStringMapEntry</name>
+            <supertypeName>uima.cas.TOP</supertypeName>
+            <features>
+                <featureDescription>
+                    <name>key</name>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>value</name>
                     <rangeTypeName>uima.cas.String</rangeTypeName>
                 </featureDescription>
             </features>
@@ -44,11 +64,13 @@
             <features>
                 <featureDescription>
                     <name>value</name>
-                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                    <rangeTypeName>uima.cas.FSArray</rangeTypeName>
+                    <elementType>edu.mayo.omopindexer.types.StringStringMapEntry</elementType>
                 </featureDescription>
                 <featureDescription>
                     <name>date</name>
-                    <rangeTypeName>edu.mayo.omopindexer.types.DateCDM</rangeTypeName>
+                    <rangeTypeName>uima.cas.FSArray</rangeTypeName>
+                    <elementType>edu.mayo.omopindexer.types.DateCDM</elementType>
                 </featureDescription>
                 <featureDescription>
                     <name>quantity</name>
