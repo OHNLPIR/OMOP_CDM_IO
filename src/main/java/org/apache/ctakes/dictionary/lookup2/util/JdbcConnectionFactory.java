@@ -1,9 +1,10 @@
 package org.apache.ctakes.dictionary.lookup2.util;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.log4j.Logger;
 
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
@@ -55,15 +56,15 @@ public enum JdbcConnectionFactory {
                                      final String jdbcPass ) throws SQLException {
         // ignores jdbc parameters because we always use localdb for everything
         long id = Thread.currentThread().getId();
-        Connection connection = CONNECTIONS.get( "lookupdb" + id);
+        Connection connection = CONNECTIONS.get( "localdb" + id);
         if ( connection != null ) {
             return connection;
         }
-//        String trueJdbcUrl = jdbcUrl;
-//        if ( jdbcUrl.startsWith( HSQL_FILE_PREFIX ) ) {
-//            // Hack for hsqldb file needing to be absolute or relative to current working directory
-//            trueJdbcUrl = HSQL_FILE_PREFIX + getConnectionUrl( jdbcUrl );
-//        }
+        String trueJdbcUrl = jdbcUrl;
+        if ( jdbcUrl.startsWith( HSQL_FILE_PREFIX ) ) {
+            // Hack for hsqldb file needing to be absolute or relative to current working directory
+            trueJdbcUrl = HSQL_FILE_PREFIX + getConnectionUrl( jdbcUrl );
+        }
         try {
             // DO NOT use try with resources here.
             // Try with resources uses a closable and closes it when exiting the try block
@@ -76,14 +77,30 @@ public enum JdbcConnectionFactory {
             LOGGER.error( "Could not create Driver " + jdbcDriver, multE );
             throw new SQLException( multE );
         }
-        LOGGER.info( "Connecting to " + jdbcUrl + ":" );
+        String pathToScript = System.getProperty("dictionaryPath");
+        System.out.println("Using dictionary description " + pathToScript);
+        File in = new File(pathToScript);
+        File out = new File(in.getParent(), in.getName().replace(".script", "") + id + ".script");
+        try {
+            InputStream is = new FileInputStream(in);
+            OutputStream os = new FileOutputStream(out);
+            byte[] buf = new byte[is.available()];
+            is.read(buf);
+            os.write(buf);
+            is.close();
+            os.flush();
+            os.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        LOGGER.info( "Connecting to " + jdbcUrl + id);
         final Timer timer = new Timer();
         timer.scheduleAtFixedRate( new DotPlotter(), 333, 333 );
         try {
             // DO NOT use try with resources here.
             // Try with resources uses a closable and closes it when exiting the try block
             // We need the Connection later, and if it is closed then it is useless
-            connection = DriverManager.getConnection( "jdbc:hsqldb:hsql://localhost/lookupdb", jdbcUser, jdbcPass );
+            connection = DriverManager.getConnection( jdbcUrl + id, jdbcUser, jdbcPass );
         } catch ( SQLException sqlE ) {
             timer.cancel();
             EOL_LOGGER.error( "" );
@@ -93,7 +110,7 @@ public enum JdbcConnectionFactory {
         timer.cancel();
         EOL_LOGGER.info( "" );
         LOGGER.info( " Database connected" );
-        CONNECTIONS.put( "lookupdb" + id, connection );
+        CONNECTIONS.put( "localdb" + id, connection );
         return connection;
     }
 

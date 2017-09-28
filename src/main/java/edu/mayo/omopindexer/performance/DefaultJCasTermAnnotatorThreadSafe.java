@@ -28,23 +28,23 @@ public class DefaultJCasTermAnnotatorThreadSafe extends AbstractJCasTermAnnotato
     public DefaultJCasTermAnnotatorThreadSafe() {
     }
 
-    @Override public void initialize(UimaContext context) throws ResourceInitializationException {
-        while (LOCK.getAndSet(true)) { // Flag was already true i.e. something else currently accessing
-            synchronized (LOCK) {
-                try {
-                    LOCK.wait(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        // Acquired lock and atomically changed flag from false to true
-        super.initialize(context);
-        LOCK.set(false);
-        synchronized (LOCK) {
-            LOCK.notifyAll();
-        }
-    }
+//    @Override public void initialize(UimaContext context) throws ResourceInitializationException {
+//        while (LOCK.getAndSet(true)) { // Flag was already true i.e. something else currently accessing
+//            synchronized (LOCK) {
+//                try {
+//                    LOCK.wait(1000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//        // Acquired lock and atomically changed flag from false to true
+//        super.initialize(context);
+//        LOCK.set(false);
+//        synchronized (LOCK) {
+//            LOCK.notifyAll();
+//        }
+//    }
 
 
     public void findTerms(RareWordDictionary dictionary, List<FastLookupToken> allTokens, List<Integer> lookupTokenIndices, CollectionMap<TextSpan, Long, ? extends Collection<Long>> termsFromDictionary) {
@@ -112,22 +112,22 @@ public class DefaultJCasTermAnnotatorThreadSafe extends AbstractJCasTermAnnotato
         return AnalysisEngineFactory.createEngineDescription(DefaultJCasTermAnnotatorThreadSafe.class, new Object[]{"DictionaryDescriptor", descriptorPath});
     }
 
-    @Override
-    public void process(JCas jcas) throws AnalysisEngineProcessException {
-        while (LOCK.getAndSet(true)) { // Flag was already true i.e. something else currently accessing
-            synchronized (LOCK) {
-                try {
-                    LOCK.wait(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        // Acquired lock and atomically changed flag from false to true
-        super.process(jcas);
-        LOCK.set(false);
-        synchronized (LOCK) {
-            LOCK.notifyAll();
-        }
-    }
+//    @Override
+//    public void process(JCas jcas) throws AnalysisEngineProcessException {
+//        while (LOCK.getAndSet(true)) { // Flag was already true i.e. something else currently accessing
+//            synchronized (LOCK) {
+//                try {
+//                    LOCK.wait(1000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//        // Acquired lock and atomically changed flag from false to true
+//        super.process(jcas);
+//        LOCK.set(false);
+//        synchronized (LOCK) {
+//            LOCK.notifyAll();
+//        }
+//    }
 }

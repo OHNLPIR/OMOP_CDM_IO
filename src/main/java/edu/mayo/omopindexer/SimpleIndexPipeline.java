@@ -120,14 +120,14 @@ public class SimpleIndexPipeline extends Thread {
             throw new IOException("Error, could not add URL to system classloader");
         }
         // Execute pipeline with multiple threads and verify some parameters
-        // - Split data depending on how many cores we have access to (-Dpipeline.threads or ~70% total)
+        // - Split data depending on how many cores we have access to (-Dpipeline.threads or ~5% total)
         // -- Detect number of cores to use
         int numCores;
         if (System.getProperty("pipeline.threads") != null) {
             numCores = Integer.valueOf(System.getProperty("pipeline.threads"));
             System.out.println("Running pipeline with " + numCores + " threads");
         } else {
-            numCores = (int) Math.round(Runtime.getRuntime().availableProcessors() * 0.7); // Should never be high enough to actually cause an overflow
+            numCores = (int) Math.round(Runtime.getRuntime().availableProcessors() * 0.5); // Should never be high enough to actually cause an overflow
             if (numCores == 0) numCores = 1;
             System.out.println("-Dpipeline.threads not set, running pipeline with " + numCores + " threads based on system configuration");
         }
@@ -170,28 +170,13 @@ public class SimpleIndexPipeline extends Thread {
 
 
         // Set up databases for each of the threads (TODO: fix directly in cTAKES at some point)
-        String pathToScript = System.getProperty("dictionaryPath");
-        System.out.println("Using dictionary description " + pathToScript);
-        HsqlProperties properties = new HsqlProperties();
+        // - Run the pipeline
+        ExecutorService executor = Executors.newCachedThreadPool(); // Technically should set pool size, not really necessary since we artificially bound
         LinkedList<Thread> threads = new LinkedList<>();
         for (int i = 0; i < numCores; i++) {
             Thread t = new SimpleIndexPipeline(i);
             threads.add(t);
-            File in = new File(pathToScript);
-            long id = t.getId();
-            File out = new File(in.getParent(), in.getName().replace(".script", "") + id);
-            FileUtils.copyFile(in, out);
-            properties.setProperty("server.database." + id, "file:/" + FileLocator.getFullPath(pathToScript.replace(".script", "") + id));
-            properties.setProperty("server.dbname." + id, "lookupdb");
-        }
-
-        Server server = new Server();
-        server.setProperties(properties);
-        server.start();
-        // - Run the pipeline
-        ExecutorService executor = Executors.newCachedThreadPool(); // Technically should set pool size, not really necessary since we artificially bound
-        for (int i = 0; i < numCores; i++) {
-            executor.submit(new SimpleIndexPipeline(i));
+            executor.submit(t);
         }
         try {
             executor.awaitTermination(Long.MAX_VALUE - 1, TimeUnit.DAYS); // Do not time out

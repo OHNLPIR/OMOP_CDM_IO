@@ -47,7 +47,7 @@ public class ElasticSearchIndexer {
 
     /** Loads JSON Configuration Parameters **/
     private static void init() throws IOException {
-        File jsonFile = new File("configuraiton.json");
+        File jsonFile = new File("configuration.json");
         if (!jsonFile.exists()) {
             FileOutputStream fos = new FileOutputStream(jsonFile);
             InputStream fis = ElasticSearchIndexer.class.getResourceAsStream("/configuration.json");
