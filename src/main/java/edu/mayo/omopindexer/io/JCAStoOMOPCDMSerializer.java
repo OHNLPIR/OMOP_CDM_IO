@@ -168,6 +168,23 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
                 e.printStackTrace();
             }
         }
+        // - Capture encounter date to calculate person age at time of encounter
+        Pattern activityDateTimePattern = Pattern.compile("ACTIVITY_DTM:([^\\|]+)");
+        Matcher activityDTMMatcher = activityDateTimePattern.matcher(header.getValue());
+        java.util.Date activityDTM = null;
+        if (activityDTMMatcher.find()) {
+            try {
+                SimpleDateFormat dF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+                dF.setTimeZone(TimeZone.getTimeZone("GMT"));
+                activityDTM = dF.parse(activityDTMMatcher.group(1));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        Long ageAtEncounter = null;
+        if (birthday != null && activityDTM != null) { // Should always be true...but you never know
+            ageAtEncounter = activityDTM.getTime() - birthday.getTime();
+        }
         // - Capture patient ID
         Pattern pIDPattern = Pattern.compile("PATIENT_ID:([^\\|]+)");
         Matcher pIDMatcher = pIDPattern.matcher(header.getValue());
@@ -175,7 +192,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         if (pIDMatcher.find()) {
             patientID = pIDMatcher.group(1);
         }
-        // TODO actually use this information somehow (i.e. by pulling from structured data
+        // TODO actually use this information somehow (i.e. by pulling from structured data)
         // Send to ElasticSearch
         // - Pull Metadata
         String headerText = header.getValue();
