@@ -11,7 +11,7 @@ Document:
 		- condition_occurrence_xxx: String
 		- date: Date[]
 	- DrugExposure:
-		- drug_exposure: String
+		- drug_exposure_xxx: String
 		- quantity: float
 		- effectiveDrugDose: String
 		- date: Date[]
