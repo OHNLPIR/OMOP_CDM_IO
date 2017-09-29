@@ -1,16 +1,15 @@
-package edu.mayo.omopindexer.engines;
+package edu.mayo.omopindexer.casengines;
 
 import edu.mayo.omopindexer.RegexpStatements;
 import edu.mayo.omopindexer.indexing.CDMModelStaging;
-import edu.mayo.omopindexer.indexing.ElasticSearchIndexer;
 import edu.mayo.omopindexer.model.*;
 import edu.mayo.omopindexer.types.BioBankCNHeader;
-import edu.mayo.omopindexer.types.BioBankCNSectionHeader;
 import org.apache.ctakes.perf.AnnotationCache;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.textsem.*;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FeatureStructure;
@@ -33,7 +32,13 @@ import java.util.regex.Pattern;
  * Converts incoming JCAS structures with assumed cTAKES type system into the OMOP CDM data model,
  * then sends to ElasticSearch for indexing
  */
-public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
+public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
+    @Override
+    public void initialize(UimaContext context) throws ResourceInitializationException {
+        super.initialize(context);
+
+    }
+
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
         // Create storage of used annotations for unstructured observation use
@@ -207,15 +212,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
             }
         }
 
-        // Send to ElasticSearch
-        // - Pull Metadata
-        String headerText = header.getValue();
-        BioBankCNSectionHeader section = JCasUtil.selectSingle(jCas, BioBankCNSectionHeader.class);
-        String sectionName = section.getSectionName();
-        String sectionID = section.getSectionID();
-        // - Serialize
-        DocumentSerializer serializer = new DocumentSerializer(id, text, headerText, sectionName, sectionID, CDMModelStaging.unstage(jCas).toArray(new CDMModel[0]));
-        ElasticSearchIndexer.indexSerialized(serializer);
+
 //        XmiCasSerializer out = new XmiCasSerializer(jCas.getTypeSystem());
 //        try {
 //            File f = new File("out");
@@ -261,7 +258,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
     }
 
     public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
-        return AnalysisEngineFactory.createEngineDescription(JCAStoOMOPCDMSerializer.class);
+        return AnalysisEngineFactory.createEngineDescription(JCAStoOMOPCDMAnnotator.class);
     }
 
     /**

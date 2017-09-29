@@ -5,6 +5,7 @@ import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,6 +27,8 @@ public class CDMModelStaging {
         List<CDMModel> ret = STAGING.get(id);
         if (ret != null) {
             STAGING.remove(id);
+        } else {
+            return new LinkedList<>();
         }
         return ret;
     }

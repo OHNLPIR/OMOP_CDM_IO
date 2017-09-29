@@ -1,4 +1,4 @@
-package edu.mayo.omopindexer.engines;
+package edu.mayo.omopindexer.casengines;
 
 import edu.mayo.omopindexer.types.BioBankCNHeader;
 import edu.mayo.omopindexer.types.BioBankCNSectionHeader;

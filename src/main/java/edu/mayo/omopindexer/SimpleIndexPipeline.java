@@ -2,8 +2,9 @@ package edu.mayo.omopindexer;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
-import edu.mayo.omopindexer.engines.BioBankCNDeserializer;
-import edu.mayo.omopindexer.engines.JCAStoOMOPCDMSerializer;
+import edu.mayo.omopindexer.casengines.BioBankCNDeserializer;
+import edu.mayo.omopindexer.casengines.CDMToElasticSearchSerializer;
+import edu.mayo.omopindexer.casengines.JCAStoOMOPCDMAnnotator;
 import edu.mayo.omopindexer.performance.DefaultJCasTermAnnotatorThreadSafe;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
 import org.apache.ctakes.drugner.ae.DrugMentionAnnotator;
@@ -220,7 +221,8 @@ public class SimpleIndexPipeline extends Thread {
             builder.add(EventEventRelationAnnotator
                     .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventevent/model.jar"));
             // Convert to OMOP CDM and write to ElasticSearch
-            builder.add(JCAStoOMOPCDMSerializer.createAnnotatorDescription());
+            builder.add(JCAStoOMOPCDMAnnotator.createAnnotatorDescription());
+            builder.add(CDMToElasticSearchSerializer.createAnnotatorDescription());
             AnalysisEngineDescription pipeline = builder.createAggregateDescription();
 
             // Execute pipeline

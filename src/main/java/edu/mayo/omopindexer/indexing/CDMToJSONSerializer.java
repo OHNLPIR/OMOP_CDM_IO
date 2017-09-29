@@ -1,4 +1,4 @@
-package edu.mayo.omopindexer.engines;
+package edu.mayo.omopindexer.indexing;
 
 import edu.mayo.omopindexer.model.CDMModel;
 import org.json.JSONObject;
@@ -6,7 +6,7 @@ import org.json.JSONObject;
 import java.util.*;
 
 /** Transforms a document that contains a certain set of models into a JSON indexable by ElasticSearch */
-public class DocumentSerializer {
+public class CDMToJSONSerializer {
     /** The section name of this document */
     private final String sectionName;
     /** The section ID of this document */
@@ -20,7 +20,7 @@ public class DocumentSerializer {
     /** A mapping by type of OMOP CDM models associated with this document */
     private Map<String, List<CDMModel>> models;
 
-    public DocumentSerializer(String documentID, String documentText, String documentHeader, String sectionName, String sectionID, CDMModel... docModels) {
+    public CDMToJSONSerializer(String documentID, String documentText, String documentHeader, String sectionName, String sectionID, CDMModel... docModels) {
         this.documentID = documentID;
         this.documentText = documentText;
         this.documentHeader = documentHeader;

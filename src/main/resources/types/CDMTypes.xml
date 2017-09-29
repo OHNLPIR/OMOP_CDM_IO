@@ -30,7 +30,7 @@
                     <rangeTypeName>uima.cas.Long</rangeTypeName>
                 </featureDescription>
                 <featureDescription>
-                    <name>type</name>
+                    <name>dateType</name>
                     <rangeTypeName>uima.cas.String</rangeTypeName>
                 </featureDescription>
                 <featureDescription>

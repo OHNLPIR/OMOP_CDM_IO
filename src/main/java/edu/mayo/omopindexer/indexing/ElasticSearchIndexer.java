@@ -1,6 +1,5 @@
 package edu.mayo.omopindexer.indexing;
 
-import edu.mayo.omopindexer.engines.DocumentSerializer;
 import edu.mayo.omopindexer.model.CDMModel;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.client.Client;
@@ -125,7 +124,7 @@ public class ElasticSearchIndexer {
      * Indexes the given document to ElasticSearch index
      * TODO: queueing/batch system for performance reasons here
      */
-    public static void indexSerialized(DocumentSerializer document) {
+    public static void indexSerialized(CDMToJSONSerializer document) {
         Deque<JSONObject> jsons = document.toElasticSearchIndexableJSONs();
         JSONObject parent = jsons.pollFirst();
         String docID = parent.getString("DocumentID");
