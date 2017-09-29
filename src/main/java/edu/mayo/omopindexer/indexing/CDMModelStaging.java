@@ -1,4 +1,4 @@
-package edu.mayo.omopindexer.engines;
+package edu.mayo.omopindexer.indexing;
 
 import edu.mayo.omopindexer.model.CDMModel;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
