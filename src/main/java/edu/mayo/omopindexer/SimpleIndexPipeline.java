@@ -2,6 +2,7 @@ package edu.mayo.omopindexer;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Files;
+import com.googlecode.clearnlp.io.FileExtFilter;
 import edu.mayo.omopindexer.casengines.BioBankCNDeserializer;
 import edu.mayo.omopindexer.casengines.CDMToElasticSearchSerializer;
 import edu.mayo.omopindexer.casengines.JCAStoOMOPCDMAnnotator;
@@ -29,6 +30,7 @@ import java.io.*;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.sql.*;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -54,7 +56,7 @@ public class SimpleIndexPipeline extends Thread {
     /**
      * Runs the simple pipeline, <b>make sure to update static configuration constants</b>
      **/
-    public static void main(String... args) throws UIMAException, IOException, ServerAcl.AclFormatException {
+    public static void main(String... args) throws UIMAException, IOException, ServerAcl.AclFormatException, ClassNotFoundException {
         // Bootstrapping for the sake of the end-user (cTAKES: "what are end-user readable error messages???")
         // - Check for UMLS user and password being set
         if (System.getProperty("ctakes.umlsuser") == null || System.getProperty("ctakes.umlspw") == null) {
@@ -163,8 +165,79 @@ public class SimpleIndexPipeline extends Thread {
             }
         }
 
+        // - Check for an OHDSI Folder
+        File vocabDefFolder = new File("OHDSI");
+        if (!vocabDefFolder.exists() || vocabDefFolder.listFiles().length == 0) {
+            vocabDefFolder.mkdirs();
+            System.out.println("OHDSI vocabularies not present");
+            System.out.println("Please download from http://athena.ohdsi.org/ snd place in the \"OHDSI\" folder");
+            System.exit(1);
+        }
+        // - Load OHDSI Vocabularies into SQLite if Necessary
+        File OHDSIVocab = new File(vocabDefFolder, "ATHENA.sqlite");
+        Class.forName("org.sqlite.JDBC"); // Force load the driver class
+        String connURL = "jdbc:sqlite:" + OHDSIVocab.getAbsolutePath().replace("\\", "/");
+        if (!OHDSIVocab.exists()) {
+            try (Connection conn = DriverManager.getConnection(connURL)) {
+                if (conn != null) {
+                    conn.getMetaData(); // Trigger a db creation
+                    // - Load CSVs (really tab delimited in default format)
+                    for (File csv : vocabDefFolder.listFiles(new FileExtFilter("csv"))) {
+                        BufferedReader reader = new BufferedReader(new FileReader(csv));
+                        String next;
+                        // - Table Definition
+                        next = reader.readLine();
+                        String[] parsed = next.split("\t");
+                        String tableName = csv.getName().substring(0, csv.getName().length() - 4);
+                        StringBuilder tableBuilder = new StringBuilder("CREATE TABLE ")
+                                .append(tableName)
+                                .append(" (");
+                        boolean flag = false;
+                        for (String s : parsed) {
+                            if (flag) {
+                                tableBuilder.append(",");
+                            } else {
+                                flag = true;
+                            }
+                            tableBuilder.append(s);
+                            tableBuilder.append(" VARCHAR(255)");
+                        }
+                        tableBuilder.append(");");
+                        System.out.println("Creating Table " + tableName);
+                        conn.createStatement().execute(tableBuilder.toString());
+                        StringBuilder insertStatementBuilder = new StringBuilder("INSERT INTO " + tableName + " VALUES (");
+                        flag = false;
+                        for (int i = 0; i < parsed.length; i++) {
+                            if (flag) {
+                                insertStatementBuilder.append(",");
+                            } else {
+                                flag = true;
+                            }
+                            insertStatementBuilder.append("?");
+                        }
+                        insertStatementBuilder.append(");");
+                        // - Insert values into table
+                        PreparedStatement ps = conn.prepareStatement(insertStatementBuilder.toString());
+                        System.out.println("Loading Table " + tableName);
+                        int counter = 0;
+                        while ((next = reader.readLine()) != null) {
+                            String[] values = next.trim().split("\t");
+                            for (int j = 0; j < values.length; j++) {
+                                ps.setString(j + 1, values[j]);
+                            }
+                            ps.addBatch();
+                            counter++;
+                        }
+                        System.out.println("Inserting " + counter + " Elements");
+                        ps.executeBatch();
+                        System.out.println("Done");
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
 
-        // Set up databases for each of the threads (TODO: fix directly in cTAKES at some point)
         // - Run the pipeline
         ExecutorService executor = Executors.newCachedThreadPool(); // Technically should set pool size, not really necessary since we artificially bound
         LinkedList<Thread> threads = new LinkedList<>();

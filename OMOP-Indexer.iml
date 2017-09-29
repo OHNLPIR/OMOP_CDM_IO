@@ -175,6 +175,7 @@
     <orderEntry type="library" name="Maven: org.apache.uima:uimaj-cpe:2.9.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.uima:uimaj-adapter-vinci:2.9.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.uima:jVinci:2.9.0" level="project" />
+    <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.20.0" level="project" />
     <orderEntry type="library" name="Maven: org.elasticsearch:elasticsearch:1.7.6" level="project" />
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-memory:4.10.4" level="project" />
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-highlighter:4.10.4" level="project" />
