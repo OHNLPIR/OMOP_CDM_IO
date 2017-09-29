@@ -1,6 +1,7 @@
 package edu.mayo.omopindexer.engines;
 
 import edu.mayo.omopindexer.RegexpStatements;
+import edu.mayo.omopindexer.indexing.CDMModelStaging;
 import edu.mayo.omopindexer.indexing.ElasticSearchIndexer;
 import edu.mayo.omopindexer.model.*;
 import edu.mayo.omopindexer.types.BioBankCNHeader;
@@ -35,8 +36,6 @@ import java.util.regex.Pattern;
 public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
     @Override
     public void process(JCas jCas) throws AnalysisEngineProcessException {
-        // Initialize storage for models
-        Collection<CDMModel> generatedModels = new LinkedList<>();
         // Create storage of used annotations for unstructured observation use
         Collection<Annotation> usedAnns = new LinkedList<>();
         // Retrieve Metadata Information
@@ -69,7 +68,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
                     dateMentions.add(timeText);
                 }
             }
-            generatedModels.add(new CDMConditionOccurrence(mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
+            CDMModelStaging.stage(jCas, new CDMConditionOccurrence(mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
         }
 
         // - Sign and Symptom
@@ -86,7 +85,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
                     dateMentions.add(timeText);
                 }
             }
-            generatedModels.add(new CDMConditionOccurrence(mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
+            CDMModelStaging.stage(jCas, new CDMConditionOccurrence(mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
         }
 
 
@@ -120,7 +119,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
                     dateMentions.add(timeText);
                 }
             }
-            generatedModels.add(new CDMDrugExposure(mentionText, null, null, effectiveDrugDose, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.DRUG).toArray(new CDMDate[0]))); // TODO
+            CDMModelStaging.stage(jCas, new CDMDrugExposure(mentionText, null, null, effectiveDrugDose, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.DRUG).toArray(new CDMDate[0]))); // TODO
         }
 
         // Measurement
@@ -146,7 +145,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
                     } else {
                         dValue = Double.parseDouble(rangeItem);
                     }
-                    generatedModels.add(new CDMMeasurement(rangeItem + unit, null, null, dValue));
+                    CDMModelStaging.stage(jCas, new CDMMeasurement(rangeItem + unit, null, null, dValue));
                 }
             } else {
                 Double dValue;
@@ -155,7 +154,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
                 } else {
                     dValue = Double.parseDouble(value);
                 }
-                generatedModels.add(new CDMMeasurement(mentionText, null, null, dValue));
+                CDMModelStaging.stage(jCas, new CDMMeasurement(mentionText, null, null, dValue));
             }
         }
         // Person TODO MAPPINGS
@@ -204,7 +203,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         AnnotationCache.AnnotationTree tree = AnnotationCache.getAnnotationCache(id + "_used", text.length(), usedAnns);
         for (Sentence s : JCasUtil.select(jCas, Sentence.class)) {
             if (tree.getCollisions(s.getBegin(), s.getEnd(), Annotation.class).size() == 0) {
-                generatedModels.add(new CDMUnstructuredObservation(s.getCoveredText()));
+                CDMModelStaging.stage(jCas, new CDMUnstructuredObservation(s.getCoveredText()));
             }
         }
 
@@ -215,7 +214,7 @@ public class JCAStoOMOPCDMSerializer extends JCasAnnotator_ImplBase {
         String sectionName = section.getSectionName();
         String sectionID = section.getSectionID();
         // - Serialize
-        DocumentSerializer serializer = new DocumentSerializer(id, text, headerText, sectionName, sectionID, generatedModels.toArray(new CDMModel[0]));
+        DocumentSerializer serializer = new DocumentSerializer(id, text, headerText, sectionName, sectionID, CDMModelStaging.unstage(jCas).toArray(new CDMModel[0]));
         ElasticSearchIndexer.indexSerialized(serializer);
 //        XmiCasSerializer out = new XmiCasSerializer(jCas.getTypeSystem());
 //        try {
