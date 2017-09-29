@@ -4,11 +4,13 @@ import edu.mayo.omopindexer.RegexpStatements;
 import edu.mayo.omopindexer.indexing.CDMModelStaging;
 import edu.mayo.omopindexer.model.*;
 import edu.mayo.omopindexer.types.BioBankCNHeader;
+import org.apache.ctakes.drugner.ae.DrugMentionAnnotator;
 import org.apache.ctakes.perf.AnnotationCache;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.ctakes.typesystem.type.textsem.*;
 import org.apache.ctakes.typesystem.type.textspan.Sentence;
+import org.apache.log4j.Logger;
 import org.apache.uima.UimaContext;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -21,10 +23,12 @@ import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 
+import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,9 +37,30 @@ import java.util.regex.Pattern;
  * then sends to ElasticSearch for indexing
  */
 public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
+
+    public static Logger logger = Logger.getLogger(JCAStoOMOPCDMAnnotator.class);
+    private Connection ohsdiDBConn = null;
+    private PreparedStatement getOHDSICodePs = null;
+
     @Override
     public void initialize(UimaContext context) throws ResourceInitializationException {
         super.initialize(context);
+        // - Load OMOP Vocabulary DB
+        try {
+            Class.forName("org.sqlite.JDBC"); // Force load the driver class
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        String connURL = "jdbc:sqlite:";
+        try {
+            ohsdiDBConn = DriverManager.getConnection(connURL);
+            logger.info("Importing OHDSI Vocabulary Definitions");
+            ohsdiDBConn.createStatement().executeUpdate("restore from OHDSI/ATHENA.sqlite");
+            logger.info("Done");
+            getOHDSICodePs = ohsdiDBConn.prepareStatement("SELECT * FROM CONCEPT WHERE CONCEPT_CODE=?");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -248,6 +273,22 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                         flag = true;
                     }
                     String scheme = concept.getCodingScheme();
+                    try {
+                        getOHDSICodePs.setString(1, concept.getCode());
+                        if (getOHDSICodePs.execute()) {
+                            final ResultSet rs = getOHDSICodePs.getResultSet();
+                            rs.next();
+                            final String concept_id = rs.getString("CONCEPT_ID");
+                            final String concept_name = rs.getString("CONCEPT_NAME");
+                            ret.compute("OHDSI_code", (k, v) -> v == null ?  concept_id : (v.contains(concept_id) ? v : v.concat(" " + concept_id)));
+                            ret.compute("OHDSI_text", (k, v) -> v == null ?  concept_name : (v.contains(concept_name) ? v : v.concat(" " + concept_name)));
+                        }
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+
+
                     ret.compute(scheme + "_text", (k, v) -> v == null ? concept.getPreferredText() : (v.contains(concept.getPreferredText()) ? v : v.concat(" " + concept.getPreferredText())));
                     ret.compute(scheme + "_code", (k, v) -> v == null ? concept.getCode() : (v.contains(concept.getCode()) ? v : v.concat(" " + concept.getCode())));
                 }

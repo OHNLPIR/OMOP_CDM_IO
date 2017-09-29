@@ -176,7 +176,9 @@ public class SimpleIndexPipeline extends Thread {
         // - Load OHDSI Vocabularies into SQLite if Necessary
         File OHDSIVocab = new File(vocabDefFolder, "ATHENA.sqlite");
         Class.forName("org.sqlite.JDBC"); // Force load the driver class
-        String connURL = "jdbc:sqlite:" + OHDSIVocab.getAbsolutePath().replace("\\", "/");
+//        String connURL = "jdbc:sqlite:" + OHDSIVocab.getAbsolutePath().replace("\\", "/");
+        String connURL = "jdbc:sqlite::memory:";
+
         if (!OHDSIVocab.exists()) {
             try (Connection conn = DriverManager.getConnection(connURL)) {
                 if (conn != null) {
@@ -220,7 +222,14 @@ public class SimpleIndexPipeline extends Thread {
                         PreparedStatement ps = conn.prepareStatement(insertStatementBuilder.toString());
                         System.out.println("Loading Table " + tableName);
                         int counter = 0;
-                        while ((next = reader.readLine()) != null) {
+                        while ((next = reader.readLine()) != null && next.length() > 1) {
+                            if (counter > 0 && counter % 500000 == 0) {
+                                System.out.print("Inserting " + counter + " Elements...");
+                                ps.executeBatch();
+                                ps.clearBatch();
+                                System.out.println("Done");
+                                counter = 0;
+                            }
                             String[] values = next.trim().split("\t");
                             for (int j = 0; j < values.length; j++) {
                                 ps.setString(j + 1, values[j]);
@@ -228,10 +237,14 @@ public class SimpleIndexPipeline extends Thread {
                             ps.addBatch();
                             counter++;
                         }
-                        System.out.println("Inserting " + counter + " Elements");
+                        System.out.print("Inserting " + counter + " Elements...");
                         ps.executeBatch();
                         System.out.println("Done");
                     }
+                    // - Write In-Memory DB To File
+                    System.out.print("Saving Database to Disk...");
+                    conn.createStatement().execute("backup to OHDSI/ATHENA.sqlite");
+                    System.out.println("Done");
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
