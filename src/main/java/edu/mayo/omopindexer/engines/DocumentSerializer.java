@@ -1,4 +1,4 @@
-package edu.mayo.omopindexer.io;
+package edu.mayo.omopindexer.engines;
 
 import edu.mayo.omopindexer.model.CDMModel;
 import org.json.JSONObject;

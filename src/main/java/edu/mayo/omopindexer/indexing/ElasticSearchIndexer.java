@@ -1,10 +1,8 @@
 package edu.mayo.omopindexer.indexing;
 
-import edu.mayo.omopindexer.io.DocumentSerializer;
-import edu.mayo.omopindexer.model.CDMDate;
+import edu.mayo.omopindexer.engines.DocumentSerializer;
 import edu.mayo.omopindexer.model.CDMModel;
 import org.apache.commons.io.IOUtils;
-import org.apache.lucene.util.QueryBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;

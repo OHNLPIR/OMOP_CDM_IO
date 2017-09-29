@@ -1,4 +1,4 @@
-package edu.mayo.omopindexer.io;
+package edu.mayo.omopindexer.engines;
 
 import edu.mayo.omopindexer.RegexpStatements;
 import edu.mayo.omopindexer.indexing.ElasticSearchIndexer;
@@ -13,7 +13,6 @@ import org.apache.ctakes.typesystem.type.textspan.Sentence;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.FeatureStructure;
-import org.apache.uima.cas.impl.XmiCasSerializer;
 import org.apache.uima.fit.component.JCasAnnotator_ImplBase;
 import org.apache.uima.fit.factory.AnalysisEngineFactory;
 import org.apache.uima.fit.util.JCasUtil;
@@ -21,12 +20,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
-import org.apache.uima.util.XMLSerializer;
-import org.xml.sax.SAXException;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
