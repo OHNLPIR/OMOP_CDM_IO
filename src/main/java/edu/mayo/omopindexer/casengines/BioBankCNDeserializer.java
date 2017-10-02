@@ -65,6 +65,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
     public void getNext(CAS aCas) throws IOException, CollectionException {
         try {
             JCas cas = aCas.getJCas();
+            String path = mFiles.get(mCurrentIndex).getAbsolutePath();
             if (readQueue1 == null) { // Initialize queue
                 // Populate document ID
                 File f = mFiles.get(mCurrentIndex);
@@ -182,6 +183,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 documentID.setDocumentID(mcn + "_" + docLink + "_" + docRev + "_" + cn1 + "_" + timestamp + "_" + sectionID);
                 documentID.addToIndexes();
                 BioBankCNSectionHeader sectionHeader = new BioBankCNSectionHeader(cas);
+                header.setFileloc(path);
                 sectionHeader.setSectionID(sectionID);
                 sectionHeader.setSectionName(sectionName);
                 sectionHeader.addToIndexes();
