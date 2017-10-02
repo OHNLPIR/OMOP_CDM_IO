@@ -258,11 +258,11 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
     }
 
     /**
-     * Returns a type->mention mapping with multiple mentions of the same type being space separated
+     * Constructs a type->mention mapping with multiple mentions of the same type being space separated
      *
      * @param mentionText   The text mention to expand
      * @param ontologyArray The ontology array containing UMLS concepts
-     * @return An expanded string containing umls concepts
+     * @return A String, String map containing vocabulary_name_[text|code] -> String value mappings
      */
     private Map<String, String> expandUMLSConcepts(String mentionText, FSArray ontologyArray) {
         Map<String, String> ret = new HashMap<>();
