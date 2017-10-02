@@ -158,6 +158,6 @@ public class ElasticSearchIndexer {
             bulkBuilder.add(ES_CLIENT.prepareIndex(INDEX, nextChild.getString("type")).setParent(docID).setSource(nextChild.toString()));
         }
         // Run the bulk request
-        bulkBuilder.execute();
+        bulkBuilder.execute().actionGet();
     }
 }
