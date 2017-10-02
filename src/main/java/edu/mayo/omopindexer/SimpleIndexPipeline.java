@@ -242,6 +242,8 @@ public class SimpleIndexPipeline extends Thread {
                         ps.executeBatch();
                         System.out.println("Done");
                     }
+                    // - Index for performance
+                    conn.createStatement().executeUpdate("CREATE INDEX CONCEPT_INDEX ON CONCEPT (CONCEPT_CODE, CONCEPT_NAME, CONCEPT_ID)");
                     // - Write In-Memory DB To File
                     System.out.print("Saving Database to Disk...");
                     conn.createStatement().execute("backup to OHDSI/ATHENA.sqlite");
