@@ -2,6 +2,7 @@ package edu.mayo.omopindexer.indexing;
 
 import edu.mayo.omopindexer.model.CDMModel;
 import org.apache.commons.io.IOUtils;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -131,12 +132,15 @@ public class ElasticSearchIndexer {
         // Clean up any children if the document already exists as they were re-generated
         HasParentQueryBuilder builder = QueryBuilders.hasParentQuery("document", QueryBuilders.termQuery("DocumentID", docID.toLowerCase()));
 
+        BulkRequestBuilder bulkBuilder = ES_CLIENT.prepareBulk();
         // Index document itself
-        ES_CLIENT.prepareIndex(INDEX, "document", docID).setSource(parent.toString()).execute().actionGet(); // TODO this needs to be optimized
+        bulkBuilder.add(ES_CLIENT.prepareIndex(INDEX, "document", docID).setSource(parent.toString()));
         // Index its children
         JSONObject nextChild;
         while ((nextChild = jsons.pollFirst()) != null) {
-            ES_CLIENT.prepareIndex(INDEX, nextChild.getString("type")).setParent(docID).setSource(nextChild.toString()).execute().actionGet(); // TODO possible resource leak with reindexing documents/infinite number of children...maybe purge all children when docujment already in index?
+            bulkBuilder.add(ES_CLIENT.prepareIndex(INDEX, nextChild.getString("type")).setParent(docID).setSource(nextChild.toString()));
         }
+        // Run the bulk request
+        bulkBuilder.execute().actionGet(); // TODO: do we actually need to force a resync here?
     }
 }
