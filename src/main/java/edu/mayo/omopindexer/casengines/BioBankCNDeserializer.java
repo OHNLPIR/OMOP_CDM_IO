@@ -16,6 +16,7 @@ import org.apache.uima.util.ProgressImpl;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -87,13 +88,20 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 String text;
                 int temp = numSectionsRead; // Temp value for iteration
                 Pattern section = Pattern.compile("^([^\\n:]+):([0-9]+):", Pattern.MULTILINE);
+                LOOPBACK:
                 if (m.find()) { // has another header after
                     int start = m.start(); // starting index
                     text = readQueue1.substring(offsetEnd, start); // Content between first and second header
                     Matcher sectionMatcher = section.matcher(text);
+                    boolean flag = false;
                     while (temp > 0) { // Skip ahead to current section
-                        sectionMatcher.find(); // Guaranteed to work
+                        if (!sectionMatcher.find()) {
+                            if (temp == 1 && !flag) { // Empty section (some consistency would be nice...)
+                                break LOOPBACK; // Dirty solution
+                            }
+                        }
                         temp -= 1;
+                        flag = true;
                     }
                     int startIndex = sectionMatcher.end() + offsetEnd;
                     int endIndex;
@@ -111,9 +119,15 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 } else {
                     text = readQueue1.substring(offsetEnd); // After first header
                     Matcher sectionMatcher = section.matcher(text);
-                    while (temp > 0) {
-                        sectionMatcher.find(); // Guaranteed to work
+                    boolean flag = false;
+                    while (temp > 0) { // Skip ahead to current section
+                        if (!sectionMatcher.find()) {
+                            if (temp == 1 && !flag) { // Empty section (some consistency would be nice...)
+                                break LOOPBACK; // Dirty solution
+                            }
+                        }
                         temp -= 1;
+                        flag = true;
                     }
                     int startIndex = sectionMatcher.end() + offsetEnd;
                     int endIndex;
