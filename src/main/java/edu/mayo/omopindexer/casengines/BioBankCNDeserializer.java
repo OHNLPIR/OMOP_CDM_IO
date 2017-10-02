@@ -98,6 +98,9 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                     while (temp > 0) { // Skip ahead to current section
                         if (!sectionMatcher.find()) {
                             if (temp == 1 && !flag) { // Empty section (some consistency would be nice...)
+                                numSectionsRead = 1;
+                                headerText = m.group();
+                                offsetEnd = m.end();
                                 break LOOPBACK; // Dirty solution
                             }
                         }
@@ -124,6 +127,9 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                     while (temp > 0) { // Skip ahead to current section
                         if (!sectionMatcher.find()) {
                             if (temp == 1 && !flag) { // Empty section (some consistency would be nice...)
+                                numSectionsRead = 1;
+                                headerText = m.group();
+                                offsetEnd = m.end();
                                 break LOOPBACK; // Dirty solution
                             }
                         }
