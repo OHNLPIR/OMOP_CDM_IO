@@ -1,4 +1,4 @@
 /**
- * This package contains transformers that act upon CDM models after initial extraction
+ * This package contains annotators that extract, transform, or serialize data from raw text
  */
 package edu.mayo.omopindexer.casengines;

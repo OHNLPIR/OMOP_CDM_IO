@@ -6,8 +6,8 @@ import com.googlecode.clearnlp.io.FileExtFilter;
 import edu.mayo.omopindexer.casengines.BioBankCNDeserializer;
 import edu.mayo.omopindexer.casengines.CDMToElasticSearchSerializer;
 import edu.mayo.omopindexer.casengines.JCAStoOMOPCDMAnnotator;
-import edu.mayo.omopindexer.performance.DefaultJCasTermAnnotatorThreadSafe;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
+import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
 import org.apache.ctakes.drugner.ae.DrugMentionAnnotator;
 import org.apache.ctakes.temporal.ae.*;
 import org.apache.ctakes.temporal.pipelines.FullTemporalExtractionPipeline;
@@ -286,7 +286,7 @@ public class SimpleIndexPipeline extends Thread {
             // Run cTAKES
             // - Base Features
             builder.add(ClinicalPipelineFactory.getTokenProcessingPipeline());
-            builder.add(DefaultJCasTermAnnotatorThreadSafe.createAnnotatorDescription());
+            builder.add(DefaultJCasTermAnnotator.createAnnotatorDescription());
 //        builder.add(ClearNLPDependencyParserAE.createAnnotatorDescription());
 //        builder.add(PolarityCleartkAnalysisEngine.createAnnotatorDescription());
 //        builder.add(UncertaintyCleartkAnalysisEngine.createAnnotatorDescription());
