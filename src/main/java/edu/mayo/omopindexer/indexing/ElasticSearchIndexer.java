@@ -3,13 +3,18 @@ package edu.mayo.omopindexer.indexing;
 import edu.mayo.omopindexer.model.CDMModel;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.delete.DeleteRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.HasParentQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
@@ -131,8 +136,20 @@ public class ElasticSearchIndexer {
         String docID = parent.getString("DocumentID");
         // Clean up any children if the document already exists as they were re-generated
         HasParentQueryBuilder builder = QueryBuilders.hasParentQuery("document", QueryBuilders.termQuery("DocumentID", docID.toLowerCase()));
-
+        SearchResponse resp = ES_CLIENT.prepareSearch(INDEX).setSearchType(SearchType.SCAN).setScroll(new TimeValue(60000)).setQuery(builder).setSize(100).execute().actionGet();
         BulkRequestBuilder bulkBuilder = ES_CLIENT.prepareBulk();
+        while (true) {
+            for (SearchHit hit : resp.getHits()) {
+                bulkBuilder.add(ES_CLIENT.prepareDelete(hit.getIndex(), hit.getType(), hit.getId()));
+            }
+            resp = ES_CLIENT.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
+            if (resp.getHits().getHits().length == 0) {
+                break;
+            }
+        }
+        bulkBuilder.execute().actionGet();
+        // - Reinitialize for bulk builder
+        bulkBuilder = ES_CLIENT.prepareBulk();
         // Index document itself
         bulkBuilder.add(ES_CLIENT.prepareIndex(INDEX, "document", docID).setSource(parent.toString()));
         // Index its children
@@ -141,6 +158,6 @@ public class ElasticSearchIndexer {
             bulkBuilder.add(ES_CLIENT.prepareIndex(INDEX, nextChild.getString("type")).setParent(docID).setSource(nextChild.toString()));
         }
         // Run the bulk request
-        bulkBuilder.execute().actionGet(); // TODO: do we actually need to force a resync here?
+        bulkBuilder.execute();
     }
 }
