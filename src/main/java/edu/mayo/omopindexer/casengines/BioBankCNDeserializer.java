@@ -99,9 +99,9 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                         if (!sectionMatcher.find()) {
                             if (temp == 1 && !flag) { // Empty section (some consistency would be nice...)
                                 numSectionsRead = 1;
-                                headerText = m.group();
-                                offsetEnd = m.end();
-                                break LOOPBACK; // Dirty solution
+                                readQueue1 = readQueue1.substring(m.start());
+                                getNext(cas.getCas());
+                                return;
                             }
                         }
                         temp -= 1;
@@ -128,9 +128,9 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                         if (!sectionMatcher.find()) {
                             if (temp == 1 && !flag) { // Empty section (some consistency would be nice...)
                                 numSectionsRead = 1;
-                                headerText = m.group();
-                                offsetEnd = m.end();
-                                break LOOPBACK; // Dirty solution
+                                readQueue1 = readQueue1.substring(m.start()); // Just skip the last section
+                                getNext(cas.getCas());
+                                return;
                             }
                         }
                         temp -= 1;
