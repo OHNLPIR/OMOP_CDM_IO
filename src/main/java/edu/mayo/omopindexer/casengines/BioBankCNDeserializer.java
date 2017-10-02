@@ -88,7 +88,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 int offsetEnd = m.end();
                 String text;
                 int temp = numSectionsRead; // Temp value for iteration
-                Pattern section = Pattern.compile("^([^\\n:]+):([0-9]+):", Pattern.MULTILINE);
+                Pattern section = Pattern.compile("^([^\\n:]+):([0-9]+):$", Pattern.MULTILINE);
                 LOOPBACK:
                 if (m.find()) { // has another header after
                     int start = m.start(); // starting index
