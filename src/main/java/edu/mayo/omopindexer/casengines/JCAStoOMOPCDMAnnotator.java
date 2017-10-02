@@ -21,6 +21,7 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.FSArray;
 import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
+import org.sqlite.SQLiteConfig;
 
 import java.sql.*;
 import java.text.DecimalFormat;
@@ -49,11 +50,13 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        String connURL = "jdbc:sqlite:";
+        String connURL = "jdbc:sqlite:OHDSI/ATHENA.sqlite";
         try {
-            ohdsiDBConn = DriverManager.getConnection(connURL);
+            SQLiteConfig config = new SQLiteConfig();
+            config.setReadOnly(true);
             logger.info("Importing OHDSI Vocabulary Definitions");
-            ohdsiDBConn.createStatement().executeUpdate("restore from OHDSI/ATHENA.sqlite");
+            ohdsiDBConn = DriverManager.getConnection(connURL, config.toProperties());
+//            ohdsiDBConn.createStatement().executeUpdate("restore from OHDSI/ATHENA.sqlite");
             logger.info("Done");
             getOHDSICodePs = ohdsiDBConn.prepareStatement("SELECT * FROM CONCEPT WHERE CONCEPT_CODE=?");
         } catch (SQLException e) {
