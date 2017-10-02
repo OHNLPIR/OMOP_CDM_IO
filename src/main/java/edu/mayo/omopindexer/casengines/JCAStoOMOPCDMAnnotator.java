@@ -4,7 +4,6 @@ import edu.mayo.omopindexer.RegexpStatements;
 import edu.mayo.omopindexer.indexing.CDMModelStaging;
 import edu.mayo.omopindexer.model.*;
 import edu.mayo.omopindexer.types.BioBankCNHeader;
-import org.apache.ctakes.drugner.ae.DrugMentionAnnotator;
 import org.apache.ctakes.perf.AnnotationCache;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
@@ -28,7 +27,6 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,7 +37,7 @@ import java.util.regex.Pattern;
 public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
 
     public static Logger logger = Logger.getLogger(JCAStoOMOPCDMAnnotator.class);
-    private Connection ohsdiDBConn = null;
+    private Connection ohdsiDBConn = null;
     private PreparedStatement getOHDSICodePs = null;
 
     @Override
@@ -53,11 +51,11 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
         }
         String connURL = "jdbc:sqlite:";
         try {
-            ohsdiDBConn = DriverManager.getConnection(connURL);
+            ohdsiDBConn = DriverManager.getConnection(connURL);
             logger.info("Importing OHDSI Vocabulary Definitions");
-            ohsdiDBConn.createStatement().executeUpdate("restore from OHDSI/ATHENA.sqlite");
+            ohdsiDBConn.createStatement().executeUpdate("restore from OHDSI/ATHENA.sqlite");
             logger.info("Done");
-            getOHDSICodePs = ohsdiDBConn.prepareStatement("SELECT * FROM CONCEPT WHERE CONCEPT_CODE=?");
+            getOHDSICodePs = ohdsiDBConn.prepareStatement("SELECT * FROM CONCEPT WHERE CONCEPT_CODE=?");
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -277,11 +275,12 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                         getOHDSICodePs.setString(1, concept.getCode());
                         if (getOHDSICodePs.execute()) {
                             final ResultSet rs = getOHDSICodePs.getResultSet();
-                            rs.next();
-                            final String concept_id = rs.getString("CONCEPT_ID");
-                            final String concept_name = rs.getString("CONCEPT_NAME");
-                            ret.compute("OHDSI_code", (k, v) -> v == null ?  concept_id : (v.contains(concept_id) ? v : v.concat(" " + concept_id)));
-                            ret.compute("OHDSI_text", (k, v) -> v == null ?  concept_name : (v.contains(concept_name) ? v : v.concat(" " + concept_name)));
+                            if (rs.next()) {
+                                final String concept_id = rs.getString("CONCEPT_ID");
+                                final String concept_name = rs.getString("CONCEPT_NAME");
+                                ret.compute("OHDSI_code", (k, v) -> v == null ? concept_id : (v.contains(concept_id) ? v : v.concat(" " + concept_id)));
+                                ret.compute("OHDSI_text", (k, v) -> v == null ? concept_name : (v.contains(concept_name) ? v : v.concat(" " + concept_name)));
+                            }
                         }
 
                     } catch (SQLException e) {
