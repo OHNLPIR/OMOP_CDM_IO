@@ -137,6 +137,7 @@ public class SimpleIndexPipeline extends Thread {
             System.out.println("Invalid input directory " + inputDir.getAbsolutePath() + ": does not exist, is empty, or is not a directory");
             System.exit(1);
         }
+        System.setProperty("workingDir", System.getProperty("user.dir")); // Because the lvg annotator changes it at some point for some reason, so we need to store here
         // -- Split data into pools
         if (System.getProperty("skipPool") == null) {
             // --- Construct pools

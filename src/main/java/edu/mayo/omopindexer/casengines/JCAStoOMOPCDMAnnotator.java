@@ -23,6 +23,7 @@ import org.apache.uima.jcas.tcas.Annotation;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.sqlite.SQLiteConfig;
 
+import java.io.File;
 import java.sql.*;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -50,6 +51,8 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+        String lvgWorkingDir = System.getProperty("user.dir");
+        System.setProperty("user.dir", System.getProperty("workingDir"));
         String connURL = "jdbc:sqlite:OHDSI/ATHENA.sqlite";
         try {
             SQLiteConfig config = new SQLiteConfig();
@@ -62,6 +65,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        System.setProperty("user.dir", lvgWorkingDir);
     }
 
     @Override
