@@ -138,12 +138,9 @@ public class ElasticSearchIndexer {
         HasParentQueryBuilder builder = QueryBuilders.hasParentQuery("document", QueryBuilders.termQuery("DocumentID", docID.toLowerCase()));
         SearchResponse resp = ES_CLIENT.prepareSearch(INDEX).setSearchType(SearchType.SCAN).setScroll(new TimeValue(60000)).setQuery(builder).setSize(100).execute().actionGet();
         BulkRequestBuilder bulkBuilder = ES_CLIENT.prepareBulk();
-        boolean flag = false;
+        boolean flag = resp.getHits().getHits().length > 0;
         while (true) {
             for (SearchHit hit : resp.getHits()) {
-                if (!flag) {
-                    flag = true;
-                }
                 bulkBuilder.add(ES_CLIENT.prepareDelete(hit.getIndex(), hit.getType(), hit.getId()));
             }
             resp = ES_CLIENT.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
