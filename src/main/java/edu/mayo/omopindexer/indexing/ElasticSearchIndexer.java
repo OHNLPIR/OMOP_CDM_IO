@@ -55,6 +55,10 @@ public class ElasticSearchIndexer extends Thread {
         }
     }
 
+    public ElasticSearchIndexer() {
+        super("Elasticsearch Indexing Queue");
+    }
+
     /** Loads JSON Configuration Parameters **/
     private void init() throws IOException {
         File jsonFile = new File("configuration.json");
@@ -169,40 +173,49 @@ public class ElasticSearchIndexer extends Thread {
 
     @Override
     public void run() {
-        // Local storage
-        LinkedList<RequestPair> reqs = new LinkedList<>();
-        // Get current queue states
-        requestQueue.drainTo(reqs);
-        boolean flag = reqs.size() > 0;
-        if (flag) {
-            BulkRequestBuilder opBuilder = ES_CLIENT.prepareBulk();
-            for (RequestPair req : reqs) {
-                // - Find (already existing) children to delete
-                SearchResponse resp = req.deleteSearch.execute().actionGet();
-                while (true) {
-                    for (SearchHit hit : resp.getHits()) {
-                        // - Enqueue the deletion
-                        opBuilder.add(ES_CLIENT.prepareDelete(hit.getIndex(), hit.getType(), hit.getId()));
+        while (true) {
+            // Local storage
+            LinkedList<RequestPair> reqs = new LinkedList<>();
+            // Get current queue states
+            requestQueue.drainTo(reqs);
+            boolean flag = reqs.size() > 0;
+            System.out.println("Processing " + reqs.size());
+            if (flag) {
+                BulkRequestBuilder opBuilder = ES_CLIENT.prepareBulk();
+                for (RequestPair req : reqs) {
+                    // - Find (already existing) children to delete
+                    SearchResponse resp = req.deleteSearch.execute().actionGet();
+                    while (true) {
+                        for (SearchHit hit : resp.getHits()) {
+                            // - Enqueue the deletion
+                            opBuilder.add(ES_CLIENT.prepareDelete(hit.getIndex(), hit.getType(), hit.getId()));
+                        }
+                        resp = ES_CLIENT.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
+                        if (resp.getHits().getHits().length == 0) {
+                            break;
+                        }
                     }
-                    resp = ES_CLIENT.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
-                    if (resp.getHits().getHits().length == 0) {
-                        break;
+                    // - Add indexing requests
+                    for (IndexRequestBuilder iReq : req.indexReqs) {
+                        opBuilder.add(iReq);
                     }
                 }
-                // - Add indexing requests
-                for (IndexRequestBuilder iReq : req.indexReqs) {
-                    opBuilder.add(iReq);
-                }
-            }
-            // Execute the deletions and indexing together
-            opBuilder.execute();
-        }
-        if (!terminate || requestQueue.size() > 0) { // Continue consuming if we are either not terminated or still have stuff in queue
-            if (reqs.size() < 100) { // can be finetuned
-                // Wait if we consumed an arbitrarily low number of requests, otherwise try consuming again immediately
+                // Execute the deletions and indexing together
+                opBuilder.execute();
 
             }
-            run();
+            if (!terminate || requestQueue.size() > 0) { // Continue consuming if we are either not terminated or still have stuff in queue
+                if (reqs.size() < 100) { // can be finetuned
+                    // Wait if we consumed an arbitrarily low number of requests, otherwise try consuming again immediately
+                    try {
+                        this.sleep(10000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } else {
+                break; // Exit conditions reached, quit thread
+            }
         }
     }
 

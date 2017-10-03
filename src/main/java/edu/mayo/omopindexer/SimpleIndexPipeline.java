@@ -256,18 +256,18 @@ public class SimpleIndexPipeline extends Thread {
         }
 
         // - Run the pipeline
-        ExecutorService executor = Executors.newCachedThreadPool(); // Technically should set pool size, not really necessary since we artificially bound
+        ExecutorService executor = Executors.newFixedThreadPool(numCores); // Technically should set pool size, not really necessary since we artificially bound
         LinkedList<Thread> threads = new LinkedList<>();
         for (int i = 0; i < numCores; i++) {
             Thread t = new SimpleIndexPipeline(i);
             threads.add(t);
             executor.submit(t);
         }
-        ElasticSearchIndexer indexer = new ElasticSearchIndexer();
-        Executors.newSingleThreadExecutor().submit(indexer);
+        Executors.newSingleThreadExecutor().submit(ElasticSearchIndexer.getInstance());
         try {
             executor.awaitTermination(Long.MAX_VALUE - 1, TimeUnit.DAYS); // Do not time out
-            indexer.terminate();
+            System.out.println("Completed processing of document");
+            ElasticSearchIndexer.getInstance().terminate();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
