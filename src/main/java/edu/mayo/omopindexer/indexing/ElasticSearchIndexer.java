@@ -32,7 +32,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  * Handler class with methods for the ElasticSearch indexing pipeline
  * Acts as a consumer thread for produced ElasticSearch operations
  */
-public class ElasticSearchIndexer implements Runnable {
+public class ElasticSearchIndexer extends Thread {
 
     private static ElasticSearchIndexer INSTANCE;
     private String HOST;
@@ -135,7 +135,6 @@ public class ElasticSearchIndexer implements Runnable {
 
     /**
      * Indexes the given document to ElasticSearch index
-     * TODO: queueing/batch system for performance reasons here
      */
     public void indexSerialized(CDMToJSONSerializer document) {
         Deque<JSONObject> jsons = document.toElasticSearchIndexableJSONs();
@@ -143,30 +142,21 @@ public class ElasticSearchIndexer implements Runnable {
         String docID = parent.getString("DocumentID");
         // Clean up any children if the document already exists as they were re-generated
         HasParentQueryBuilder builder = QueryBuilders.hasParentQuery("document", QueryBuilders.termQuery("DocumentID", docID.toLowerCase()));
-        SearchResponse resp = ES_CLIENT.prepareSearch(INDEX).setSearchType(SearchType.SCAN).setScroll(new TimeValue(60000)).setQuery(builder).setSize(100).execute().actionGet();
-        BulkRequestBuilder bulkBuilder = ES_CLIENT.prepareBulk();
-        boolean flag = resp.getHits().getHits().length > 0;
-        while (true) {
-            for (SearchHit hit : resp.getHits()) {
-                bulkBuilder.add(ES_CLIENT.prepareDelete(hit.getIndex(), hit.getType(), hit.getId()));
-            }
-            resp = ES_CLIENT.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
-            if (resp.getHits().getHits().length == 0) {
-                break;
-            }
-        }
-        if (flag) bulkBuilder.execute();
-        // - Reinitialize for bulk builder
-        bulkBuilder = ES_CLIENT.prepareBulk();
+        SearchRequestBuilder searchRequest = ES_CLIENT.prepareSearch(INDEX).setSearchType(SearchType.SCAN).setScroll(new TimeValue(60000)).setQuery(builder).setSize(100);
+        Collection<IndexRequestBuilder> iReqs = new LinkedList<>();
         // Index document itself
-        bulkBuilder.add(ES_CLIENT.prepareIndex(INDEX, "document", docID).setSource(parent.toString()));
+        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "document", docID).setSource(parent.toString()));
         // Index its children
         JSONObject nextChild;
         while ((nextChild = jsons.pollFirst()) != null) {
-            bulkBuilder.add(ES_CLIENT.prepareIndex(INDEX, nextChild.getString("type")).setParent(docID).setSource(nextChild.toString()));
+            iReqs.add(ES_CLIENT.prepareIndex(INDEX, nextChild.getString("type")).setParent(docID).setSource(nextChild.toString()));
         }
-        // Run the bulk request
-        bulkBuilder.execute().actionGet();
+        // Add the request to the request queue for processing
+        try {
+            requestQueue.putFirst(new RequestPair(searchRequest, iReqs));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     public static ElasticSearchIndexer getInstance() {
@@ -183,12 +173,15 @@ public class ElasticSearchIndexer implements Runnable {
         LinkedList<RequestPair> reqs = new LinkedList<>();
         // Get current queue states
         requestQueue.drainTo(reqs);
-        if (reqs.size() > 0) {
+        boolean flag = reqs.size() > 0;
+        if (flag) {
             BulkRequestBuilder opBuilder = ES_CLIENT.prepareBulk();
             for (RequestPair req : reqs) {
+                // - Find (already existing) children to delete
                 SearchResponse resp = req.deleteSearch.execute().actionGet();
                 while (true) {
                     for (SearchHit hit : resp.getHits()) {
+                        // - Enqueue the deletion
                         opBuilder.add(ES_CLIENT.prepareDelete(hit.getIndex(), hit.getType(), hit.getId()));
                     }
                     resp = ES_CLIENT.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
@@ -196,13 +189,20 @@ public class ElasticSearchIndexer implements Runnable {
                         break;
                     }
                 }
-                opBuilder.add(req.indexReq);
+                // - Add indexing requests
+                for (IndexRequestBuilder iReq : req.indexReqs) {
+                    opBuilder.add(iReq);
+                }
             }
+            // Execute the deletions and indexing together
             opBuilder.execute();
         }
-        if (!terminate || requestQueue.size() > 0) {
-            run();
+        if (!terminate || requestQueue.size() > 0) { // Continue consuming if we are either not terminated or still have stuff in queue
+            if (reqs.size() < 100) { // can be finetuned
+                // Wait if we consumed an arbitrarily low number of requests, otherwise try consuming again immediately
 
+            }
+            run();
         }
     }
 
@@ -211,11 +211,11 @@ public class ElasticSearchIndexer implements Runnable {
      */
     private static class RequestPair {
         SearchRequestBuilder deleteSearch;
-        IndexRequestBuilder indexReq;
+        Collection<IndexRequestBuilder> indexReqs;
 
-        public RequestPair(SearchRequestBuilder deleteSearch, IndexRequestBuilder indexReq) {
+        public RequestPair(SearchRequestBuilder deleteSearch, Collection<IndexRequestBuilder> indexReqs) {
             this.deleteSearch = deleteSearch;
-            this.indexReq = indexReq;
+            this.indexReqs = indexReqs;
         }
     }
 }

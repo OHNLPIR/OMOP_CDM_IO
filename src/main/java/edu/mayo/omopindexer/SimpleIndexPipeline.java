@@ -6,6 +6,7 @@ import com.googlecode.clearnlp.io.FileExtFilter;
 import edu.mayo.omopindexer.casengines.BioBankCNDeserializer;
 import edu.mayo.omopindexer.casengines.CDMToElasticSearchSerializer;
 import edu.mayo.omopindexer.casengines.JCAStoOMOPCDMAnnotator;
+import edu.mayo.omopindexer.indexing.ElasticSearchIndexer;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
 import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
 import org.apache.ctakes.drugner.ae.DrugMentionAnnotator;
@@ -262,8 +263,11 @@ public class SimpleIndexPipeline extends Thread {
             threads.add(t);
             executor.submit(t);
         }
+        ElasticSearchIndexer indexer = new ElasticSearchIndexer();
+        Executors.newSingleThreadExecutor().submit(indexer);
         try {
             executor.awaitTermination(Long.MAX_VALUE - 1, TimeUnit.DAYS); // Do not time out
+            indexer.terminate();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
