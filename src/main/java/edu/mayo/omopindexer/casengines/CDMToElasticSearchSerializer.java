@@ -32,7 +32,7 @@ public class CDMToElasticSearchSerializer extends JCasAnnotator_ImplBase {
         String sectionID = section.getSectionID();
         // - Serialize
         CDMToJSONSerializer serializer = new CDMToJSONSerializer(id, text, headerText, sectionName, sectionID, CDMModelStaging.unstage(jCas).toArray(new CDMModel[0]));
-        ElasticSearchIndexer.indexSerialized(serializer);
+        ElasticSearchIndexer.getInstance().indexSerialized(serializer);
     }
 
     public static AnalysisEngineDescription createAnnotatorDescription() throws ResourceInitializationException {
