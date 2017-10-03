@@ -89,7 +89,6 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 String text;
                 int temp = numSectionsRead; // Temp value for iteration
                 Pattern section = Pattern.compile("^([^\\n:]+):([0-9]+):$", Pattern.MULTILINE);
-                LOOPBACK:
                 if (m.find()) { // has another header after
                     int start = m.start(); // starting index
                     text = readQueue1.substring(offsetEnd, start); // Content between first and second header

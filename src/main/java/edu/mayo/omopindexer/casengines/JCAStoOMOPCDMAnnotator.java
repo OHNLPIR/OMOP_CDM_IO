@@ -29,6 +29,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -316,6 +317,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
      */
     private Collection<CDMDate> generateDateModels(Collection<String> dateStrings, CDMDate.CDMDate_Subject subject) { // TODO implement non-frequencies
         LinkedList<CDMDate> ret = new LinkedList<>();
+        LinkedList<String> reProcess = new LinkedList<>();
         for (String s : dateStrings) {
             Matcher m = RegexpStatements.FREQPERIOD.matcher(s);
             if (m.find()) {
@@ -364,7 +366,13 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                     ret.add(new CDMDate(null, CDMDate.CDMDate_Type.PERIOD, subject,
                             convertISO8601ToMillis(input.replace("%d", periodModify ? "2" : "1"))));
                 }
+            } else {
+                reProcess.add(s);
             }
+        }
+        // Look for start and end
+        List<Date> dateCandidates = new LinkedList<>();
+        for (String s : reProcess) {
 
         }
         return ret;

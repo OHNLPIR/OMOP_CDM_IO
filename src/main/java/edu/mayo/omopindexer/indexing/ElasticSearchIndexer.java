@@ -3,7 +3,8 @@ package edu.mayo.omopindexer.indexing;
 import edu.mayo.omopindexer.model.CDMModel;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.delete.DeleteRequestBuilder;
+import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.client.Client;
@@ -24,32 +25,38 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
- * Handler class with static methods for the ElasticSearch indexing pipeline
- * TODO: delete first + children if exists
+ * Handler class with methods for the ElasticSearch indexing pipeline
+ * Acts as a consumer thread for produced ElasticSearch operations
  */
-public class ElasticSearchIndexer {
+public class ElasticSearchIndexer implements Runnable {
 
-    private static String HOST;
-    private static int PORT;
-    private static int HTTP_PORT;
-    private static String CLUSTER;
-    private static String INDEX;
-    private static Client ES_CLIENT;
+    private static ElasticSearchIndexer INSTANCE;
+    private String HOST;
+    private int PORT;
+    private int HTTP_PORT;
+    private String CLUSTER;
+    private String INDEX;
+    private Client ES_CLIENT;
+    private BlockingDeque<RequestPair> requestQueue = new LinkedBlockingDeque<>();
+    private boolean terminate = false;
 
     // Circumvent end-user forgetting to init via static constructor
     static {
         try {
-            init();
-            initializeESIndex();
+            INSTANCE = new ElasticSearchIndexer();
+            INSTANCE.init();
+            INSTANCE.initializeESIndex();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     /** Loads JSON Configuration Parameters **/
-    private static void init() throws IOException {
+    private void init() throws IOException {
         File jsonFile = new File("configuration.json");
         if (!jsonFile.exists()) {
             FileOutputStream fos = new FileOutputStream(jsonFile);
@@ -72,7 +79,7 @@ public class ElasticSearchIndexer {
     }
 
     /** Constructs indexes in Elasticsearch as appropriate based on configuration values */
-    private static void initializeESIndex() throws IOException, ClassNotFoundException, NoSuchMethodException,
+    private void initializeESIndex() throws IOException, ClassNotFoundException, NoSuchMethodException,
             IllegalAccessException, InvocationTargetException, InstantiationException {
         // Construct mapping information for index
         // Get Model files via reflection
@@ -130,7 +137,7 @@ public class ElasticSearchIndexer {
      * Indexes the given document to ElasticSearch index
      * TODO: queueing/batch system for performance reasons here
      */
-    public static void indexSerialized(CDMToJSONSerializer document) {
+    public void indexSerialized(CDMToJSONSerializer document) {
         Deque<JSONObject> jsons = document.toElasticSearchIndexableJSONs();
         JSONObject parent = jsons.pollFirst();
         String docID = parent.getString("DocumentID");
@@ -148,7 +155,7 @@ public class ElasticSearchIndexer {
                 break;
             }
         }
-        if (flag) bulkBuilder.execute().actionGet();
+        if (flag) bulkBuilder.execute();
         // - Reinitialize for bulk builder
         bulkBuilder = ES_CLIENT.prepareBulk();
         // Index document itself
@@ -160,5 +167,55 @@ public class ElasticSearchIndexer {
         }
         // Run the bulk request
         bulkBuilder.execute().actionGet();
+    }
+
+    public static ElasticSearchIndexer getInstance() {
+        return INSTANCE;
+    }
+
+    public void terminate() {
+        terminate = true;
+    }
+
+    @Override
+    public void run() {
+        // Local storage
+        LinkedList<RequestPair> reqs = new LinkedList<>();
+        // Get current queue states
+        requestQueue.drainTo(reqs);
+        if (reqs.size() > 0) {
+            BulkRequestBuilder opBuilder = ES_CLIENT.prepareBulk();
+            for (RequestPair req : reqs) {
+                SearchResponse resp = req.deleteSearch.execute().actionGet();
+                while (true) {
+                    for (SearchHit hit : resp.getHits()) {
+                        opBuilder.add(ES_CLIENT.prepareDelete(hit.getIndex(), hit.getType(), hit.getId()));
+                    }
+                    resp = ES_CLIENT.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
+                    if (resp.getHits().getHits().length == 0) {
+                        break;
+                    }
+                }
+                opBuilder.add(req.indexReq);
+            }
+            opBuilder.execute();
+        }
+        if (!terminate || requestQueue.size() > 0) {
+            run();
+
+        }
+    }
+
+    /**
+     * Used to store a delete request with its associated index request (clean up children first then index)
+     */
+    private static class RequestPair {
+        SearchRequestBuilder deleteSearch;
+        IndexRequestBuilder indexReq;
+
+        public RequestPair(SearchRequestBuilder deleteSearch, IndexRequestBuilder indexReq) {
+            this.deleteSearch = deleteSearch;
+            this.indexReq = indexReq;
+        }
     }
 }
