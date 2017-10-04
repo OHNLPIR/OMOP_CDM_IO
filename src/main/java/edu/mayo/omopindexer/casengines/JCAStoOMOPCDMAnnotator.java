@@ -60,7 +60,6 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
             config.setReadOnly(true);
             logger.info("Importing OHDSI Vocabulary Definitions");
             ohdsiDBConn = DriverManager.getConnection(connURL, config.toProperties());
-//            ohdsiDBConn.createStatement().executeUpdate("restore from OHDSI/ATHENA.sqlite");
             logger.info("Done");
             getOHDSICodePs = ohdsiDBConn.prepareStatement("SELECT * FROM CONCEPT WHERE CONCEPT_CODE=?");
         } catch (SQLException e) {
@@ -82,7 +81,6 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
         Map<MedicationMention, Collection<Sentence>> medicationToChunk =
                 JCasUtil.indexCovering(jCas, MedicationMention.class, Sentence.class);
         Map<Sentence, Collection<MeasurementAnnotation>> chunkToMeasurement = JCasUtil.indexCovered(jCas, Sentence.class, MeasurementAnnotation.class);
-        // TODO will probably have to split as one of the intermediate annotators removes chunks breaking measurement detection
         // Used for temporal identification
         Map<DiseaseDisorderMention, Collection<Sentence>> diseaseToSentence = JCasUtil.indexCovering(jCas, DiseaseDisorderMention.class, Sentence.class);
         Map<SignSymptomMention, Collection<Sentence>> signSymptomToSentence = JCasUtil.indexCovering(jCas, SignSymptomMention.class, Sentence.class);
