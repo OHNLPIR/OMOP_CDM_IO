@@ -1,6 +1,7 @@
 package edu.mayo.omopindexer.indexing;
 
 import edu.mayo.omopindexer.model.CDMModel;
+import edu.mayo.omopindexer.model.CDMPerson;
 import org.apache.commons.io.IOUtils;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -55,11 +56,13 @@ public class ElasticSearchIndexer extends Thread {
         }
     }
 
-    public ElasticSearchIndexer() {
+    private ElasticSearchIndexer() {
         super("Elasticsearch Indexing Queue");
     }
 
-    /** Loads JSON Configuration Parameters **/
+    /**
+     * Loads JSON Configuration Parameters
+     **/
     private void init() throws IOException {
         File jsonFile = new File("configuration.json");
         if (!jsonFile.exists()) {
@@ -82,7 +85,9 @@ public class ElasticSearchIndexer extends Thread {
         ES_CLIENT = new TransportClient(s).addTransportAddress(new InetSocketTransportAddress(HOST, PORT));
     }
 
-    /** Constructs indexes in Elasticsearch as appropriate based on configuration values */
+    /**
+     * Constructs indexes in Elasticsearch as appropriate based on configuration values
+     */
     private void initializeESIndex() throws IOException, ClassNotFoundException, NoSuchMethodException,
             IllegalAccessException, InvocationTargetException, InstantiationException {
         // Construct mapping information for index
@@ -101,9 +106,9 @@ public class ElasticSearchIndexer extends Thread {
         for (CDMModel model : models) {
             // https://www.elastic.co/guide/en/elasticsearch/reference/1.7/mapping-parent-field.html
             JSONObject childObject = new JSONObject();
-                JSONObject _parent = new JSONObject();
-                _parent.put("type", "document");
-                childObject.put("_parent", _parent);
+            JSONObject _parent = new JSONObject();
+            _parent.put("type", "Document");
+            childObject.put("_parent", _parent);
             JSONObject properties = new JSONObject();
             for (Map.Entry<String, Object> e : model.getJSONMapping().toMap().entrySet()) {
                 properties.put(e.getKey(), e.getValue());
@@ -111,7 +116,15 @@ public class ElasticSearchIndexer extends Thread {
             childObject.put("properties", properties);
             childMappings.put(model.getModelTypeName(), childObject);
         }
-        mapping.put("document", new JSONObject());
+        mapping.put("Document", new JSONObject().put("_parent", new JSONObject().put("type", "Encounter")));
+        mapping.put("Encounter", new JSONObject().put("_parent", new JSONObject().put("type", "Person")));
+        JSONObject personObj = new JSONObject();
+        JSONObject properties = new JSONObject();
+        for (Map.Entry<String, Object> e : CDMPerson.generateEmpty().getJSONMapping().toMap().entrySet()) {
+            properties.put(e.getKey(), e.getValue());
+        }
+        personObj.put("properties", properties);
+        mapping.put("Person", personObj);
         for (Map.Entry<String, JSONObject> e : childMappings.entrySet()) {
             mapping.put(e.getKey(), e.getValue());
         }
@@ -140,16 +153,22 @@ public class ElasticSearchIndexer extends Thread {
     /**
      * Indexes the given document to ElasticSearch index
      */
-    public void indexSerialized(CDMToJSONSerializer document) {
-        Deque<JSONObject> jsons = document.toElasticSearchIndexableJSONs();
-        JSONObject parent = jsons.pollFirst();
-        String docID = parent.getString("DocumentID");
+    public void indexSerialized(CDMToJSONSerializer docSerializer) {
+        Deque<JSONObject> jsons = docSerializer.toElasticSearchIndexableJSONs();
+        JSONObject document = jsons.pollFirst();
+        String docID = document.getString("DocumentID");
         // Clean up any children if the document already exists as they were re-generated
-        HasParentQueryBuilder builder = QueryBuilders.hasParentQuery("document", QueryBuilders.termQuery("DocumentID", docID.toLowerCase()));
+        HasParentQueryBuilder builder = QueryBuilders.hasParentQuery("Document", QueryBuilders.termQuery("DocumentID", docID.toLowerCase()));
         SearchRequestBuilder searchRequest = ES_CLIENT.prepareSearch(INDEX).setSearchType(SearchType.SCAN).setScroll(new TimeValue(60000)).setQuery(builder).setSize(100);
         Collection<IndexRequestBuilder> iReqs = new LinkedList<>();
-        // Index document itself
-        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "document", docID).setSource(parent.toString()));
+        // Index document itself TODO abstractify
+        String encounterID = document.getString("Encounter_ID");
+        String personID = document.getString("Person_ID");
+        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Document", docID).setSource(document.toString()).setParent(encounterID));
+        // Index its parent encounter if necessary // TODO necessity check
+        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Encounter", encounterID).setParent(personID).setSource(new JSONObject().put("Encounter_ID", encounterID).put("Person_ID", personID))); // TODO
+        // Index its parent person if necessary
+        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Person", personID).setSource(new JSONObject().put("Person_ID", personID))); // TODO
         // Index its children
         JSONObject nextChild;
         while ((nextChild = jsons.pollFirst()) != null) {
@@ -202,13 +221,12 @@ public class ElasticSearchIndexer extends Thread {
                 }
                 // Execute the deletions and indexing together
                 opBuilder.execute();
-
             }
             if (!terminate || requestQueue.size() > 0) { // Continue consuming if we are either not terminated or still have stuff in queue
                 if (reqs.size() < 100) { // can be finetuned
                     // Wait if we consumed an arbitrarily low number of requests, otherwise try consuming again immediately
                     try {
-                        this.sleep(10000);
+                        sleep(10000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

@@ -2,8 +2,6 @@ package edu.mayo.omopindexer.model;
 
 import org.json.JSONObject;
 
-import java.util.Date;
-
 /**
  * Model for a Person in the OMOP CDM Model: The Person contains demographic attributes for the cohort.
  */
@@ -18,8 +16,8 @@ public class CDMPerson implements CDMModel {
     /** A location ID denoting this person's location */
     private Long locationId;
 
-    /** The person's age at time of encounter*/
-    private Long encounterAge;
+    /** The person's age expressed as milliseconds since the epoch*/
+    private Long dateOfBirth;
 
     /**
      * An array of age limits for <b>exclusion</b>
@@ -30,12 +28,17 @@ public class CDMPerson implements CDMModel {
     /** Included for reflection compatibility: do not use, do not remove */
     private CDMPerson() {this(null, null, null, null, null);}
 
-    public CDMPerson(CDMPerson_GENDER gender, CDMPerson_ETHNICITY ethnicity, Long locationId, Long encounterAge, CDMPerson_AGE_LIMITS... exclusions) {
+    public CDMPerson(CDMPerson_GENDER gender, CDMPerson_ETHNICITY ethnicity, Long locationId, Long dateOfBirth, CDMPerson_AGE_LIMITS... exclusions) {
         this.gender = gender;
         this.ethnicity = ethnicity;
         this.locationId = locationId;
-        this.encounterAge = encounterAge;
+        this.dateOfBirth = dateOfBirth;
         this.exclusions = exclusions;
+    }
+
+    /** Used internally for mapping generation, do not use **/
+    public static CDMPerson generateEmpty() {
+        return new CDMPerson();
     }
 
     /**
@@ -76,7 +79,7 @@ public class CDMPerson implements CDMModel {
         if (gender != null) ret.put("gender", gender.name()); else ret.put("gender", "");
         if (ethnicity != null) ret.put("ethnicity", ethnicity.fullyQualifiedName); else ret.put("ethnicity", "");
         ret.put("locationid", locationId);
-        if (encounterAge != null) ret.put("encounter_age", encounterAge); else ret.put("encounter_age", (Long)null);
+        if (dateOfBirth != null) ret.put("date_of_birth", dateOfBirth); else ret.put("date_of_birth", (Long)null);
         if (exclusions != null && exclusions.length > 0) {
             StringBuilder sB = new StringBuilder();
             boolean flag = false;
@@ -101,7 +104,7 @@ public class CDMPerson implements CDMModel {
         ret.put("gender", constructTypeObject("string"));
         ret.put("ethnicity", constructTypeObject("string"));
         ret.put("locationid", constructTypeObject("long"));
-        ret.put("encounter_age", constructTypeObject("long"));
+        ret.put("date_of_birth", constructTypeObject("long"));
         ret.put("limits", constructTypeObject("string"));
         return ret;
     }
@@ -114,11 +117,11 @@ public class CDMPerson implements CDMModel {
     }
 
     /**
-     * @see #encounterAge
-     * @return This person's age at encounter
+     * @see #dateOfBirth
+     * @return This person's age expressed as milliseconds since the epoch
      */
-    public Long getEncounterAge() {
-        return encounterAge;
+    public Long getDateOfBirth() {
+        return dateOfBirth;
     }
 
     /** An enumeration of genders **/

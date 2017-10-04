@@ -190,47 +190,6 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                 CDMModelStaging.stage(jCas, new CDMMeasurement(mentionText, null, null, dValue));
             }
         }
-        // Person TODO MAPPINGS
-        // Pull obtainable information from headers
-        // - Capture birthday
-        BioBankCNHeader header = JCasUtil.selectSingle(jCas, BioBankCNHeader.class);
-        Pattern birthdayPattern = Pattern.compile("birth_date:([0-9]{8})");
-        Matcher birthdayMatcher = birthdayPattern.matcher(header.getValue());
-        java.util.Date birthday = null;
-        if (birthdayMatcher.find()) {
-            try {
-                SimpleDateFormat dF = new SimpleDateFormat("yyyyMMdd");
-                dF.setTimeZone(TimeZone.getTimeZone("GMT"));
-                birthday = dF.parse(birthdayMatcher.group(1));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-        // - Capture encounter date to calculate person age at time of encounter
-        Pattern activityDateTimePattern = Pattern.compile("ACTIVITY_DTM:([^\\|]+)");
-        Matcher activityDTMMatcher = activityDateTimePattern.matcher(header.getValue());
-        java.util.Date activityDTM = null;
-        if (activityDTMMatcher.find()) {
-            try {
-                SimpleDateFormat dF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
-                dF.setTimeZone(TimeZone.getTimeZone("GMT"));
-                activityDTM = dF.parse(activityDTMMatcher.group(1));
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        }
-        Long ageAtEncounter = null;
-        if (birthday != null && activityDTM != null) { // Should always be true...but you never know
-            ageAtEncounter = activityDTM.getTime() - birthday.getTime();
-        }
-        // - Capture patient ID
-        Pattern pIDPattern = Pattern.compile("PATIENT_ID:([^\\|]+)");
-        Matcher pIDMatcher = pIDPattern.matcher(header.getValue());
-        String patientID = null;
-        if (pIDMatcher.find()) {
-            patientID = pIDMatcher.group(1);
-        }
-        // TODO actually use this information somehow (i.e. by pulling from structured data)
         // Unstructured Observations
         // - Create a secondary index to check for useful annotations in sentences
         AnnotationCache.AnnotationTree tree = AnnotationCache.getAnnotationCache(id + "_used", text.length(), usedAnns);
