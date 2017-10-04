@@ -5,7 +5,7 @@ import org.json.JSONObject;
 import java.util.Date;
 
 /**
- * Model for a Date in the OMOP CDM Model TODO: rethink structure of this!
+ * Model for a Date in the OMOP CDM Model
  */
 public class CDMDate implements CDMModel {
     /**

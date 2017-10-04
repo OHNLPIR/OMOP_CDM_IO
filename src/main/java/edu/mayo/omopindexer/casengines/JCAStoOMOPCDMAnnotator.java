@@ -199,7 +199,6 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
             }
         }
 
-
 //        XmiCasSerializer out = new XmiCasSerializer(jCas.getTypeSystem());
 //        try {
 //            File f = new File("out");
@@ -330,13 +329,48 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
         // Look for start and end
         List<Date> dateCandidates = new LinkedList<>();
         for (String s : reProcess) {
-
+            // TODO
         }
         return ret;
     }
 
     private static long convertISO8601ToMillis(String iso8601String) {
-        return 0; // TODO
+        String[] split = iso8601String.split("T");
+        long sum = 0;
+        Pattern ISO8601PATTERNFRONT = Pattern.compile("(?:([0-9]+)Y)?(?:([0-9]+)M)?(?:([0-9]+)W)?(?:([0-9]+)D)?");
+        Pattern ISO8601PATTERNBACK = Pattern.compile("(?:([0-9]+)H)?(?:([0-9]+)M)?(?:([0-9]+)S)?");
+        if (split[0] != null) {
+            Matcher m = ISO8601PATTERNFRONT.matcher(split[0]);
+            if (m.find()) {
+                for (int i = 1; i <= 4; i++) { // Regex is 1 indexed...
+                    if (m.group(i) != null) {
+                        int v = Integer.valueOf(m.group(i));
+                        switch (i) {
+                            case 1: sum += v * 365 * 24 * 60 * 60 * 1000; break; // Not that accurate but best we can do...
+                            case 2: sum += v * 30.5 * 24 * 60 * 60 * 1000; break; // Same here
+                            case 3: sum += v * 7 * 24 * 60 * 60 * 1000; break;
+                            case 4: sum += v * 24 * 60 * 60 * 1000; break;
+                        }
+                    }
+                }
+            }
+        }
+        if (split.length == 2 && split[1] != null) {
+            Matcher m = ISO8601PATTERNBACK.matcher(split[1]);
+            if (m.find()) {
+                for (int i = 1; i <= 3; i++) { // Regex is 1 indexed...
+                    if (m.group(i) != null) {
+                        int v = Integer.valueOf(m.group(i));
+                        switch (i) {
+                            case 1: sum += v * 60 * 60 * 1000; break;
+                            case 2: sum += v * 60 * 1000; break;
+                            case 3: sum += v * 1000; break;
+                        }
+                    }
+                }
+            }
+        }
+        return sum;
     }
 
     /**
@@ -350,7 +384,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
         if (input.matches("[montuewdhfrisa]{3,6}days?")) { // Mon-Sun
             return "%dW";
         } else if (input.contains("today")) {
-
+            // TODO
         }
         if (input.length() > 1) {
             switch (input.substring(0, 2)) {
