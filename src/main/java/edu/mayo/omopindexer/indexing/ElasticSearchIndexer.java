@@ -166,9 +166,9 @@ public class ElasticSearchIndexer extends Thread {
         String personID = document.getString("Person_ID");
         iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Document", docID).setSource(document.toString()).setParent(encounterID));
         // Index its parent encounter if necessary // TODO necessity check
-        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Encounter", encounterID).setParent(personID).setSource(new JSONObject().put("Encounter_ID", encounterID).put("Person_ID", personID))); // TODO
+        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Encounter", encounterID).setParent(personID).setSource(new JSONObject().put("Encounter_ID", encounterID).put("Person_ID", personID).toString())); // TODO
         // Index its parent person if necessary
-        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Person", personID).setSource(new JSONObject().put("Person_ID", personID))); // TODO
+        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Person", personID).setSource(new JSONObject().put("Person_ID", personID).toString())); // TODO
         // Index its children
         JSONObject nextChild;
         while ((nextChild = jsons.pollFirst()) != null) {
