@@ -2,6 +2,7 @@ package edu.mayo.omopindexer.casengines;
 
 import edu.mayo.omopindexer.types.BioBankCNHeader;
 import edu.mayo.omopindexer.types.BioBankCNSectionHeader;
+import org.apache.commons.io.FileUtils;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.uima.cas.CAS;
@@ -23,7 +24,7 @@ import java.util.regex.Pattern;
 @PipeBitInfo(
         name = "BioBank CN Reader",
         description = "Specialized deserializer for reading BioBank clinical notes, adapted from UIMA's FilesInCollectionReader. " +
-                "Do not use on other data sets, it will not work.",
+                "Do not use on other data sets or outside of this project, it will not work.",
         role = PipeBitInfo.Role.READER,
         products = {PipeBitInfo.TypeProduct.DOCUMENT_ID}
 )
@@ -34,6 +35,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
     private ArrayList<File> mFiles;
     private int mCurrentIndex;
     private File inputDir;
+    private File completeDir;
 
     private String queueDocID;
     private String readQueue1; // Does not strip section headers
@@ -55,10 +57,11 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                     this.mFiles.add(files[i]);
                 }
             }
-
         } else {
             throw new ResourceInitializationException("directory_not_found", new Object[]{"InputDirectory", this.getMetaData().getName(), inputDir.getPath()});
         }
+        completeDir = new File(inputDir.getParentFile(), "done");
+        completeDir.mkdirs();
     }
 
     @Override
@@ -147,7 +150,11 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                         text = readQueue1.substring(startIndex);
                         numSectionsRead = 1;
                         readQueue1 = null; // Document complete, reset queue and advance
+                        File toDelete = mFiles.get(mCurrentIndex);
+                        FileUtils.copyFile(toDelete, new File(completeDir, toDelete.getName()));
+                        toDelete.delete();
                         mCurrentIndex++;
+
                     }
                 }
                 cas.setDocumentText(text.trim());
