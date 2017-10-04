@@ -226,7 +226,7 @@ public class ElasticSearchIndexer extends Thread {
         SearchRequestBuilder deleteSearch;
         Collection<IndexRequestBuilder> indexReqs;
 
-        public RequestPair(SearchRequestBuilder deleteSearch, Collection<IndexRequestBuilder> indexReqs) {
+        RequestPair(SearchRequestBuilder deleteSearch, Collection<IndexRequestBuilder> indexReqs) {
             this.deleteSearch = deleteSearch;
             this.indexReqs = indexReqs;
         }

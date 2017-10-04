@@ -129,6 +129,14 @@ public class SimpleIndexPipeline extends Thread {
             if (numCores == 0) numCores = 1;
             System.out.println("-Dpipeline.threads not set, running pipeline with " + numCores + " threads based on system configuration");
         }
+        int numIndexingCores;
+        if (System.getProperty("indexing.threads") != null) {
+            numIndexingCores = Integer.valueOf(System.getProperty("indexing.threads"));
+            System.out.println("Running indexing with " + numIndexingCores + " threads");
+        } else {
+            numIndexingCores = 1; // Should never be high enough to actually cause an overflow
+            System.out.println("-indexing.threads not set, running indexing with " + numIndexingCores + " threads based on system configuration");
+        }
         if (System.getProperty("inputDir") == null) {
             System.out.println("-DinputDir not set, defaulting to \"data\"");
         }
@@ -263,7 +271,10 @@ public class SimpleIndexPipeline extends Thread {
             threads.add(t);
             executor.submit(t);
         }
-        Executors.newSingleThreadExecutor().submit(ElasticSearchIndexer.getInstance());
+        for (int i = 0; i < numIndexingCores; i++) {
+            Executors.newSingleThreadExecutor().submit(ElasticSearchIndexer.getInstance());
+        }
+
         try {
             executor.awaitTermination(Long.MAX_VALUE - 1, TimeUnit.DAYS); // Do not time out
             System.out.println("Completed processing of document");
