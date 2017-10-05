@@ -192,48 +192,53 @@ public class ElasticSearchIndexer extends Thread {
 
     @Override
     public void run() {
-        while (true) {
-            // Local storage
-            LinkedList<RequestPair> reqs = new LinkedList<>();
-            // Get current queue states
-            requestQueue.drainTo(reqs);
-            boolean flag = reqs.size() > 0;
-            System.out.println("Processing " + reqs.size());
-            if (flag) {
-                BulkRequestBuilder opBuilder = ES_CLIENT.prepareBulk();
-                for (RequestPair req : reqs) {
-                    // - Find (already existing) children to delete
-                    SearchResponse resp = req.deleteSearch.execute().actionGet();
-                    while (true) {
-                        for (SearchHit hit : resp.getHits()) {
-                            // - Enqueue the deletion
-                            opBuilder.add(ES_CLIENT.prepareDelete(hit.getIndex(), hit.getType(), hit.getId()));
+        try (FileWriter writer = new FileWriter(new File(UUID.randomUUID() + ".out"))) {
+            while (true) {
+                // Local storage
+                LinkedList<RequestPair> reqs = new LinkedList<>();
+                // Get current queue states
+                requestQueue.drainTo(reqs);
+                boolean flag = reqs.size() > 0;
+                writer.write("Processing " + reqs.size());
+                writer.flush();
+                if (flag) {
+                    BulkRequestBuilder opBuilder = ES_CLIENT.prepareBulk();
+                    for (RequestPair req : reqs) {
+//                        // - Find (already existing) children to delete TODO commented out for performance, uncomment before production!
+//                        SearchResponse resp = req.deleteSearch.execute().actionGet();
+//                        while (true) {
+//                            for (SearchHit hit : resp.getHits()) {
+//                                // - Enqueue the deletion
+//                                opBuilder.add(ES_CLIENT.prepareDelete(hit.getIndex(), hit.getType(), hit.getId()));
+//                            }
+//                            resp = ES_CLIENT.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
+//                            if (resp.getHits().getHits().length == 0) {
+//                                break;
+//                            }
+//                        }
+                        // - Add indexing requests
+                        for (IndexRequestBuilder iReq : req.indexReqs) {
+                            opBuilder.add(iReq);
                         }
-                        resp = ES_CLIENT.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(600000)).execute().actionGet();
-                        if (resp.getHits().getHits().length == 0) {
-                            break;
+                    }
+                    // Execute the deletions and indexing together
+                    opBuilder.execute();
+                }
+                if (!terminate || requestQueue.size() > 0) { // Continue consuming if we are either not terminated or still have stuff in queue
+                    if (reqs.size() < 100) { // can be finetuned
+                        // Wait if we consumed an arbitrarily low number of requests, otherwise try consuming again immediately
+                        try {
+                            sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                     }
-                    // - Add indexing requests
-                    for (IndexRequestBuilder iReq : req.indexReqs) {
-                        opBuilder.add(iReq);
-                    }
+                } else {
+                    break; // Exit conditions reached, quit thread
                 }
-                // Execute the deletions and indexing together
-                opBuilder.execute();
             }
-            if (!terminate || requestQueue.size() > 0) { // Continue consuming if we are either not terminated or still have stuff in queue
-                if (reqs.size() < 100) { // can be finetuned
-                    // Wait if we consumed an arbitrarily low number of requests, otherwise try consuming again immediately
-                    try {
-                        sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                break; // Exit conditions reached, quit thread
-            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

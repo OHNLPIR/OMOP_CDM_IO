@@ -303,10 +303,8 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                     periodUnit = periodLy;
                 }
                 // - Do nothing with frequencies for now (not represented in date information
-                if (freq1 != null) {
-                }
-                if (freq2 != null) {
-                }
+                if (freq1 != null) {}
+                if (freq2 != null) {}
                 boolean periodModify = (freq4 != null && freq4.toLowerCase().contains("other")) || everyOther != null;
                 if (period1 != null && period1.length() > 0 && periodUnit != null) {
                     period1 = normalizeNumber(s);
@@ -384,7 +382,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
         if (input.matches("[montuewdhfrisa]{3,6}days?")) { // Mon-Sun
             return "%dW";
         } else if (input.contains("today")) {
-            // TODO
+            return "0D";
         }
         if (input.length() > 1) {
             switch (input.substring(0, 2)) {
