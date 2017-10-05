@@ -226,7 +226,7 @@ public class ElasticSearchIndexer extends Thread {
                 if (reqs.size() < 100) { // can be finetuned
                     // Wait if we consumed an arbitrarily low number of requests, otherwise try consuming again immediately
                     try {
-                        sleep(10000);
+                        sleep(5000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
