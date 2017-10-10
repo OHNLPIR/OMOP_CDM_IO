@@ -51,7 +51,7 @@ public enum JdbcConnectionFactory {
      * @throws SQLException if a JDBC Driver could not be created or registered,
      *                      or if a Connection could not be made to the given <code>jdbcUrl</code>
      */
-    public synchronized Connection getConnection( final String jdbcDriver,
+    public Connection getConnection( final String jdbcDriver,
                                      final String jdbcUrl,
                                      final String jdbcUser,
                                      final String jdbcPass ) throws SQLException {
