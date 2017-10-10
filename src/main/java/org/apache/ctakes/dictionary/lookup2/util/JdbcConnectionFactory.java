@@ -10,6 +10,7 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Some JDBC Connections can be reused, for instance by a Dictionary and Concept Factory.
@@ -33,7 +34,7 @@ public enum JdbcConnectionFactory {
 
     static private final String HSQL_FILE_PREFIX = "jdbc:hsqldb:file:";
     static private final String HSQL_DB_EXT = ".script";
-    private final Map<String, Connection> CONNECTIONS = Collections.synchronizedMap( new HashMap<String, Connection>() );
+    private final Map<String, Connection> CONNECTIONS = new ConcurrentHashMap<String, Connection>();
 
     public static JdbcConnectionFactory getInstance() {
         return INSTANCE;
