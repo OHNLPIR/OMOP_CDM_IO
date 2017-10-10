@@ -196,8 +196,8 @@ public class ElasticSearchIndexer extends Thread {
             while (true) {
                 // Local storage
                 LinkedList<RequestPair> reqs = new LinkedList<>();
-                // Get current queue states
-                requestQueue.drainTo(reqs);
+                // Get current queue states - only do maximum of 1000 elements per thread
+                requestQueue.drainTo(reqs, 1000);
                 boolean flag = reqs.size() > 0;
                 writer.write("Processing " + reqs.size());
                 writer.flush();

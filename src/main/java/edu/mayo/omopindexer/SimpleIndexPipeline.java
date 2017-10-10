@@ -186,7 +186,6 @@ public class SimpleIndexPipeline extends Thread {
         // - Load OHDSI Vocabularies into SQLite if Necessary
         File OHDSIVocab = new File(vocabDefFolder, "ATHENA.sqlite");
         Class.forName("org.sqlite.JDBC"); // Force load the driver class
-//        String connURL = "jdbc:sqlite:" + OHDSIVocab.getAbsolutePath().replace("\\", "/");
         String connURL = "jdbc:sqlite::memory:";
 
         if (!OHDSIVocab.exists()) {
