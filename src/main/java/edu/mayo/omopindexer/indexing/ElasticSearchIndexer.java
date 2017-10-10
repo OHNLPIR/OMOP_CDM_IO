@@ -4,6 +4,7 @@ import edu.mayo.omopindexer.model.CDMModel;
 import edu.mayo.omopindexer.model.CDMPerson;
 import edu.mayo.omopindexer.model.GeneratedEncounter;
 import org.apache.commons.io.IOUtils;
+import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
@@ -207,13 +208,18 @@ public class ElasticSearchIndexer extends Thread {
                 writer.flush();
                 if (flag) {
                     BulkRequestBuilder opBuilder = ES_CLIENT.prepareBulk();
+                    LinkedList<ActionFuture> barriers = new LinkedList<>(); // Storage for action futures to resynchronize with
                     for (RequestPair req : reqs) {
-                        // - Await deletion completion TODO: something way more efficient than this is necessary
-                        req.deleteSearch.get();
+                        // - Await deletion completion TODO: could also run indexing as soon as future completed possibly
+                        barriers.add(req.deleteSearch.execute());
                         // - Add indexing requests
                         for (IndexRequestBuilder iReq : req.indexReqs) {
                             opBuilder.add(iReq);
                         }
+                    }
+                    // Wait for barrier resynchronization
+                    for (ActionFuture future : barriers) {
+                        future.actionGet();
                     }
                     // Execute the indexing requests
                     opBuilder.execute();
