@@ -11,6 +11,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.VersionType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryAction;
 import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
@@ -165,7 +166,7 @@ public class ElasticSearchIndexer extends Thread {
         if (person == null) {
             return; // Continue without indexing since its parent person will not exist
         }
-        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Person", personID).setVersion(person.getVersion()).setSource(person.getAsJSON().toString(), XContentType.JSON));
+        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Person", personID).setVersion(person.getVersion()).setVersionType(VersionType.EXTERNAL).setSource(person.getAsJSON().toString(), XContentType.JSON));
         // Index the relevant encounter
         GeneratedEncounter encounterModel = EncounterStaging.get(encounterID);
         if (encounterModel == null) {
