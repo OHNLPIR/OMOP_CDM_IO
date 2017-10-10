@@ -12,6 +12,8 @@ an ElasticSearch index
 repository is specialized for Mayo's BioBank clinical note collection and will not function for anything else)
 - A UMLS license
 - A multithreaded computing environment
+- OHDSI ATHENA csv specifications (can be found at http://athena.ohdsi.org/)
+- cTAKES dictionary resources (can be found at http://ctakes.apache.org/)
 
 ## Runtime Arguments
 ### Required Arguments
@@ -21,3 +23,13 @@ repository is specialized for Mayo's BioBank clinical note collection and will n
 ### Optional Arguments
 - -Dpipeline.threads=\[number_of_threads_to_use_on_nlp] (Default: Available CPU Cores/2)
 - -Dindexing.threads=\[number_of_threads_to_use_for_indexing] (Default: 1)
+
+## Generating Required Dictionaries
+- The OMOP CDM Indexer contains code that will autonomously generate appropriate sqlite databases from OEM tab-delimited data tables.
+Obtain OHDSI ATHENA csv specifications from http://athena.ohdsi.org/ and place in the "OHDSI" folder in your working directory.
+- cTAKES Dictionary Specifications can be converted into a format compatible with the modified dictionary lookup
+- OMOP CDM Indexer requires several additional dictionaries. These can be generated using the dictionary creator included 
+with the cTAKES binary download (http://ctakes.apache.org/) and a UMLS installation with SNOMED source vocabularies. The dictionary descriptor xml and associated folder for generated dictionaries should then be
+placed in the dictionary folder:
+    - Ethnicity and Race extraction requires a dictionary with the T098 (Population Group) semantic type selected. The generated
+    database should be named "ethnicitiesandraces"
