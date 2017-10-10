@@ -10,6 +10,7 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.DeleteByQueryAction;
 import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
@@ -26,6 +27,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingDeque;
 
 /**
@@ -36,9 +38,7 @@ public class ElasticSearchIndexer extends Thread {
 
     private static ElasticSearchIndexer INSTANCE;
     private String HOST;
-    private int PORT;
     private int HTTP_PORT;
-    private String CLUSTER;
     private String INDEX;
     private Client ES_CLIENT;
     private BlockingDeque<RequestPair> requestQueue = new LinkedBlockingDeque<>();
@@ -75,9 +75,9 @@ public class ElasticSearchIndexer extends Thread {
                 new JSONTokener(new FileInputStream(jsonFile));
         JSONObject obj = new JSONObject(tokenizer);
         HOST = obj.getString("host");
-        PORT = obj.getInt("port");
+        int PORT = obj.getInt("port");
         HTTP_PORT = obj.getInt("http_port");
-        CLUSTER = obj.getString("cluster");
+        String CLUSTER = obj.getString("cluster");
         INDEX = obj.getString("index_name");
         Settings s = Settings.builder()
                 .put("cluster.name", CLUSTER).put("client.transport.sniff", true).put().build();
@@ -155,7 +155,7 @@ public class ElasticSearchIndexer extends Thread {
         JSONObject document = jsons.pollFirst();
         String docID = document.getString("DocumentID");
         // Clean up any children if the document already exists as they were re-generated
-        DeleteByQueryRequestBuilder cleanupQuery = DeleteByQueryAction.INSTANCE.newRequestBuilder(ES_CLIENT)
+        DeleteByQueryRequestBuilder cleanupQuery = DeleteByQueryAction.INSTANCE.newRequestBuilder(ES_CLIENT).source(INDEX)
                 .filter(new HasParentQueryBuilder("Document", QueryBuilders.termQuery("DocumentID", docID.toLowerCase()), false));
         Collection<IndexRequestBuilder> iReqs = new LinkedList<>();
         String encounterID = document.getString("Encounter_ID");
@@ -165,19 +165,19 @@ public class ElasticSearchIndexer extends Thread {
         if (person == null) {
             return; // Continue without indexing since its parent person will not exist
         }
-        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Person", personID).setVersion(person.getVersion()).setSource(person.getAsJSON().toString()));
+        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Person", personID).setVersion(person.getVersion()).setSource(person.getAsJSON().toString(), XContentType.JSON));
         // Index the relevant encounter
         GeneratedEncounter encounterModel = EncounterStaging.get(encounterID);
         if (encounterModel == null) {
             return; // Continue without indexing since its parent encounter will not exist
         }
-        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Encounter", encounterID).setParent(personID).setSource(encounterModel.getAsJSON().toString()));
+        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Encounter", encounterID).setParent(personID).setSource(encounterModel.getAsJSON().toString(), XContentType.JSON));
         // Index document itself
-        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Document", docID).setSource(document.toString()).setParent(encounterID));
+        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Document", docID).setSource(document.toString(), XContentType.JSON).setParent(encounterID));
         // Index its children
         JSONObject nextChild;
         while ((nextChild = jsons.pollFirst()) != null) {
-            iReqs.add(ES_CLIENT.prepareIndex(INDEX, nextChild.getString("type")).setParent(docID).setSource(nextChild.toString()));
+            iReqs.add(ES_CLIENT.prepareIndex(INDEX, nextChild.getString("type")).setParent(docID).setSource(nextChild.toString(), XContentType.JSON));
         }
         // Add the request to the request queue for processing
         try {
@@ -204,7 +204,7 @@ public class ElasticSearchIndexer extends Thread {
                 // Get current queue states - only do maximum of 1000 elements per thread
                 requestQueue.drainTo(reqs, 1000);
                 boolean flag = reqs.size() > 0;
-                writer.write("Processing " + reqs.size());
+                writer.write("Processing " + reqs.size() + "\n");
                 writer.flush();
                 if (flag) {
                     BulkRequestBuilder opBuilder = ES_CLIENT.prepareBulk();
@@ -219,7 +219,11 @@ public class ElasticSearchIndexer extends Thread {
                     }
                     // Wait for barrier resynchronization
                     for (ActionFuture future : barriers) {
-                        future.actionGet();
+                        try {
+                            future.get();
+                        } catch (InterruptedException | ExecutionException e) {
+                            e.printStackTrace();
+                        }
                     }
                     // Execute the indexing requests
                     opBuilder.execute();
