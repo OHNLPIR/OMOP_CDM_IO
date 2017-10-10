@@ -291,11 +291,6 @@ public class SimpleIndexPipeline extends Thread {
                     BioBankCNDeserializer.class,
                     BioBankCNDeserializer.PARAM_INPUTDIR, "pool/pool_" + inputDir
             );
-//        // Read in XMIs via Collection Reader
-//        CollectionReaderDescription reader = CollectionReaderFactory.createReaderDescription(
-//                XmiCollectionReaderCtakes.class,
-//                XmiCollectionReaderCtakes.PARAM_INPUTDIR, "data"
-//        );//
             AggregateBuilder builder = new AggregateBuilder();
             // Run cTAKES
             // - Base Features

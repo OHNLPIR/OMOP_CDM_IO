@@ -6,6 +6,8 @@ import org.json.JSONObject;
  * Model for a Person in the OMOP CDM Model: The Person contains demographic attributes for the cohort.
  */
 public class CDMPerson implements CDMModel {
+    /** An unique identifier used for identification purposes */
+    private String personID;
 
     /** The gender of this person */
     private CDMPerson_GENDER gender;
@@ -25,10 +27,16 @@ public class CDMPerson implements CDMModel {
      */
     private CDMPerson_AGE_LIMITS[] exclusions;
 
+    /**
+     * Internal volatile versioning tracker, do not use.
+     */
+    private long version = 0;
+
     /** Included for reflection compatibility: do not use, do not remove */
     private CDMPerson() {this(null, null, null, null, null);}
 
-    public CDMPerson(CDMPerson_GENDER gender, CDMPerson_ETHNICITY ethnicity, Long locationId, Long dateOfBirth, CDMPerson_AGE_LIMITS... exclusions) {
+    public CDMPerson(String personID, CDMPerson_GENDER gender, CDMPerson_ETHNICITY ethnicity, Long locationId, Long dateOfBirth, CDMPerson_AGE_LIMITS... exclusions) {
+        this.personID = personID;
         this.gender = gender;
         this.ethnicity = ethnicity;
         this.locationId = locationId;
@@ -76,8 +84,9 @@ public class CDMPerson implements CDMModel {
 
     public JSONObject getAsJSON() {
         JSONObject ret = new JSONObject();
+        if (personID != null) ret.put("person_id", personID); else ret.put("person_id", "");
         if (gender != null) ret.put("gender", gender.name()); else ret.put("gender", "");
-        if (ethnicity != null) ret.put("ethnicity", ethnicity.fullyQualifiedName); else ret.put("ethnicity", "");
+        if (ethnicity != null) ret.put("ethnicity", ethnicity.getFullyQualifiedName()); else ret.put("ethnicity", "");
         ret.put("locationid", locationId);
         if (dateOfBirth != null) ret.put("date_of_birth", dateOfBirth); else ret.put("date_of_birth", (Long)null);
         if (exclusions != null && exclusions.length > 0) {
@@ -101,6 +110,7 @@ public class CDMPerson implements CDMModel {
     @Override
     public JSONObject getJSONMapping() {
         JSONObject ret = new JSONObject();
+        ret.put("person_id", constructTypeObject("string"));
         ret.put("gender", constructTypeObject("string"));
         ret.put("ethnicity", constructTypeObject("string"));
         ret.put("locationid", constructTypeObject("long"));
@@ -165,5 +175,13 @@ public class CDMPerson implements CDMModel {
         public String getFullyQualifiedName() {
             return fullyQualifiedName;
         }
+    }
+
+    /**
+     * Used internally to preserve most up-to-date information in spite of asynchronous indexing
+     * @return The version of this person model object (increments with every access)
+     */
+    public long getVersion() {
+        return ++version;
     }
 }

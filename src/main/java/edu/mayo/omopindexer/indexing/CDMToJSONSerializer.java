@@ -27,10 +27,6 @@ public class CDMToJSONSerializer {
     private String encounterID;
     /** The patient ID associated with this document */
     private String personID;
-    /** The date of the encounter associated with this document */
-    private Date activityDTM;
-    /** The age of the patient at the time of the encounter */
-    private Long encounterAge;
     /** A queue of constructed JSON Objects for indexing */
     private LinkedList<JSONObject> docQueue;
 
@@ -67,7 +63,8 @@ public class CDMToJSONSerializer {
         // - Capture encounter date to calculate person age at time of encounter
         Pattern activityDateTimePattern = Pattern.compile("ACTIVITY_DTM:([^\\|]+)");
         Matcher activityDTMMatcher = activityDateTimePattern.matcher(documentHeader);
-        activityDTM = null;
+        /* The date of the encounter associated with this document */
+        Date activityDTM = null;
         if (activityDTMMatcher.find()) {
             try {
                 SimpleDateFormat dF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
@@ -77,10 +74,6 @@ public class CDMToJSONSerializer {
                 e.printStackTrace();
             }
         }
-        encounterAge = null;
-        if (birthday != null && activityDTM != null) { // Should always be true...but you never know
-            encounterAge = activityDTM.getTime() - birthday.getTime();
-        }
         // - Capture patient ID
         Pattern pIDPattern = Pattern.compile("PATIENT_ID:([^\\|]+)");
         Matcher pIDMatcher = pIDPattern.matcher(documentHeader);
@@ -88,7 +81,9 @@ public class CDMToJSONSerializer {
         if (pIDMatcher.find()) {
             personID = pIDMatcher.group(1);
         }
-        encounterID = personID + ":" + activityDTM.getTime();
+        encounterID = personID + ":" +
+                (activityDTM == null ? "" : activityDTM.getTime() + "") + ":" +
+                (birthday == null ? "" : birthday.getTime() + "");
     }
 
     /** @return A queue of JSON Objects, first element will always be the parent document and subsequent JSONs its
