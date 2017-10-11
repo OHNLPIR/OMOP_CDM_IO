@@ -99,7 +99,7 @@ public class ElasticSearchIndexer extends Thread {
     private void initializeESIndex() throws IOException, ClassNotFoundException, NoSuchMethodException,
             IllegalAccessException, InvocationTargetException, InstantiationException {
         // Construct setting information for index
-        JSONObject settings = new JSONObject().put("index", new JSONObject().put("number_of_shards", 20).put("number_of_replicas", 10));
+        JSONObject settings = new JSONObject().put("index", new JSONObject().put("number_of_shards", 20));
         // Construct mapping information for index
         // Get Model files via reflection
         String prefix = "edu.mayo.omopindexer.model.";
