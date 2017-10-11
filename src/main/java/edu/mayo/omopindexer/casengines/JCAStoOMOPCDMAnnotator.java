@@ -77,7 +77,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
         String id = JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID();
         // Create indexes of covered/covering classes for performance reasons when we need to associate multiple mentions
         // with one another
-        // Used for dosage identification TODO is supposed to be chunks, but chunks get removed by temporal annotator. Use sentence instead, evaluate performance impact later
+        // Used for dosage identification
         Map<MedicationMention, Collection<Sentence>> medicationToChunk =
                 JCasUtil.indexCovering(jCas, MedicationMention.class, Sentence.class);
         Map<Sentence, Collection<MeasurementAnnotation>> chunkToMeasurement = JCasUtil.indexCovered(jCas, Sentence.class, MeasurementAnnotation.class);
