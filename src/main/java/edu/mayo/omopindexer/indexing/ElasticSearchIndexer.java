@@ -42,8 +42,9 @@ public class ElasticSearchIndexer extends Thread {
     private int HTTP_PORT;
     private String INDEX;
     private Client ES_CLIENT;
-    private BlockingDeque<RequestPair> requestQueue = new LinkedBlockingDeque<>(1000);
+    private BlockingDeque<RequestPair> requestQueue = new LinkedBlockingDeque<>(10000);
     private boolean terminate = false;
+    private int MAX_CONCURRENT_QUEUED = 0;
 
     // Circumvent end-user forgetting to init via static constructor
     static {
@@ -83,6 +84,13 @@ public class ElasticSearchIndexer extends Thread {
         Settings s = Settings.builder()
                 .put("cluster.name", CLUSTER).put("client.transport.sniff", true).put().build();
         ES_CLIENT = new PreBuiltTransportClient(s).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(HOST), PORT));
+        int numIndexingCores;
+        if (System.getProperty("indexing.threads") != null) {
+            numIndexingCores = Integer.valueOf(System.getProperty("indexing.threads"));
+        } else {
+            numIndexingCores = 1; // Should never be high enough to actually cause an overflow
+        }
+        MAX_CONCURRENT_QUEUED = Math.toIntExact(Math.round(Math.floor(1000D / numIndexingCores)));
     }
 
     /**
@@ -204,7 +212,7 @@ public class ElasticSearchIndexer extends Thread {
                 // Local storage
                 LinkedList<RequestPair> reqs = new LinkedList<>();
                 // Get current queue states - only do maximum of 100 elements per thread at a time
-                requestQueue.drainTo(reqs, 100);
+                requestQueue.drainTo(reqs, MAX_CONCURRENT_QUEUED);
                 boolean flag = reqs.size() > 0;
                 writer.write("Processing " + reqs.size() + "\r\n");
                 writer.flush();
@@ -231,7 +239,7 @@ public class ElasticSearchIndexer extends Thread {
                     opBuilder.execute();
                 }
                 if (!terminate || requestQueue.size() > 0) { // Continue consuming if we are either not terminated or still have stuff in queue
-                    if (reqs.size() < 100) { // can be finetuned
+                    if (reqs.size() < MAX_CONCURRENT_QUEUED) {
                         // Wait if we consumed less than maximum queue, otherwise run again immediately
                         try {
                             sleep(500);
