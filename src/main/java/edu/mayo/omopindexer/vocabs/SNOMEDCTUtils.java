@@ -40,13 +40,13 @@ public class SNOMEDCTUtils {
     // Recursively generates a set containing all possible child codes of a given concept code
     private static Set<String> generateChildrenCodes(String code, Map<String, Collection<String>> defs, Set<String> alreadyChecked) {
         HashSet<String> ret = new HashSet<>();
+        alreadyChecked.add(code);
         for (String s : defs.getOrDefault(code, new HashSet<>())) {
             if (alreadyChecked.contains(s)) {
                 continue;
             }
             ret.addAll(generateChildrenCodes(s, defs, alreadyChecked));
         }
-        alreadyChecked.add(code);
         return ret;
     }
 
