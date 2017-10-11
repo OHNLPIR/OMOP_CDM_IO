@@ -23,7 +23,7 @@ public class SNOMEDCTUtils {
             Connection snomedConn = DriverManager.getConnection(connURL, config.toProperties());
             System.out.println("Done");
             Statement s = snomedConn.createStatement();
-            ResultSet rs = s.executeQuery("SELECT sourceId, destinationId FROM Relationship"); // source = child, destination = parent
+            ResultSet rs = s.executeQuery("SELECT sourceId, destinationId FROM Relationship WHERE typeId=116680003"); // source = child, destination = parent
             HashMap<String, Collection<String>> tempDefs = new HashMap<>();
             while (rs.next()) {
                 tempDefs.computeIfAbsent(rs.getString("destinationId"), k -> new HashSet<>()).add(rs.getString("sourceId"));
