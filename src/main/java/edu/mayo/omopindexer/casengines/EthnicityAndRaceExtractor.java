@@ -77,7 +77,7 @@ public class EthnicityAndRaceExtractor extends JCasAnnotator_ImplBase {
                                     UMLSToSourceVocabularyConverter.UMLSSourceVocabulary.SNOMEDCT_US, umlsConcept.getCui())) {
                                 CDMPerson_ETHNICITY ethnicity = CDMPerson_ETHNICITY.fromSNOMEDCTCode(snomedCode);
                                 if (ethnicity != null) {
-
+                                    person.electEthnicity(ethnicity);
                                 }
                             }
                         } catch (SQLException e1) {
