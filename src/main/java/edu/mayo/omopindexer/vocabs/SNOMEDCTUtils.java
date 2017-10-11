@@ -46,6 +46,7 @@ public class SNOMEDCTUtils {
                 continue;
             }
             ret.addAll(generateChildrenCodes(s, defs, alreadyChecked));
+            ret.add(s);
         }
         return ret;
     }
