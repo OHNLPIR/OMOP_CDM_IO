@@ -42,7 +42,7 @@ public class ElasticSearchIndexer extends Thread {
     private int HTTP_PORT;
     private String INDEX;
     private Client ES_CLIENT;
-    private BlockingDeque<RequestPair> requestQueue = new LinkedBlockingDeque<>();
+    private BlockingDeque<RequestPair> requestQueue = new LinkedBlockingDeque<>(1000);
     private boolean terminate = false;
 
     // Circumvent end-user forgetting to init via static constructor
@@ -157,7 +157,8 @@ public class ElasticSearchIndexer extends Thread {
         String docID = document.getString("DocumentID");
         // Clean up any children if the document already exists as they were re-generated
         DeleteByQueryRequestBuilder cleanupQuery = DeleteByQueryAction.INSTANCE.newRequestBuilder(ES_CLIENT).source(INDEX)
-                .filter(new HasParentQueryBuilder("Document", QueryBuilders.termQuery("DocumentID", docID.toLowerCase()), false));
+                .filter(new HasParentQueryBuilder("Document", QueryBuilders.termQuery("DocumentID", docID.toLowerCase()), false))
+                .setSlices(10);
         Collection<IndexRequestBuilder> iReqs = new LinkedList<>();
         String encounterID = document.getString("Encounter_ID");
         String personID = document.getString("Person_ID");
@@ -202,10 +203,10 @@ public class ElasticSearchIndexer extends Thread {
             while (true) {
                 // Local storage
                 LinkedList<RequestPair> reqs = new LinkedList<>();
-                // Get current queue states - only do maximum of 1000 elements per thread
-                requestQueue.drainTo(reqs, 1000);
+                // Get current queue states - only do maximum of 100 elements per thread at a time
+                requestQueue.drainTo(reqs, 100);
                 boolean flag = reqs.size() > 0;
-                writer.write("Processing " + reqs.size() + "\n");
+                writer.write("Processing " + reqs.size() + "\r\n");
                 writer.flush();
                 if (flag) {
                     BulkRequestBuilder opBuilder = ES_CLIENT.prepareBulk();
@@ -231,9 +232,9 @@ public class ElasticSearchIndexer extends Thread {
                 }
                 if (!terminate || requestQueue.size() > 0) { // Continue consuming if we are either not terminated or still have stuff in queue
                     if (reqs.size() < 100) { // can be finetuned
-                        // Wait if we consumed an arbitrarily low number of requests, otherwise try consuming again immediately
+                        // Wait if we consumed less than maximum queue, otherwise run again immediately
                         try {
-                            sleep(5000);
+                            sleep(500);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
