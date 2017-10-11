@@ -30,7 +30,7 @@ public class SNOMEDCTUtils {
             }
             for (Map.Entry<String, Collection<String>> e : tempDefs.entrySet()) {
                 String parentID = e.getKey();
-                PARENTS_TO_CHILD_MAP.put(parentID, generateChildrenCodes(parentID, tempDefs));
+                PARENTS_TO_CHILD_MAP.put(parentID, generateChildrenCodes(parentID, tempDefs, new HashSet<>()));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -38,11 +38,15 @@ public class SNOMEDCTUtils {
     }
 
     // Recursively generates a set containing all possible child codes of a given concept code
-    private static Set<String> generateChildrenCodes(String code, Map<String, Collection<String>> defs) {
+    private static Set<String> generateChildrenCodes(String code, Map<String, Collection<String>> defs, Set<String> alreadyChecked) {
         HashSet<String> ret = new HashSet<>();
         for (String s : defs.getOrDefault(code, new HashSet<>())) {
-            ret.addAll(generateChildrenCodes(s, defs));
+            if (alreadyChecked.contains(s)) {
+                continue;
+            }
+            ret.addAll(generateChildrenCodes(s, defs, alreadyChecked));
         }
+        alreadyChecked.add(code);
         return ret;
     }
 
