@@ -1,6 +1,11 @@
 ### Project Specific ###
 src/main/resources/configuration.json
 /data
+/SNOMEDCT_US
+/OHDSI
+/UMLS
+/dictionaries
+/configuration.json
 
 ### Eclipse ###
 
