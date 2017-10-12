@@ -171,7 +171,6 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 Pattern activityDateTimePattern = Pattern.compile("ACTIVITY_DTM:([^\\|]+)");
                 Pattern pIDPattern = Pattern.compile("PATIENT_ID:([^\\|]+)");
                 Matcher pIDMatcher = pIDPattern.matcher(headerText);
-                String personID = null;
                 if (pIDMatcher.find()) {
                     meta.setPatientId(m.group(1));
                 }
