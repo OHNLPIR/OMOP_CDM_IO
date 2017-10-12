@@ -266,10 +266,8 @@ public class SimpleIndexPipeline extends Thread {
         }
         // - Run the pipeline
         ExecutorService executor = Executors.newFixedThreadPool(numCores); // Technically should set pool size, not really necessary since we artificially bound
-        LinkedList<Thread> threads = new LinkedList<>();
         for (int i = 0; i < numCores; i++) {
             Thread t = new SimpleIndexPipeline(i);
-            threads.add(t);
             executor.submit(t);
         }
         for (int i = 0; i < numIndexingCores; i++) {

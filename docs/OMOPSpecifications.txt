@@ -1,9 +1,20 @@
 ============================================================
 Mappings Type Specification for OMOP CDM Elasticsearch Index
 ============================================================
-
+Person:
+- gender: String [MALE, FEMALE, UNKNOWN]
+- ethnicity: String [American Indian or Alaska Native, Asian, Black or African American, Hispanic or Latino, Native Hawaiian or Other Pacific Islander, White)
+- locationid: long
+- limits: String[] [UPPER, LOWER, OTHER]
+Encounter:
+- person_id: String
+- encounter_id: String
+- encounter_date: Date
+- encounter_age: long
 Document:
 - Header: String
+- Person_ID: String
+- Encounter_ID: String
 - Section_Name: String
 - Section_ID: int
 - Children:
@@ -20,17 +31,11 @@ Document:
 		- measurement: String
 		- measurementid: long
 		- operator_concept_id: int
-	- Person:
-		- gender: String [MALE, FEMALE, UNKNOWN]
-		- ethnicity: String [American Indian or Alaska Native, Asian, Black or African American, Hispanic or Latino, Native Hawaiian or Other Pacific Islander, White)
-		- locationid: long
-		- dob: date
-		- limits: String[] [UPPER, LOWER, OTHER]
 	- UnstructuredObservation:
 		- observation: String
 Date:
-- begin_date: date
-- end_date: date
+- begin_date: Date
+- end_date: Date
 - type: string [START, END, PERIOD, DURATION]
 - subject: string [DRUG, CONDITION]
 - timestamp: long (duration or period in milliseconds)
@@ -38,26 +43,31 @@ Date:
 ============================================================
 cTAKES -> OMOP CDM Mappings
 ============================================================
-- ConditionOccurrence:
+Person:
+	- gender: STRUCTURED_DATA
+	- ethnicity: STRUCTURED_DATA or Dictionary Lookup w/ SNOMED Codes with election based on highest count aggregated
+	- locationid: [UNMAPPED]
+	- dob: HEADER->DOB
+	- limits: [UNMAPPED]
+Encounter:
+    - person_id: HEADER->PATIENT_ID
+    - encounter_id: [person_id]:[encounter_date_millis_epoch]:[encounter_age_millis_epoch]
+    - encounter_date: HEADER->ACTIVITY_DTM
+    - encounter_age: HEADER->ACTIVITY_DTM - HEADER->DOB
+- Document.ConditionOccurrence:
 	- condition_occurrence_[raw|cui|tui|{vocab}_text|{vocab}_code]: [DiseaseDisorderMention|SignSymptomMention]-> Covered Text + UMLS Concepts
 	- date[]: TimeMentions in same Sentence as a [DiseaseDisorderMention|SignSymptomMention]
-- DrugExposure:
+- Document.DrugExposure:
 	- drug_exposure_[raw|cui|tui|{vocab}_text|{vocab}_code]: MedicationMention -> Covered Text + UMLS Concepts
 	- quantity: [UNMAPPED]
 	- effectiveDrugDose: MeasurementAnnotations in the aggregate of all chunks holding the MedicationMention
 	- date[]: TimeMentions in same Sentence as a MedicationMention
-- Measurement:
+- Document.Measurement:
 	- value: MeasurementAnnotation->Covered Text->RegEx
 	- measurement: MeasurementAnnotation->Covered Text
 	- measurementid: [UNMAPPED] - OMOP Concept ID
 	- operator_concept_id: [UNMAPPED]
-- Person:
-	- gender: [UNMAPPED]
-	- ethnicity: [UNMAPPED]
-	- locationid: [UNMAPPED]
-	- age: HEADER->ACTIVITY_DTM - HEADER->DOB
-	- limits: [UNMAPPED]
-- UnstructuredObservation:
+- Document.UnstructuredObservation:
 	- observation: Sentence->Does Not Contain [DiseaseDisorderMention|SignSymptomMention|MedicationMention|MeasurementAnnotation]
 Date:
 - begin_date: TimeMention->Covered Text->RegEx->Standardization
