@@ -88,8 +88,8 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
 
             ClinicalDocumentMetadata meta = new ClinicalDocumentMetadata(cas);
             Matcher m = HEADER_PATTERN.matcher(readQueue1);
-            String sectionName = "";
-            String sectionID = "";
+            String sectionName;
+            String sectionID;
             if (m.find()) { // Has a header (should always be true)
                 String headerText = m.group();
                 int offsetEnd = m.end();
@@ -173,7 +173,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 Matcher pIDMatcher = pIDPattern.matcher(headerText);
                 String personID = null;
                 if (pIDMatcher.find()) {
-                    meta.setPatientId(personID);
+                    meta.setPatientId(m.group(1));
                 }
                 String mcn = "";
                 m = mcnPattern.matcher(headerText);
