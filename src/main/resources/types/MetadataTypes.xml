@@ -4,25 +4,39 @@
 <typeSystemDescription xmlns="http://uima.apache.org/resourceSpecifier">
     <types>
         <typeDescription>
-            <name>edu.mayo.omopindexer.types.BioBankCNHeader</name>
-            <description/>
+            <name>edu.mayo.omopindexer.types.ClinicalDocumentMetadata</name>
             <supertypeName>uima.cas.TOP</supertypeName>
             <features>
                 <featureDescription>
-                    <name>value</name>
+                    <name>documentId</name>
                     <rangeTypeName>uima.cas.String</rangeTypeName>
                 </featureDescription>
                 <featureDescription>
-                    <name>fileloc</name>
+                    <name>documentHeader</name>
                     <rangeTypeName>uima.cas.String</rangeTypeName>
                 </featureDescription>
-            </features>
-        </typeDescription>
-        <typeDescription>
-            <name>edu.mayo.omopindexer.types.BioBankCNSectionHeader</name>
-            <description/>
-            <supertypeName>uima.cas.TOP</supertypeName>
-            <features>
+                <featureDescription>
+                    <name>documentLocation</name>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>patientId</name>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>patientDOB</name>
+                    <description>yyyyMMdd format</description>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>encounterId</name>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>encounterDate</name>
+                    <description>yyyy-MM-dd HH:mm:ss.S format</description>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
                 <featureDescription>
                     <name>sectionName</name>
                     <rangeTypeName>uima.cas.String</rangeTypeName>

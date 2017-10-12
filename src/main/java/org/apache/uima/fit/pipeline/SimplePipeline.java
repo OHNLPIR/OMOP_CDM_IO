@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.mayo.omopindexer.types.BioBankCNHeader;
+import edu.mayo.omopindexer.types.ClinicalDocumentMetadata;
 import org.apache.uima.UIMAException;
 import org.apache.uima.UIMAFramework;
 import org.apache.uima.analysis_engine.AnalysisEngine;
@@ -180,7 +180,7 @@ public final class SimplePipeline {
                     aae.process(cas);
                 } catch (Exception e) {
                     // TODO: output this somewhere
-                    System.err.println("Error in document " + JCasUtil.selectSingle(cas.getJCas(), BioBankCNHeader.class).getFileloc());
+                    System.err.println("Error in document " + JCasUtil.selectSingle(cas.getJCas(), ClinicalDocumentMetadata.class).getDocumentLocation());
                     e.printStackTrace();
                 }
                 cas.reset();

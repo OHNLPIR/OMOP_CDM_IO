@@ -4,8 +4,8 @@ import edu.mayo.omopindexer.indexing.CDMModelStaging;
 import edu.mayo.omopindexer.indexing.CDMToJSONSerializer;
 import edu.mayo.omopindexer.indexing.ElasticSearchIndexer;
 import edu.mayo.omopindexer.model.CDMModel;
-import edu.mayo.omopindexer.types.BioBankCNHeader;
-import edu.mayo.omopindexer.types.BioBankCNSectionHeader;
+
+import edu.mayo.omopindexer.types.ClinicalDocumentMetadata;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
 import org.apache.uima.analysis_engine.AnalysisEngineDescription;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
@@ -24,14 +24,9 @@ public class CDMToElasticSearchSerializer extends JCasAnnotator_ImplBase {
         // - Retrieve Metadata Information
         String text = jCas.getDocumentText();
         String id = JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID();
-        BioBankCNHeader header = JCasUtil.selectSingle(jCas, BioBankCNHeader.class);
-        // - Pull Metadata
-        String headerText = header.getValue();
-        BioBankCNSectionHeader section = JCasUtil.selectSingle(jCas, BioBankCNSectionHeader.class);
-        String sectionName = section.getSectionName();
-        String sectionID = section.getSectionID();
+        ClinicalDocumentMetadata header = JCasUtil.selectSingle(jCas, ClinicalDocumentMetadata.class);
         // - Serialize
-        CDMToJSONSerializer serializer = new CDMToJSONSerializer(id, text, headerText, sectionName, sectionID, CDMModelStaging.unstage(jCas).toArray(new CDMModel[0]));
+        CDMToJSONSerializer serializer = new CDMToJSONSerializer(id, text, header, CDMModelStaging.unstage(jCas).toArray(new CDMModel[0]));
         ElasticSearchIndexer.getInstance().indexSerialized(serializer);
     }
 

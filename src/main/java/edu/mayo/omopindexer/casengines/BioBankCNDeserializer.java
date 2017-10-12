@@ -1,7 +1,6 @@
 package edu.mayo.omopindexer.casengines;
 
-import edu.mayo.omopindexer.types.BioBankCNHeader;
-import edu.mayo.omopindexer.types.BioBankCNSectionHeader;
+import edu.mayo.omopindexer.types.ClinicalDocumentMetadata;
 import org.apache.commons.io.FileUtils;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
 import org.apache.ctakes.typesystem.type.structured.DocumentID;
@@ -9,6 +8,7 @@ import org.apache.uima.cas.CAS;
 import org.apache.uima.cas.CASException;
 import org.apache.uima.collection.CollectionException;
 import org.apache.uima.collection.CollectionReader_ImplBase;
+import org.apache.uima.fit.util.JCasUtil;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.util.Level;
@@ -16,7 +16,11 @@ import org.apache.uima.util.Progress;
 import org.apache.uima.util.ProgressImpl;
 
 import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -82,7 +86,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 numSectionsRead = 1;
             }
 
-            BioBankCNHeader header = new BioBankCNHeader(cas);
+            ClinicalDocumentMetadata meta = new ClinicalDocumentMetadata(cas);
             Matcher m = HEADER_PATTERN.matcher(readQueue1);
             String sectionName = "";
             String sectionID = "";
@@ -163,6 +167,14 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                 Pattern docRevisionPattern = Pattern.compile("DOC_REVISION_ID:([^\\|]+)");
                 Pattern cn1Pattern = Pattern.compile("cn1_event_cd:([^\\|]+)");
                 Pattern timePattern = Pattern.compile("encounter_tmr:([0-9]{4})([0-9]{2})([0-9]{2})T[0-9]+", Pattern.CASE_INSENSITIVE);
+                Pattern birthdayPattern = Pattern.compile("birth_date:([0-9]{8})");
+                Pattern activityDateTimePattern = Pattern.compile("ACTIVITY_DTM:([^\\|]+)");
+                Pattern pIDPattern = Pattern.compile("PATIENT_ID:([^\\|]+)");
+                Matcher pIDMatcher = pIDPattern.matcher(headerText);
+                String personID = null;
+                if (pIDMatcher.find()) {
+                    meta.setPatientId(personID);
+                }
                 String mcn = "";
                 m = mcnPattern.matcher(headerText);
                 if (m.find()) {
@@ -191,18 +203,44 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                     String day = m.group(3);
                     timestamp = month + "_" + day + "_" + year;
                 }
+                m = birthdayPattern.matcher(headerText);
+                Date birthday = null;
+                if (m.find()) {
+                    meta.setPatientDOB(m.group(1));
+                    try {
+                        SimpleDateFormat dF = new SimpleDateFormat("yyyyMMdd");
+                        dF.setTimeZone(TimeZone.getTimeZone("GMT"));
+                        birthday = dF.parse(meta.getPatientDOB());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+                m = activityDateTimePattern.matcher(headerText);
+                Date activityDTM = null;
+                if (m.find()) {
+                    meta.setEncounterDate(m.group(1));
+                    try {
+                        SimpleDateFormat dF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+                        dF.setTimeZone(TimeZone.getTimeZone("GMT"));
+                        activityDTM = dF.parse(meta.getEncounterDate());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
                 DocumentID documentID = new DocumentID(cas);
                 documentID.setDocumentID(mcn + "_" + docLink + "_" + docRev + "_" + cn1 + "_" + timestamp + "_" + sectionID);
                 documentID.addToIndexes();
-                BioBankCNSectionHeader sectionHeader = new BioBankCNSectionHeader(cas);
-                header.setFileloc(path);
-                sectionHeader.setSectionID(sectionID);
-                sectionHeader.setSectionName(sectionName);
-                sectionHeader.addToIndexes();
-                header.setValue(headerText);
+                meta.setDocumentId(documentID.getDocumentID());
+                meta.setDocumentLocation(path);
+                meta.setSectionID(sectionID);
+                meta.setSectionName(sectionName);
+                meta.setDocumentHeader(headerText);
+                meta.setEncounterId(meta.getPatientId() + ":" +
+                        (activityDTM == null ? "" : activityDTM.getTime() + "") + ":" +
+                        (birthday == null ? "" : birthday.getTime() + ""));
                 getLogger().log(Level.INFO, documentID.getDocumentID());
             }
-            header.addToIndexes();
+            meta.addToIndexes();
 
         } catch (CASException e) {
             e.printStackTrace();
