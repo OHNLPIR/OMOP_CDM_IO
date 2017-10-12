@@ -35,7 +35,7 @@ public class EthnicityAndRaceExtractor extends JCasAnnotator_ImplBase {
 
     public static AnalysisEngineDescription buildPipeline() throws ResourceInitializationException {
         AggregateBuilder ret = new AggregateBuilder();
-        ret.add(AnalysisEngineFactory.createEngineDescription(DefaultJCasTermAnnotator.class, "DictionaryDescriptor", "dictionaries/ethnicitiesandraces.xml"));
+        ret.add(AnalysisEngineFactory.createEngineDescription(DefaultJCasTermAnnotator.class, "DictionaryDescriptor", "/dictionaries/ethnicitiesandraces.xml"));
         ret.add(AnalysisEngineFactory.createEngineDescription(EthnicityAndRaceExtractor.class));
         return ret.createAggregateDescription();
     }
