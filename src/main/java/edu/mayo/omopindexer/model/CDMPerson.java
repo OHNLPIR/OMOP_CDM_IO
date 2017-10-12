@@ -1,6 +1,6 @@
 package edu.mayo.omopindexer.model;
 
-import edu.mayo.omopindexer.vocabs.SNOMEDCTUtils;
+import edu.mayo.bsi.umlsvts.vocabutils.SNOMEDCTUtils;
 import org.json.JSONObject;
 
 import java.util.HashMap;

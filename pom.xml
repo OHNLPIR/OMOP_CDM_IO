@@ -146,6 +146,12 @@
     </build>
 
     <dependencies>
+        <!-- Utility Libs -->
+        <dependency>
+            <groupId>edu.mayo.bsi</groupId>
+            <artifactId>UMLS-VTS</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- cTAKES and Pipeline -->
         <dependency>
             <groupId>org.apache.ctakes</groupId>

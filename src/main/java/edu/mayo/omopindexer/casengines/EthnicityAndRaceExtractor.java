@@ -1,11 +1,10 @@
 package edu.mayo.omopindexer.casengines;
 
+import edu.mayo.bsi.umlsvts.UMLSToSourceVocabularyConverter;
 import edu.mayo.omopindexer.indexing.PersonStaging;
 import edu.mayo.omopindexer.model.CDMPerson;
 import edu.mayo.omopindexer.model.CDMPerson.CDMPerson_ETHNICITY;
 import edu.mayo.omopindexer.types.BioBankCNHeader;
-import edu.mayo.omopindexer.vocabs.SNOMEDCTUtils;
-import edu.mayo.omopindexer.vocabs.UMLSToSourceVocabularyConverter;
 import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
 import org.apache.ctakes.typesystem.type.textsem.AnatomicalSiteMention;
@@ -22,20 +21,16 @@ import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.ResourceInitializationException;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EthnicityAndRaceExtractor extends JCasAnnotator_ImplBase {
 
-    private Map<String, CDMPerson_ETHNICITY> cuiToEthnicityMap;
     private UMLSToSourceVocabularyConverter converterInstance;
 
     @Override
     public void initialize(UimaContext context) throws ResourceInitializationException {
         super.initialize(context);
-        cuiToEthnicityMap = new HashMap<>();
         // Initialize Values - instance values are presumed threadsafe (one pipeline instance per thread)
         converterInstance = UMLSToSourceVocabularyConverter.newConverter();
     }
