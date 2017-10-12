@@ -30,13 +30,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Converts incoming JCAS structures with assumed cTAKES type system into the OMOP CDM data model,
- * then sends to ElasticSearch for indexing
+ * Converts incoming JCAS structures with assumed cTAKES type system into the OMOP CDM data model, and stores the
+ * generated models within a staging structure for later use
  */
 public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
 
     public static Logger logger = Logger.getLogger(JCAStoOMOPCDMAnnotator.class);
-    private Connection ohdsiDBConn = null;
     private PreparedStatement getOHDSICodePs = null;
 
     @Override
@@ -55,7 +54,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
             SQLiteConfig config = new SQLiteConfig();
             config.setReadOnly(true);
             logger.info("Importing OHDSI Vocabulary Definitions");
-            ohdsiDBConn = DriverManager.getConnection(connURL, config.toProperties());
+            Connection ohdsiDBConn = DriverManager.getConnection(connURL, config.toProperties());
             logger.info("Done");
             getOHDSICodePs = ohdsiDBConn.prepareStatement("SELECT * FROM CONCEPT WHERE CONCEPT_CODE=?");
         } catch (SQLException e) {

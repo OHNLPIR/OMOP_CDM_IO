@@ -90,7 +90,7 @@ public class ElasticSearchIndexer extends Thread {
         } else {
             numIndexingCores = 1; // Should never be high enough to actually cause an overflow
         }
-        MAX_CONCURRENT_QUEUED = Math.toIntExact(Math.round(Math.floor(1000D / numIndexingCores)));
+        MAX_CONCURRENT_QUEUED = Math.toIntExact(Math.round(Math.floor(800D / numIndexingCores)));
     }
 
     /**
@@ -220,7 +220,7 @@ public class ElasticSearchIndexer extends Thread {
                     BulkRequestBuilder opBuilder = ES_CLIENT.prepareBulk();
                     LinkedList<ActionFuture> barriers = new LinkedList<>(); // Storage for action futures to resynchronize with
                     for (RequestPair req : reqs) {
-                        // - Await deletion completion TODO: could also run indexing as soon as future completed possibly
+                        // - Await deletion completion
                         barriers.add(req.deleteSearch.execute());
                         // - Add indexing requests
                         for (IndexRequestBuilder iReq : req.indexReqs) {
