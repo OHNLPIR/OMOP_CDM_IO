@@ -90,7 +90,7 @@ public class ElasticSearchIndexer extends Thread {
         } else {
             numIndexingCores = 1; // Should never be high enough to actually cause an overflow
         }
-        MAX_CONCURRENT_QUEUED = Math.toIntExact(Math.round(Math.floor(800D / numIndexingCores)));
+        MAX_CONCURRENT_QUEUED = Math.toIntExact(Math.round(Math.floor(1000D / numIndexingCores)));
     }
 
     /**

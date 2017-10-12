@@ -57,7 +57,7 @@ public class SimpleIndexPipeline extends Thread {
     /**
      * Runs the simple pipeline, <b>make sure to update static configuration constants</b>
      **/
-    public static void main(String... args) throws UIMAException, IOException, ServerAcl.AclFormatException, ClassNotFoundException {
+    public static void main(String... args) throws UIMAException, IOException, ServerAcl.AclFormatException, ClassNotFoundException, InterruptedException {
         // Bootstrapping for the sake of the end-user (cTAKES: "what are end-user readable error messages???")
         System.setProperty("vocab.src.dir", System.getProperty("user.dir"));
         // - Check for UMLS user and password being set
@@ -273,13 +273,12 @@ public class SimpleIndexPipeline extends Thread {
             Executors.newSingleThreadExecutor().submit(ElasticSearchIndexer.getInstance());
         }
 
-        try {
-            executor.awaitTermination(Long.MAX_VALUE - 1, TimeUnit.DAYS); // Do not time out
-            System.out.println("Completed processing of document");
-            ElasticSearchIndexer.getInstance().terminate();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        executor.shutdown();
+        while (!executor.isTerminated()) {
+            sleep(10000);
         }
+        System.out.println("Completed processing of documents");
+        ElasticSearchIndexer.getInstance().terminate();
     }
 
     @Override
