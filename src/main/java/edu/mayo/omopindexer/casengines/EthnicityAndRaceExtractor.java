@@ -1,6 +1,6 @@
 package edu.mayo.omopindexer.casengines;
 
-import edu.mayo.bsi.umlsvts.UMLSToSourceVocabularyConverter;
+import edu.mayo.bsi.umlsvts.UMLSLookup;
 import edu.mayo.omopindexer.indexing.PersonStaging;
 import edu.mayo.omopindexer.model.CDMPerson;
 import edu.mayo.omopindexer.model.CDMPerson.CDMPerson_ETHNICITY;
@@ -26,13 +26,13 @@ import java.util.regex.Pattern;
 
 public class EthnicityAndRaceExtractor extends JCasAnnotator_ImplBase {
 
-    private UMLSToSourceVocabularyConverter converterInstance;
+    private UMLSLookup converterInstance;
 
     @Override
     public void initialize(UimaContext context) throws ResourceInitializationException {
         super.initialize(context);
         // Initialize Values - instance values are presumed threadsafe (one pipeline instance per thread)
-        converterInstance = UMLSToSourceVocabularyConverter.newConverter();
+        converterInstance = UMLSLookup.newLookup();
     }
 
     public static AnalysisEngineDescription buildPipeline() throws ResourceInitializationException {
@@ -69,7 +69,7 @@ public class EthnicityAndRaceExtractor extends JCasAnnotator_ImplBase {
                         UmlsConcept umlsConcept = (UmlsConcept)fs;
                         try {
                             for (String snomedCode : converterInstance.getSourceCodesForVocab(
-                                    UMLSToSourceVocabularyConverter.UMLSSourceVocabulary.SNOMEDCT_US, umlsConcept.getCui())) {
+                                    UMLSLookup.UMLSSourceVocabulary.SNOMEDCT_US, umlsConcept.getCui())) {
                                 CDMPerson_ETHNICITY ethnicity = CDMPerson_ETHNICITY.fromSNOMEDCTCode(snomedCode);
                                 if (ethnicity != null) {
                                     person.electEthnicity(ethnicity);
