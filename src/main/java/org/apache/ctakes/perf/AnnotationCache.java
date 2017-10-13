@@ -1,5 +1,8 @@
 package org.apache.ctakes.perf;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.LoadingCache;
 import org.apache.uima.cas.FSIterator;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.jcas.cas.TOP;
@@ -8,7 +11,10 @@ import org.apache.uima.jcas.tcas.Annotation;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -22,91 +28,73 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class AnnotationCache {
 
     // Cache as a static variable across index generations where possible
-    public static ConcurrentHashMap<String, AtomicBoolean> ANN_CACHE_LOCKS = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<String, AnnotationCache.AnnotationTree> ANN_CACHE = new ConcurrentHashMap<>();
+    private static Cache<String, AnnotationTree> ANN_CACHE;
 
-    /** Serves as a fast lookup, but has possibility of returning null if not initialized */
-    public static AnnotationTree getAnnotationCacheFast(String meta, JCas cas) {
-        final AtomicBoolean lock = ANN_CACHE_LOCKS.get(meta);
-        if (lock == null) {
-            return getAnnotationCache(meta, cas);
-        }
-        synchronized (lock) {
-            while (!lock.get()) {
-                try {
-                    lock.wait(100);
-                } catch (InterruptedException ignored) {
-                }
-            }
-        }
-        return ANN_CACHE.get(meta);
+    static {
+        ANN_CACHE = CacheBuilder.newBuilder().expireAfterAccess(10, TimeUnit.MINUTES).build();
     }
 
     public static AnnotationTree getAnnotationCache(String meta, JCas cas) {
+        try {
+            return ANN_CACHE.get(meta, () -> loadAnnotationCache(cas));
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static AnnotationTree getAnnotationCache(String meta, int docLength, Collection<? extends Annotation> items) {
+        try {
+            return ANN_CACHE.get(meta, () -> loadAnnotationCache(docLength, items));
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static AnnotationTree loadAnnotationCache(JCas cas) {
         FSIterator<TOP> it = cas.getJFSIndexRepository().getAllIndexedFS(Annotation.type);
         Collection<Annotation> anns = new LinkedList<>();
         while (it.hasNext()) {
             anns.add((Annotation) it.next());
         }
-        return getAnnotationCache(meta, cas.getDocumentText().length(), anns);
+        return loadAnnotationCache(cas.getDocumentText().length(), anns);
     }
 
-    public static AnnotationTree getAnnotationCache(String meta, int docLength, Collection<? extends Annotation> items) {
-        ANN_CACHE_LOCKS.putIfAbsent(meta, new AtomicBoolean(false));
-        final AtomicBoolean lock = ANN_CACHE_LOCKS.get(meta);
-        if (!ANN_CACHE.containsKey(meta)) {
-            if (ANN_CACHE.putIfAbsent(meta, new AnnotationNode(0, docLength))
-                    == null) { // Successful Lock Acquisition
-                AnnotationTree currCache = ANN_CACHE.get(meta);
-                for (Annotation ann : items) {
-                    currCache.insert(ann);
-                }
-                synchronized (lock) {
-                    lock.set(true);
-                    lock.notifyAll();
-                }
-                return currCache;
-            } else {
-                synchronized (lock) {
-                    while (!lock.get()) {
-                        try {
-                            lock.wait(100);
-                        } catch (InterruptedException ignored) {
-                        }
-                    }
-                }
-                return ANN_CACHE.get(meta);
-            }
-        } else {
-            synchronized (lock) {
-                while (!lock.get()) {
-                    try {
-                        lock.wait(100);
-                    } catch (InterruptedException ignored) {
-                    }
-                }
-            }
-            return ANN_CACHE.get(meta);
+    private static AnnotationTree loadAnnotationCache(int docLength, Collection<? extends Annotation> items) {
+        AnnotationTree currCache = new AnnotationNode(0, docLength);
+        for (Annotation ann : items) {
+            currCache.insert(ann);
         }
+        return currCache;
     }
 
     public static void removeAnnotationCache(String meta) {
-        final AtomicBoolean lock = ANN_CACHE_LOCKS.get(meta);
-        synchronized (lock) {
-            while (!lock.get()) {
-                try {
-                    lock.wait(100);
-                } catch (InterruptedException ignored) {
-                }
-            }
-            lock.set(false);
-            lock.notifyAll();
+        ANN_CACHE.invalidate(meta);
+    }
+
+    /**
+     * Clears out this given annotation cache, and reindexes using the given cas
+     *
+     * @param meta A meta identifier for the given cas
+     * @param cas  The cas to reindex
+     */
+
+    public static void refreshCache(String meta, JCas cas) {
+        AnnotationTree tree = getAnnotationCache(meta, cas);
+        if (tree == null) {
+            throw new NullPointerException(); // Should not ever happen
         }
-        ANN_CACHE.remove(meta);
-        ANN_CACHE_LOCKS.remove(meta);
+        tree.clear();
+        for (FSIterator<TOP> it = cas.getJFSIndexRepository().getAllIndexedFS(Annotation.type); it.hasNext(); ) {
+            Annotation ann = (Annotation) it.next();
+            tree.insert(ann);
+        }
     }
 
     public static abstract class AnnotationTree {
+        AtomicBoolean LCK = new AtomicBoolean(false);
+
         public abstract void insert(Annotation ann);
 
         public abstract void remove(Annotation ann); // Shouldn't be necessary but implement it just in case
@@ -122,9 +110,20 @@ public class AnnotationCache {
         public abstract <T extends Annotation> Collection<T> getCovered(int start, int end, Class<T> clazz);
 
         public abstract <T extends Annotation> Collection<T> getCollisions(int start, int end, Class<T> clazz);
+
+        public abstract void clear();
+
+        /**
+         * Locks the tree, guaranteeing mutex
+         *
+         * @return true if lock acquired, false if not
+         */
+        public boolean lock() {
+            return !LCK.getAndSet(true);
+        }
     }
 
-
+    // TODO: better thread safety / should not be an issue due to only one doc per thread but is good practice
     private static class AnnotationNode extends AnnotationTree {
 
         private static int MIN_LEAF_SIZE = 20;
@@ -199,6 +198,12 @@ public class AnnotationCache {
             }
             return build;
         }
+
+        @Override
+        public void clear() {
+            this.left = null;
+            this.right = null;
+        }
     }
 
 
@@ -224,7 +229,7 @@ public class AnnotationCache {
         public <T extends Annotation> Collection<T> getCovering(int start, int end, Class<T> clazz) {
             LinkedList<T> ret = new LinkedList<>();
             for (Annotation ann : annColl) {
-                if (ann.getBegin() >= start && ann.getEnd() <=end) {
+                if (ann.getBegin() >= start && ann.getEnd() <= end) {
                     if (clazz.isInstance(ann)) {
                         ret.add((T) ann);
                     }
@@ -243,7 +248,8 @@ public class AnnotationCache {
                     }
                 }
             }
-            return ret;        }
+            return ret;
+        }
 
         @Override
         public <T extends Annotation> Collection<T> getCollisions(int start, int end, Class<T> clazz) {
@@ -257,6 +263,11 @@ public class AnnotationCache {
                 }
             }
             return ret;
+        }
+
+        @Override
+        public void clear() {
+            this.annColl = null;
         }
     }
 

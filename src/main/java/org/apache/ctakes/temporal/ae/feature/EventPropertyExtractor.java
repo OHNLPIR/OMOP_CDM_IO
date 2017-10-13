@@ -110,7 +110,7 @@ public class EventPropertyExtractor implements FeatureExtractor1<Annotation> {
             features.add(new Feature("docName", fname));
         }
         // mod::perf get already indexed cache
-        AnnotationCache.AnnotationTree index = AnnotationCache.getAnnotationCacheFast(fname, view);
+        AnnotationCache.AnnotationTree index = AnnotationCache.getAnnotationCache(fname, view);
 
         //1 get event:
         EventMention event = (EventMention)annotation;

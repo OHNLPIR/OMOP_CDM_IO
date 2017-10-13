@@ -215,8 +215,7 @@ public class EventEventRelationAnnotator extends TemporalRelationExtractorAnnota
 
         // mod::perf get cache (should already be initialized)
         String documentId = DocumentIDAnnotationUtil.getDocumentID(jCas);
-        AnnotationCache.AnnotationTree index = AnnotationCache.getAnnotationCacheFast(documentId, jCas);
-
+        AnnotationCache.AnnotationTree index = AnnotationCache.getAnnotationCache(documentId, jCas);
         List<IdentifiedAnnotationPair> pairs = Lists.newArrayList();
         // mod::perf
         List<EventMention> events = new ArrayList<>(index.getCovered(sentence.getBegin(), sentence.getEnd(), EventMention.class));

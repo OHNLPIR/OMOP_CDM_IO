@@ -50,7 +50,7 @@ public class UmlsFeatureExtractor implements RelationFeaturesExtractor<Identifie
         JCas systemView = jCas;
         // mod::perf get cache (should already be initialized)
         String documentId = DocumentIDAnnotationUtil.getDocumentID(jCas);
-        AnnotationCache.AnnotationTree index = AnnotationCache.getAnnotationCacheFast(documentId, jCas);
+        AnnotationCache.AnnotationTree index = AnnotationCache.getAnnotationCache(documentId, jCas);
 //    try {
 //      systemView = jCas.getView("_InitialView");
 //    } catch (CASException e) {

@@ -55,7 +55,7 @@ public class SectionHeaderExtractor implements FeatureExtractor1 {
     public List<Feature> extract(JCas view, Annotation annotation) throws CleartkExtractorException {
         // mod::perf get already indexed cache
         String documentId = DocumentIDAnnotationUtil.getDocumentID(view);
-        AnnotationCache.AnnotationTree index = AnnotationCache.getAnnotationCacheFast(documentId, view);
+        AnnotationCache.AnnotationTree index = AnnotationCache.getAnnotationCache(documentId, view);
         List<Feature> features = new ArrayList<>();
 
         //1 get covering segments :

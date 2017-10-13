@@ -193,7 +193,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                 CDMModelStaging.stage(jCas, new CDMUnstructuredObservation(s.getCoveredText()));
             }
         }
-
+        AnnotationCache.removeAnnotationCache(id + "_used");
 //        XmiCasSerializer out = new XmiCasSerializer(jCas.getTypeSystem());
 //        try {
 //            File f = new File("out");
@@ -241,11 +241,9 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                                 ret.compute("OHDSI_text", (k, v) -> v == null ? concept_name : (v.contains(concept_name) ? v : v.concat(" " + concept_name)));
                             }
                         }
-
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
-
 
                     ret.compute(scheme + "_text", (k, v) -> v == null ? concept.getPreferredText() : (v.contains(concept.getPreferredText()) ? v : v.concat(" " + concept.getPreferredText())));
                     ret.compute(scheme + "_code", (k, v) -> v == null ? concept.getCode() : (v.contains(concept.getCode()) ? v : v.concat(" " + concept.getCode())));

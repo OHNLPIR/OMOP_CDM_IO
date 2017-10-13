@@ -44,7 +44,7 @@ public class EventArgumentPropertyExtractor implements
         List<Feature> feats = new ArrayList<>();
         // mod::perf get cache (should already be initialized)
         String documentId = DocumentIDAnnotationUtil.getDocumentID(jCas);
-        AnnotationCache.AnnotationTree index = AnnotationCache.getAnnotationCacheFast(documentId, jCas);
+        AnnotationCache.AnnotationTree index = AnnotationCache.getAnnotationCache(documentId, jCas);
 
         Set<Sentence> coveringSents = new HashSet<>();
         if( arg1 instanceof EventMention){
