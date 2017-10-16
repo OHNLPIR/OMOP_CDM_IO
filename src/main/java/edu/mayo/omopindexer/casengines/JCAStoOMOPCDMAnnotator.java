@@ -188,6 +188,9 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
         // Unstructured Observations
         // - Create a secondary index to check for useful annotations in sentences
         AnnotationCache.AnnotationTree tree = AnnotationCache.getAnnotationCache(id + "_used", text.length(), usedAnns);
+        if (tree == null) {
+            throw new IllegalStateException("Could not instantiate annotation tree!");
+        }
         for (Sentence s : JCasUtil.select(jCas, Sentence.class)) {
             if (tree.getCollisions(s.getBegin(), s.getEnd(), Annotation.class).size() == 0) {
                 CDMModelStaging.stage(jCas, new CDMUnstructuredObservation(s.getCoveredText()));

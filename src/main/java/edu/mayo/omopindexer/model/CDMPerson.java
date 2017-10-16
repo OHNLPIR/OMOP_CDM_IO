@@ -11,22 +11,34 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Model for a Person in the OMOP CDM Model: The Person contains demographic attributes for the cohort.
  */
 public class CDMPerson implements CDMModel {
-    /** An unique identifier used for identification purposes */
+    /**
+     * An unique identifier used for identification purposes
+     */
     private String personID;
 
-    /** The gender of this person */
+    /**
+     * The gender of this person
+     */
     private CDMPerson_GENDER gender;
 
-    /** The ethnicity of this person */
+    /**
+     * The ethnicity of this person
+     */
     private CDMPerson_ETHNICITY ethnicity;
 
-    /** Used to dynamically generate an ethnicity if one was not supplied directly from structured data */
+    /**
+     * Used to dynamically generate an ethnicity if one was not supplied directly from structured data
+     */
     private Map<CDMPerson_ETHNICITY, AtomicInteger> ethnicityElectionMap;
 
-    /** A location ID denoting this person's location */
+    /**
+     * A location ID denoting this person's location
+     */
     private Long locationId;
 
-    /** The person's age expressed as milliseconds since the epoch*/
+    /**
+     * The person's age expressed as milliseconds since the epoch
+     */
     private Long dateOfBirth;
 
     /**
@@ -40,8 +52,12 @@ public class CDMPerson implements CDMModel {
      */
     private long version = 0;
 
-    /** Included for reflection compatibility: do not use, do not remove */
-    private CDMPerson() {this(null, null, null, null, null);}
+    /**
+     * Included for reflection compatibility: do not use, do not remove
+     */
+    private CDMPerson() {
+        this(null, null, null, null, null);
+    }
 
     public CDMPerson(String personID, CDMPerson_GENDER gender, CDMPerson_ETHNICITY ethnicity, Long locationId, Long dateOfBirth, CDMPerson_AGE_LIMITS... exclusions) {
         this.personID = personID;
@@ -56,7 +72,9 @@ public class CDMPerson implements CDMModel {
         }
     }
 
-    /** Used internally for mapping generation, do not use **/
+    /**
+     * Used internally for mapping generation, do not use
+     **/
     public static CDMPerson generateEmpty() {
         return new CDMPerson();
     }
@@ -83,8 +101,8 @@ public class CDMPerson implements CDMModel {
     }
 
     /**
-     * @see #exclusions
      * @return Any exclusions to this person's age denotation
+     * @see #exclusions
      */
     public CDMPerson_AGE_LIMITS[] getExclusions() {
         return exclusions;
@@ -100,8 +118,10 @@ public class CDMPerson implements CDMModel {
 
     public JSONObject getAsJSON() {
         JSONObject ret = new JSONObject();
-        if (personID != null) ret.put("person_id", personID); else ret.put("person_id", "");
-        if (gender != null) ret.put("gender", gender.name()); else ret.put("gender", "");
+        if (personID != null) ret.put("person_id", personID);
+        else ret.put("person_id", "");
+        if (gender != null) ret.put("gender", gender.name());
+        else ret.put("gender", "");
         if (ethnicity != null) {
             ret.put("ethnicity", ethnicity.getFullyQualifiedName());
         } else {
@@ -121,7 +141,8 @@ public class CDMPerson implements CDMModel {
             }
         }
         ret.put("locationid", locationId);
-        if (dateOfBirth != null) ret.put("date_of_birth", dateOfBirth); else ret.put("date_of_birth", (Long)null);
+        if (dateOfBirth != null) ret.put("date_of_birth", dateOfBirth);
+        else ret.put("date_of_birth", (Long) null);
         if (exclusions != null && exclusions.length > 0) {
             StringBuilder sB = new StringBuilder();
             boolean flag = false;
@@ -160,14 +181,16 @@ public class CDMPerson implements CDMModel {
     }
 
     /**
-     * @see #dateOfBirth
      * @return This person's age expressed as milliseconds since the epoch
+     * @see #dateOfBirth
      */
     public Long getDateOfBirth() {
         return dateOfBirth;
     }
 
-    /** An enumeration of genders **/
+    /**
+     * An enumeration of genders
+     **/
     public enum CDMPerson_GENDER {
         MALE,
         FEMALE,
@@ -183,19 +206,33 @@ public class CDMPerson implements CDMModel {
         OTHER
     }
 
-    /** An enumeration of ethnicities */
+    /**
+     * An enumeration of ethnicities
+     */
     public enum CDMPerson_ETHNICITY {
-        /** American Indian or Alaska Native */
+        /**
+         * American Indian or Alaska Native
+         */
         AIAN("American Indian or Alaska Native"),
-        /** Asian */
+        /**
+         * Asian
+         */
         ASIAN("Asian"),
-        /** Black or African American */
+        /**
+         * Black or African American
+         */
         BAA("Black or African American"),
-        /** Hispanic or Latino */
+        /**
+         * Hispanic or Latino
+         */
         HL("Hispanic or Latino"),
-        /** Native Hawaiian or Other Pacific Islander */
+        /**
+         * Native Hawaiian or Other Pacific Islander
+         */
         NHPI("Native Hawaiian or Other Pacific Islander"),
-        /** White */
+        /**
+         * White
+         */
         WHITE("White");
 
         private String fullyQualifiedName;
@@ -204,13 +241,15 @@ public class CDMPerson implements CDMModel {
             fullyQualifiedName = s;
         }
 
-        /** @return the fully qualified name of this enumeration, e.g. HL -> Hispanic or Latino */
+        /**
+         * @return the fully qualified name of this enumeration, e.g. HL -> Hispanic or Latino
+         */
         public String getFullyQualifiedName() {
             return fullyQualifiedName;
         }
 
         public static CDMPerson_ETHNICITY fromSNOMEDCTCode(String code) {
-            if (SNOMEDCTUtils.isChild(code, "415229000")) { // SNOMED Racial Group
+            if (SNOMEDCTUtils.isChild(code, "415229000")) { // By SNOMED Racial Group
                 if (SNOMEDCTUtils.isChild(code, "413490006")) {
                     return AIAN;
                 }
@@ -227,6 +266,39 @@ public class CDMPerson implements CDMModel {
                     return WHITE;
                 }
                 return null;
+            } else if (SNOMEDCTUtils.isChild(code, "372148003")) { // By SNOMED Ethnic Group TODO double check validity of mappings
+                if (SNOMEDCTUtils.isChild(code, "66920001")) { // Amerind
+                    return AIAN;
+                }
+                if (SNOMEDCTUtils.isChild(code, "315280000") // Asian - Ethnic Group
+                        || SNOMEDCTUtils.isChild(code, "108342005") // South Asian and/or Australian Aborigine
+                        || SNOMEDCTUtils.isChild(code, "186044009") // South East Asian
+                        || SNOMEDCTUtils.isChild(code, "24812003")) { // Mongol
+                    return ASIAN;
+                }
+                if (SNOMEDCTUtils.isChild(code, "414661004") // Melanesian
+                        || SNOMEDCTUtils.isChild(code, "18575005") // Oceanian
+                        || SNOMEDCTUtils.isChild(code, "186039002") // New Zealand Maori
+                        || SNOMEDCTUtils.isChild(code, "186040000") // Cook Island Maori
+                        || SNOMEDCTUtils.isChild(code, "186039002") // Niuean
+                        || SNOMEDCTUtils.isChild(code, "186042008") // Tokelauan
+                        ) {
+                    return NHPI;
+                }
+                if (SNOMEDCTUtils.isChild(code, "413465009") // Afro-caribbean
+                        || SNOMEDCTUtils.isChild(code, "413466005") // Afro-Caucasian
+                        || SNOMEDCTUtils.isChild(code, "315240009")) { // Black - Ethnic Group
+                    return BAA;
+                }
+                if (SNOMEDCTUtils.isChild(code, "315239007") && !SNOMEDCTUtils.isChild(code, "186019001")) { // Mixed ethnic but not other
+                    return BAA;
+                }
+                if (SNOMEDCTUtils.isChild(code, "28409002") // Spaniard
+                        || SNOMEDCTUtils.isChild(code, "80208004") // Portuguese
+                        ) {
+                    return HL; // No option for native south american?
+                }
+                return WHITE; // Remainder are all various european ethnicities TODO check mappings here
             } else {
                 return null;
             }
@@ -235,6 +307,7 @@ public class CDMPerson implements CDMModel {
 
     /**
      * Used internally to preserve most up-to-date information in spite of asynchronous indexing
+     *
      * @return The version of this person model object (increments with every access)
      */
     public long getVersion() {

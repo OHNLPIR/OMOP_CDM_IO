@@ -55,16 +55,15 @@ public enum JdbcConnectionFactory {
                                      final String jdbcUrl,
                                      final String jdbcUser,
                                      final String jdbcPass ) throws SQLException {
-        // ignores jdbc parameters because we always use localdb for everything
         long id = Thread.currentThread().getId();
-        Connection connection = CONNECTIONS.get( "localdb" + id);
+        Connection connection = CONNECTIONS.get( jdbcUrl + id);
         if ( connection != null ) {
             return connection;
         }
         String trueJdbcUrl = jdbcUrl;
         if ( jdbcUrl.startsWith( HSQL_FILE_PREFIX ) ) {
             // Hack for hsqldb file needing to be absolute or relative to current working directory
-            trueJdbcUrl = HSQL_FILE_PREFIX + getConnectionUrl( jdbcUrl );
+            trueJdbcUrl = HSQL_FILE_PREFIX + getConnectionUrl(jdbcUrl, id);
         }
         try {
             // DO NOT use try with resources here.
@@ -78,10 +77,8 @@ public enum JdbcConnectionFactory {
             LOGGER.error( "Could not create Driver " + jdbcDriver, multE );
             throw new SQLException( multE );
         }
-        String pathToScript = System.getProperty("dictionaryPath");
-        System.out.println("Using dictionary description " + pathToScript);
-        File in = new File(pathToScript);
-        File out = new File(in.getParent(), in.getName().replace(".script", "") + id + ".script");
+        File in = new File(getConnectionUrlPlain(jdbcUrl) + ".script");
+        File out = new File(in.getParent(), in.getName().replace(".script", "") + "." + id + ".script");
         try {
             InputStream is = new FileInputStream(in);
             OutputStream os = new FileOutputStream(out);
@@ -94,14 +91,14 @@ public enum JdbcConnectionFactory {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        LOGGER.info( "Connecting to " + jdbcUrl + id);
+        LOGGER.info( "Connecting to " + trueJdbcUrl);
         final Timer timer = new Timer();
         timer.scheduleAtFixedRate( new DotPlotter(), 333, 333 );
         try {
             // DO NOT use try with resources here.
             // Try with resources uses a closable and closes it when exiting the try block
             // We need the Connection later, and if it is closed then it is useless
-            connection = DriverManager.getConnection( jdbcUrl + id, jdbcUser, jdbcPass );
+            connection = DriverManager.getConnection( trueJdbcUrl, jdbcUser, jdbcPass );
         } catch ( SQLException sqlE ) {
             timer.cancel();
             EOL_LOGGER.error( "" );
@@ -111,7 +108,7 @@ public enum JdbcConnectionFactory {
         timer.cancel();
         EOL_LOGGER.info( "" );
         LOGGER.info( " Database connected" );
-        CONNECTIONS.put( "localdb" + id, connection );
+        CONNECTIONS.put(jdbcUrl + id, connection );
         return connection;
     }
 
@@ -123,11 +120,26 @@ public enum JdbcConnectionFactory {
      * @throws SQLException
      */
     static private String getConnectionUrl( final String jdbcUrl ) throws SQLException {
+        return getConnectionUrl(jdbcUrl, Thread.currentThread().getId());
+    }
+
+    private static String getConnectionUrlPlain(String jdbcUrl) throws SQLException {
         final String urlDbPath = jdbcUrl.substring( HSQL_FILE_PREFIX.length() );
         final String urlFilePath = urlDbPath + HSQL_DB_EXT;
         try {
             final String fullPath = FileLocator.getFullPath( urlFilePath );
             return fullPath.substring( 0, fullPath.length() - HSQL_DB_EXT.length() );
+        } catch ( FileNotFoundException fnfE ) {
+            throw new SQLException( "No Hsql DB exists at Url", fnfE );
+        }
+    }
+
+    private static String getConnectionUrl(String jdbcUrl, long id) throws SQLException {
+        final String urlDbPath = jdbcUrl.substring( HSQL_FILE_PREFIX.length() );
+        final String urlFilePath = urlDbPath+ HSQL_DB_EXT;
+        try {
+            final String fullPath = FileLocator.getFullPath( urlFilePath );
+            return fullPath.substring( 0, fullPath.length() - HSQL_DB_EXT.length() ) + "." + id ;
         } catch ( FileNotFoundException fnfE ) {
             throw new SQLException( "No Hsql DB exists at Url", fnfE );
         }

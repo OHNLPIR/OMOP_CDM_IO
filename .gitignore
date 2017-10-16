@@ -4,7 +4,7 @@ src/main/resources/configuration.json
 /SNOMEDCT_US
 /OHDSI
 /UMLS
-/dictionaries
+/resources/dictionaries/**/*
 /configuration.json
 
 ### Eclipse ###
