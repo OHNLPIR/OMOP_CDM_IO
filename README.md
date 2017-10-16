@@ -27,9 +27,13 @@ repository is specialized for Mayo's BioBank clinical note collection and will n
 ## Generating Required Dictionaries
 - The OMOP CDM Indexer contains code that will autonomously generate appropriate sqlite databases from OEM tab-delimited data tables.
 Obtain OHDSI ATHENA csv specifications from http://athena.ohdsi.org/ and place in the "OHDSI" folder in your working directory.
+- The OMOP CDM Indexer contains code that will autonomously generate appropriate SNOMED and UMLS lookup tables for UMLS 
+CUI -> SNOMED Lookup as well as hierarchial checks. A full SNOMEDCT_US download (available from UMLS website) is required
+inside the "SNOMEDCT_US" folder, and the MRCONSO.RRF file from a valid UMLS installation containing SNOMEDCT codes is required 
+required in the "UMLS" folder
 - cTAKES Dictionary Specifications can be converted into a format compatible with the modified dictionary lookup
 - OMOP CDM Indexer requires several additional dictionaries. These can be generated using the dictionary creator included 
 with the cTAKES binary download (http://ctakes.apache.org/) and a UMLS installation with SNOMED source vocabularies. The dictionary descriptor xml and associated folder for generated dictionaries should then be
-placed in the dictionary folder:
+placed in the resources/dictionary folder:
     - Ethnicity and Race extraction requires a dictionary with the T098 (Population Group) semantic type selected. The generated
     database should be named "ethnicitiesandraces"
