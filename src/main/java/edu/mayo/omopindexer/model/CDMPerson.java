@@ -189,6 +189,16 @@ public class CDMPerson implements CDMModel {
     }
 
     /**
+     * Sets date of birth
+     *
+     * @param dateOfBirth The person's age expressed as milliseconds since the epoch
+     * @see #dateOfBirth
+     */
+    public void setDateOfBirth(long dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    /**
      * An enumeration of genders
      **/
     public enum CDMPerson_GENDER {

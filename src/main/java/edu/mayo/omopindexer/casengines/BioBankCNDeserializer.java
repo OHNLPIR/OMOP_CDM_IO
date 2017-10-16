@@ -210,6 +210,7 @@ public class BioBankCNDeserializer extends CollectionReader_ImplBase {
                         SimpleDateFormat dF = new SimpleDateFormat("yyyyMMdd");
                         dF.setTimeZone(TimeZone.getTimeZone("GMT"));
                         birthday = dF.parse(meta.getPatientDOB());
+                        meta.setPatientDOB(birthday.getTime() + "");
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }

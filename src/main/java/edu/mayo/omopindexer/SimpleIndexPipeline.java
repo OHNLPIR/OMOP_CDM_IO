@@ -5,7 +5,7 @@ import com.google.common.io.Files;
 import com.googlecode.clearnlp.io.FileExtFilter;
 import edu.mayo.omopindexer.casengines.BioBankCNDeserializer;
 import edu.mayo.omopindexer.casengines.CDMToElasticSearchSerializer;
-import edu.mayo.omopindexer.casengines.EthnicityAndRaceExtractor;
+import edu.mayo.omopindexer.casengines.PersonDemographicInformationExtractor;
 import edu.mayo.omopindexer.casengines.JCAStoOMOPCDMAnnotator;
 import edu.mayo.omopindexer.indexing.ElasticSearchIndexer;
 import org.apache.ctakes.clinicalpipeline.ClinicalPipelineFactory;
@@ -37,7 +37,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -318,7 +317,7 @@ public class SimpleIndexPipeline extends Thread {
                     .createAnnotatorDescription("/org/apache/ctakes/temporal/ae/eventevent/model.jar"));
             // Adapted cTAKES Components
             // - Ethnicity and Race Extraction
-            builder.add(EthnicityAndRaceExtractor.buildPipeline());
+            builder.add(PersonDemographicInformationExtractor.buildPipeline());
             // Convert to OMOP CDM and write to ElasticSearch
             builder.add(JCAStoOMOPCDMAnnotator.createAnnotatorDescription());
             builder.add(CDMToElasticSearchSerializer.createAnnotatorDescription());
