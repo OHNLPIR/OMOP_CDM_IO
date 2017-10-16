@@ -221,7 +221,7 @@ public class ElasticSearchIndexer extends Thread {
                     LinkedList<ActionFuture> barriers = new LinkedList<>(); // Storage for action futures to resynchronize with
                     for (RequestPair req : reqs) {
                         // - Await deletion completion
-                        barriers.add(req.deleteSearch.execute());
+//                        barriers.add(req.deleteSearch.execute());
                         // - Add indexing requests
                         for (IndexRequestBuilder iReq : req.indexReqs) {
                             opBuilder.add(iReq);
