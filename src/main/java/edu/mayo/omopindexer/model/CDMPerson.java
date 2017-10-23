@@ -168,7 +168,7 @@ public class CDMPerson implements CDMModel {
         ret.put("gender", constructTypeObject("string"));
         ret.put("ethnicity", constructTypeObject("string"));
         ret.put("locationid", constructTypeObject("long"));
-        ret.put("date_of_birth", constructTypeObject("long"));
+        ret.put("date_of_birth", constructTypeObject("date"));
         ret.put("limits", constructTypeObject("string"));
         return ret;
     }
