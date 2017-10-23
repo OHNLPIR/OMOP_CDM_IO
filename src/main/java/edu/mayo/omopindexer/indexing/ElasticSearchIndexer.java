@@ -181,9 +181,9 @@ public class ElasticSearchIndexer extends Thread {
         if (encounterModel == null) {
             return; // Continue without indexing since its parent encounter will not exist
         }
-        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Encounter", encounterID).setParent(personID).setSource(encounterModel.getAsJSON().toString(), XContentType.JSON));
+        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Encounter", encounterID).setRouting(personID).setParent(personID).setSource(encounterModel.getAsJSON().toString(), XContentType.JSON));
         // Index document itself
-        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Document", docID).setSource(document.toString(), XContentType.JSON).setParent(encounterID));
+        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Document", docID).setSource(document.toString(), XContentType.JSON).setParent(encounterID).setRouting(personID));
         // Index its children
         JSONObject nextChild;
         while ((nextChild = jsons.pollFirst()) != null) {
