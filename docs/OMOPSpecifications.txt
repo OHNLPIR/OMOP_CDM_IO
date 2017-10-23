@@ -5,11 +5,13 @@ Person:
 - gender: String [MALE, FEMALE, UNKNOWN]
 - ethnicity: String [American Indian or Alaska Native, Asian, Black or African American, Hispanic or Latino, Native Hawaiian or Other Pacific Islander, White)
 - locationid: long
+- date_of_birth: date
 - limits: String[] [UPPER, LOWER, OTHER]
+- person_id: String
 Encounter:
 - person_id: String
 - encounter_id: String
-- encounter_date: Date
+- encounter_date: date
 - encounter_age: long
 Document:
 - Header: String
@@ -47,10 +49,10 @@ Person:
 	- gender: STRUCTURED_DATA
 	- ethnicity: STRUCTURED_DATA or Dictionary Lookup w/ SNOMED Codes with election based on highest count aggregated
 	- locationid: [UNMAPPED]
-	- dob: HEADER->DOB
+	- date_of_birth: HEADER->DOB
 	- limits: [UNMAPPED]
 Encounter:
-    - person_id: HEADER->PATIENT_ID
+    - person_id: HEADER->MCN
     - encounter_id: [person_id]:[encounter_date_millis_epoch]:[encounter_age_millis_epoch]
     - encounter_date: HEADER->ACTIVITY_DTM
     - encounter_age: HEADER->ACTIVITY_DTM - HEADER->DOB
