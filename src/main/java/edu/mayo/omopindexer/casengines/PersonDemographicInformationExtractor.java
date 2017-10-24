@@ -3,7 +3,7 @@ package edu.mayo.omopindexer.casengines;
 import edu.mayo.bsi.umlsvts.UMLSLookup;
 import edu.mayo.omopindexer.indexing.PersonStaging;
 import edu.mayo.omopindexer.model.CDMPerson;
-import edu.mayo.omopindexer.model.CDMPerson.CDMPerson_ETHNICITY;
+import edu.mayo.omopindexer.model.CDMPerson.CDMPerson_RACE;
 import edu.mayo.omopindexer.types.ClinicalDocumentMetadata;
 import org.apache.ctakes.dictionary.lookup2.ae.DefaultJCasTermAnnotator;
 import org.apache.ctakes.typesystem.type.refsem.UmlsConcept;
@@ -68,7 +68,7 @@ public class PersonDemographicInformationExtractor extends JCasAnnotator_ImplBas
                         try {
                             for (String snomedCode : converterInstance.getSourceCodesForVocab(
                                     UMLSLookup.UMLSSourceVocabulary.SNOMEDCT_US, umlsConcept.getCui())) {
-                                CDMPerson_ETHNICITY ethnicity = CDMPerson_ETHNICITY.fromSNOMEDCTCode(snomedCode);
+                                CDMPerson_RACE ethnicity = CDMPerson_RACE.fromSNOMEDCTCode(snomedCode);
                                 if (ethnicity != null) {
                                     person.electEthnicity(ethnicity);
                                 }

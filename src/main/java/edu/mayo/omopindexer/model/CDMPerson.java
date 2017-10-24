@@ -22,14 +22,14 @@ public class CDMPerson implements CDMModel {
     private CDMPerson_GENDER gender;
 
     /**
-     * The ethnicity of this person
+     * The race of this person
      */
-    private CDMPerson_ETHNICITY ethnicity;
+    private CDMPerson_RACE race;
 
     /**
-     * Used to dynamically generate an ethnicity if one was not supplied directly from structured data
+     * Used to dynamically generate a race if one was not supplied directly from structured data
      */
-    private Map<CDMPerson_ETHNICITY, AtomicInteger> ethnicityElectionMap;
+    private Map<CDMPerson_RACE, AtomicInteger> raceElectionMap;
 
     /**
      * A location ID denoting this person's location
@@ -59,16 +59,16 @@ public class CDMPerson implements CDMModel {
         this(null, null, null, null, null);
     }
 
-    public CDMPerson(String personID, CDMPerson_GENDER gender, CDMPerson_ETHNICITY ethnicity, Long locationId, Long dateOfBirth, CDMPerson_AGE_LIMITS... exclusions) {
+    public CDMPerson(String personID, CDMPerson_GENDER gender, CDMPerson_RACE race, Long locationId, Long dateOfBirth, CDMPerson_AGE_LIMITS... exclusions) {
         this.personID = personID;
         this.gender = gender;
-        this.ethnicity = ethnicity;
+        this.race = race;
         this.locationId = locationId;
         this.dateOfBirth = dateOfBirth;
         this.exclusions = exclusions;
-        this.ethnicityElectionMap = new HashMap<>();
-        for (CDMPerson_ETHNICITY e : CDMPerson_ETHNICITY.values()) {
-            ethnicityElectionMap.put(e, new AtomicInteger(0));
+        this.raceElectionMap = new HashMap<>();
+        for (CDMPerson_RACE e : CDMPerson_RACE.values()) {
+            raceElectionMap.put(e, new AtomicInteger(0));
         }
     }
 
@@ -87,10 +87,10 @@ public class CDMPerson implements CDMModel {
     }
 
     /**
-     * @return This person's {@link #ethnicity};
+     * @return This person's {@link #race};
      */
-    public CDMPerson_ETHNICITY getEthnicity() {
-        return ethnicity;
+    public CDMPerson_RACE getRace() {
+        return race;
     }
 
     /**
@@ -108,8 +108,8 @@ public class CDMPerson implements CDMModel {
         return exclusions;
     }
 
-    public void electEthnicity(CDMPerson_ETHNICITY ethnicity) {
-        ethnicityElectionMap.get(ethnicity).incrementAndGet();
+    public void electEthnicity(CDMPerson_RACE race) {
+        raceElectionMap.get(race).incrementAndGet();
     }
 
     public String getModelTypeName() {
@@ -122,12 +122,12 @@ public class CDMPerson implements CDMModel {
         else ret.put("person_id", "");
         if (gender != null) ret.put("gender", gender.name());
         else ret.put("gender", "");
-        if (ethnicity != null) {
-            ret.put("ethnicity", ethnicity.getFullyQualifiedName());
+        if (race != null) {
+            ret.put("race", race.getFullyQualifiedName());
         } else {
-            CDMPerson_ETHNICITY voted = null;
+            CDMPerson_RACE voted = null;
             int max = 0;
-            for (Map.Entry<CDMPerson_ETHNICITY, AtomicInteger> e : ethnicityElectionMap.entrySet()) {
+            for (Map.Entry<CDMPerson_RACE, AtomicInteger> e : raceElectionMap.entrySet()) {
                 int curr = e.getValue().get();
                 if (curr > max) {
                     voted = e.getKey();
@@ -135,9 +135,9 @@ public class CDMPerson implements CDMModel {
                 }
             }
             if (voted != null) {
-                ret.put("ethnicity", voted.getFullyQualifiedName());
+                ret.put("race", voted.getFullyQualifiedName());
             } else {
-                ret.put("ethnicity", "");
+                ret.put("race", "");
             }
         }
         ret.put("locationid", locationId);
@@ -166,7 +166,7 @@ public class CDMPerson implements CDMModel {
         JSONObject ret = new JSONObject();
         ret.put("person_id", constructTypeObject("string"));
         ret.put("gender", constructTypeObject("string"));
-        ret.put("ethnicity", constructTypeObject("string"));
+        ret.put("race", constructTypeObject("string"));
         ret.put("locationid", constructTypeObject("long"));
         ret.put("date_of_birth", constructTypeObject("date"));
         ret.put("limits", constructTypeObject("string"));
@@ -219,7 +219,7 @@ public class CDMPerson implements CDMModel {
     /**
      * An enumeration of ethnicities
      */
-    public enum CDMPerson_ETHNICITY {
+    public enum CDMPerson_RACE {
         /**
          * American Indian or Alaska Native
          */
@@ -247,7 +247,7 @@ public class CDMPerson implements CDMModel {
 
         private String fullyQualifiedName;
 
-        CDMPerson_ETHNICITY(String s) {
+        CDMPerson_RACE(String s) {
             fullyQualifiedName = s;
         }
 
@@ -258,7 +258,7 @@ public class CDMPerson implements CDMModel {
             return fullyQualifiedName;
         }
 
-        public static CDMPerson_ETHNICITY fromSNOMEDCTCode(String code) {
+        public static CDMPerson_RACE fromSNOMEDCTCode(String code) {
             if (SNOMEDCTUtils.isChild(code, "415229000")) { // By SNOMED Racial Group
                 if (SNOMEDCTUtils.isChild(code, "413490006")) {
                     return AIAN;

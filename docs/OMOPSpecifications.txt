@@ -3,7 +3,7 @@ Mappings Type Specification for OMOP CDM Elasticsearch Index
 ============================================================
 Person:
 - gender: String [MALE, FEMALE, UNKNOWN]
-- ethnicity: String [American Indian or Alaska Native, Asian, Black or African American, Hispanic or Latino, Native Hawaiian or Other Pacific Islander, White)
+- race: String [American Indian or Alaska Native, Asian, Black or African American, Hispanic or Latino, Native Hawaiian or Other Pacific Islander, White)
 - locationid: long
 - limits: String[] [UPPER, LOWER, OTHER]
 Encounter:
@@ -45,7 +45,7 @@ cTAKES -> OMOP CDM Mappings
 ============================================================
 Person:
 	- gender: STRUCTURED_DATA
-	- ethnicity: STRUCTURED_DATA or Dictionary Lookup w/ SNOMED Codes with election based on highest count aggregated
+	- race: STRUCTURED_DATA or Dictionary Lookup w/ SNOMED Codes with election based on highest count aggregated
 	- locationid: [UNMAPPED]
 	- dob: HEADER->DOB
 	- limits: [UNMAPPED]
