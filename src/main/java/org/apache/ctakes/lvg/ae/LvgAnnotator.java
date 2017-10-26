@@ -43,6 +43,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.ctakes.core.pipeline.PipeBitInfo;
@@ -79,6 +80,7 @@ import org.apache.uima.fit.factory.ExternalResourceFactory;
  * misspelling is a word in the lexicon.
  * <p>
  * MODIFIED: for performance (search mod::perf)
+ * MODIFIED: thread safety (search mod::sync)
  */
 @PipeBitInfo(
         name = "LVG Annotator",
@@ -227,6 +229,8 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
 
     private LoadingCache<String, String> runtimeNormCache;
 
+    private static final AtomicInteger SENTINEL = new AtomicInteger(); // mod::sync
+
 
     /**
      * Performs initialization logic. This implementation just reads values for
@@ -236,7 +240,7 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
     public void initialize(UimaContext aContext)
             throws ResourceInitializationException {
         super.initialize(aContext);
-
+        SENTINEL.incrementAndGet(); // mod::perf
         configInit();
 
         try {
@@ -270,6 +274,16 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
                 return lvgCmd.MutateToString(s);
             }
         });
+        synchronized(SENTINEL) {
+            SENTINEL.notifyAll();
+            while (SENTINEL.get() < Integer.valueOf(System.getProperty("pipeline.threads"))) {
+                try {
+                    SENTINEL.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     /**

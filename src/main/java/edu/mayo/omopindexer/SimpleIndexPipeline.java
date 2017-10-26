@@ -130,6 +130,7 @@ public class SimpleIndexPipeline extends Thread {
             numCores = (int) Math.round(Runtime.getRuntime().availableProcessors() * 0.5); // Should never be high enough to actually cause an overflow
             if (numCores == 0) numCores = 1;
             System.out.println("-Dpipeline.threads not set, running pipeline with " + numCores + " threads based on system configuration");
+            System.setProperty("pipeline.threads", numCores + "");
         }
         int numIndexingCores;
         if (System.getProperty("indexing.threads") != null) {
@@ -137,10 +138,13 @@ public class SimpleIndexPipeline extends Thread {
             System.out.println("Running indexing with " + numIndexingCores + " threads");
         } else {
             numIndexingCores = 1; // Should never be high enough to actually cause an overflow
-            System.out.println("-indexing.threads not set, running indexing with " + numIndexingCores + " threads based on system configuration");
+            System.out.println("-Dindexing.threads not set, running indexing with " + numIndexingCores + " threads based on system configuration");
+            System.setProperty("indexing.threads", numIndexingCores + "");
+
         }
         if (System.getProperty("inputDir") == null) {
             System.out.println("-DinputDir not set, defaulting to \"data\"");
+            System.setProperty("inputDir", "data");
         }
         String input = System.getProperty("inputDir") == null ? "data" : System.getProperty("inputDir");
         File inputDir = new File(input);
