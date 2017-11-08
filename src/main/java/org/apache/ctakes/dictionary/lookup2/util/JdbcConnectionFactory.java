@@ -1,9 +1,11 @@
 package org.apache.ctakes.dictionary.lookup2.util;
 
-import org.apache.commons.io.FileUtils;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.apache.ctakes.core.resource.FileLocator;
 import org.apache.log4j.Logger;
 
+import javax.sql.DataSource;
+import java.beans.PropertyVetoException;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.Driver;
@@ -34,7 +36,7 @@ public enum JdbcConnectionFactory {
 
     static private final String HSQL_FILE_PREFIX = "jdbc:hsqldb:file:";
     static private final String HSQL_DB_EXT = ".script";
-    private final Map<String, Connection> CONNECTIONS = new ConcurrentHashMap<String, Connection>();
+    private final Map<String, DataSource> CONNECTION_POOLS = new ConcurrentHashMap<>();
 
     public static JdbcConnectionFactory getInstance() {
         return INSTANCE;
@@ -51,19 +53,18 @@ public enum JdbcConnectionFactory {
      * @throws SQLException if a JDBC Driver could not be created or registered,
      *                      or if a Connection could not be made to the given <code>jdbcUrl</code>
      */
-    public synchronized Connection getConnection( final String jdbcDriver,
+    public Connection getConnection( final String jdbcDriver,
                                      final String jdbcUrl,
                                      final String jdbcUser,
                                      final String jdbcPass ) throws SQLException {
-        long id = Thread.currentThread().getId();
-        Connection connection = CONNECTIONS.get( jdbcUrl + id);
-        if ( connection != null ) {
-            return connection;
+        DataSource pool = CONNECTION_POOLS.get(jdbcUrl);
+        if (pool != null) {
+            return pool.getConnection();
         }
         String trueJdbcUrl = jdbcUrl;
         if ( jdbcUrl.startsWith( HSQL_FILE_PREFIX ) ) {
             // Hack for hsqldb file needing to be absolute or relative to current working directory
-            trueJdbcUrl = HSQL_FILE_PREFIX + getConnectionUrl(jdbcUrl, id);
+            trueJdbcUrl = HSQL_FILE_PREFIX + getConnectionUrl(jdbcUrl);
         }
         try {
             // DO NOT use try with resources here.
@@ -77,20 +78,20 @@ public enum JdbcConnectionFactory {
             LOGGER.error( "Could not create Driver " + jdbcDriver, multE );
             throw new SQLException( multE );
         }
-        File in = new File(getConnectionUrlPlain(jdbcUrl) + ".script");
-        File out = new File(in.getParent(), in.getName().replace(".script", "") + "." + id + ".script");
-        try {
-            InputStream is = new FileInputStream(in);
-            OutputStream os = new FileOutputStream(out);
-            byte[] buf = new byte[is.available()];
-            is.read(buf);
-            os.write(buf);
-            is.close();
-            os.flush();
-            os.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        File in = new File(getConnectionUrlPlain(jdbcUrl) + ".script");
+//        File out = new File(in.getParent(), in.getName().replace(".script", "") + "." + id + ".script");
+//        try {
+//            InputStream is = new FileInputStream(in);
+//            OutputStream os = new FileOutputStream(out);
+//            byte[] buf = new byte[is.available()];
+//            is.read(buf);
+//            os.write(buf);
+//            is.close();
+//            os.flush();
+//            os.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
         LOGGER.info( "Connecting to " + trueJdbcUrl);
         final Timer timer = new Timer();
         timer.scheduleAtFixedRate( new DotPlotter(), 333, 333 );
@@ -98,18 +99,24 @@ public enum JdbcConnectionFactory {
             // DO NOT use try with resources here.
             // Try with resources uses a closable and closes it when exiting the try block
             // We need the Connection later, and if it is closed then it is useless
-            connection = DriverManager.getConnection( trueJdbcUrl, jdbcUser, jdbcPass );
-        } catch ( SQLException sqlE ) {
+            ComboPooledDataSource cpds = new ComboPooledDataSource();
+            cpds.setDriverClass(jdbcDriver);
+            cpds.setJdbcUrl(trueJdbcUrl);
+            cpds.setUser(jdbcUser);
+            cpds.setPassword(jdbcPass);
+            cpds.setMaxPoolSize(Integer.MAX_VALUE - 1); // Unbounded pool
+            pool = cpds;
+        } catch ( PropertyVetoException e ) {
             timer.cancel();
             EOL_LOGGER.error( "" );
 //            LOGGER.error( "  Could not create Connection with " + trueJdbcUrl + " as " + jdbcUser, sqlE );
-            throw sqlE;
+            throw new SQLException(e); // Hacky way to wrap what cTAKES expects
         }
         timer.cancel();
         EOL_LOGGER.info( "" );
         LOGGER.info( " Database connected" );
-        CONNECTIONS.put(jdbcUrl + id, connection );
-        return connection;
+        CONNECTION_POOLS.put(jdbcUrl, pool );
+        return pool.getConnection();
     }
 
     /**
@@ -120,7 +127,7 @@ public enum JdbcConnectionFactory {
      * @throws SQLException
      */
     static private String getConnectionUrl( final String jdbcUrl ) throws SQLException {
-        return getConnectionUrl(jdbcUrl, Thread.currentThread().getId());
+        return getConnectionUrlPlain(jdbcUrl);
     }
 
     private static String getConnectionUrlPlain(String jdbcUrl) throws SQLException {
