@@ -187,7 +187,7 @@ public class ElasticSearchIndexer extends Thread {
         // Index its children
         JSONObject nextChild;
         while ((nextChild = jsons.pollFirst()) != null) {
-            iReqs.add(ES_CLIENT.prepareIndex(INDEX, nextChild.getString("type")).setParent(docID).setSource(nextChild.toString(), XContentType.JSON));
+            iReqs.add(ES_CLIENT.prepareIndex(INDEX, nextChild.getString("type")).setParent(docID).setRouting(personID).setSource(nextChild.toString(), XContentType.JSON));
         }
         // Add the request to the request queue for processing
         try {
