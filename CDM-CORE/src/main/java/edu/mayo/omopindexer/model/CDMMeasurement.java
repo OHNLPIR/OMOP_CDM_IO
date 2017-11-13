@@ -81,6 +81,7 @@ public class CDMMeasurement implements CDMModel {
         ret.put("measurementid", measurementUID);
         ret.put("operator_concept_id", operator_concept_id);
         if (value != null) ret.put("value", value); else ret.put("value", (Double)null);
+        ret.put("model_type", "Measurement");
         return ret;
     }
 

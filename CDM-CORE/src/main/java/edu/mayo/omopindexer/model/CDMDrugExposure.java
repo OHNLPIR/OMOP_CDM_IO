@@ -98,6 +98,7 @@ public class CDMDrugExposure implements CDMModel {
             dateArray.put(date.getAsJSON());
         }
         ret.put("date", dateArray);
+        ret.put("model_type", "DrugExposure");
         return ret;
     }
 

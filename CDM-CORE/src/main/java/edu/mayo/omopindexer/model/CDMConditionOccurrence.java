@@ -60,6 +60,7 @@ public class CDMConditionOccurrence implements CDMModel {
             dateArray.put(date.getAsJSON());
         }
         ret.put("date", dateArray);
+        ret.put("model_type", "ConditionOccurrence");
         return ret;
     }
 

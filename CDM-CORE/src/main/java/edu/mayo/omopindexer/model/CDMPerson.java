@@ -158,6 +158,7 @@ public class CDMPerson implements CDMModel {
         } else {
             ret.put("limits", "");
         }
+        ret.put("model_type", "Person");
         return ret;
     }
 
