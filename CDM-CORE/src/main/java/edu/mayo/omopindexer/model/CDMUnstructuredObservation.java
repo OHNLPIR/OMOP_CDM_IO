@@ -30,6 +30,7 @@ public class CDMUnstructuredObservation implements CDMModel {
     public JSONObject getAsJSON() {
         JSONObject ret = new JSONObject();
         ret.put("observation", mention);
+        ret.put("model_type", "Unstructured Observation");
         return ret;
     }
 
@@ -37,7 +38,6 @@ public class CDMUnstructuredObservation implements CDMModel {
     public JSONObject getJSONMapping() {
         JSONObject ret = new JSONObject();
         ret.put("observation", constructTypeObject("string"));
-        ret.put("model_type", "Unstructured Observation");
         return ret;
     }
 

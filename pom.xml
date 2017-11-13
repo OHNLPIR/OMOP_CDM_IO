@@ -12,5 +12,6 @@
     <modules>
         <module>CDM-CORE</module>
         <module>CDM-STREAM-PLUGIN</module>
+        <module>CDM-MODEL-SEARCH</module>
     </modules>
 </project>

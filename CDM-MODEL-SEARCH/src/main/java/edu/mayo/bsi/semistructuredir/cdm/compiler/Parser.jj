@@ -1,0 +1,115 @@
+PARSER_BEGIN(Parser)
+package edu.mayo.bsi.semistructuredir.cdm.compiler;
+
+import java.io.*;
+import java.util.*;
+import org.elasticsearch.index.query.QueryBuilder;
+
+public class Parser {
+
+  private static Parser instance = null;
+
+  public static void main(String [] args) {
+    try {
+      if (args.length == 1) {
+        ByteArrayInputStream stream = new ByteArrayInputStream(args[0].getBytes("UTF-8"));
+        Topic s = new Parser(stream).Topic();
+    	stream.close();
+      }
+    } catch (TokenMgrError e) {
+      e.printStackTrace();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static QueryBuilder generateQuery(String file) {
+    try {
+        File f = new File(file);
+        FileInputStream s = new FileInputStream(file);
+        Topic t;
+        if (instance == null) {
+            instance = new Parser(s);
+        } else {
+            Parser.ReInit(s);
+        }
+        t = instance.Topic();
+        s.close();
+        return t.toQuery();
+    } catch (Exception e) {
+        System.out.println(file);
+        e.printStackTrace();
+        return null;
+    }
+  }
+
+  public static String tostring(Token t) {
+    return t.image.substring(1, t.image.length() - 1);
+  }
+}
+PARSER_END(Parser)
+
+
+// Lexer
+SKIP: { // White Space and comments
+  " " | "\t" | "\r" | "\f" | "/" | "\n" | <"#" (~["\n"])* "\n">
+}
+
+TOKEN: {
+  <COLON: ":">
+  | <CARAT: "^">
+  | <ARR_DELIMITER: ",">
+  | <RANGE_OPEN: "R[" | "R(">
+  | <ARR_OPEN: (~["\\"])? "[">
+  | <RANGE_CLOSE: "]" | ")">
+  | <TYPE_DECL: "type:">
+  | <STRLIT: ("\"" (~["\"","\n"])* "\"")>
+  | <REQUIRED: "+">
+  | <FILTERED: "-">
+  | <NEGATE: "~">
+  | <SIMPSTRLIT: (["A"-"Z", "a"-"z", "0"-"9", ".", "-", "_", "\\", "/"])+>
+}
+
+
+
+// Parser
+Topic Topic(): {
+    Clause c;
+    Token docType;
+    Topic ret = new Topic();
+} {
+    (<TYPE_DECL> (docType = <SIMPSTRLIT>) ((c = Clause()) {if (c != null) {ret.add(docType.image, c);}})+ )+ {return ret;}
+}
+
+Clause Clause(): {
+    FilterOption option = FilterOption.OPTIONAL;
+    Token field;
+    Token type = null;
+    SearchContext parseable;
+} {
+    (type = <REQUIRED>| type = <FILTERED>| type = <NEGATE>)? {if (type != null) {option = FilterOption.fromString(type.image);}} (field = <SIMPSTRLIT>) <COLON> (parseable = Parseable()) {return new Clause(option, field.image, parseable);}
+}
+
+SearchContext Parseable(): {
+    Token token;
+    SearchContext ret;
+} {
+    (ret = Range()) {return ret;}
+    | (ret = Array()) {return ret;}
+    | (token = <STRLIT>) {return new SimpleSearchContext(tostring(token));}
+    | (token = <SIMPSTRLIT>) {return new SimpleSearchContext(token.image);}
+}
+
+RangeSearchContext Range(): {
+    boolean includeLeft;
+    boolean includeRight;
+    SearchContext left = null;
+    SearchContext right = null;
+    Token r;
+} {
+    (r = <RANGE_OPEN>) {includeLeft = r.image.contains("[");} (left = Parseable())? <ARR_DELIMITER> (right = Parseable())? (r = <RANGE_CLOSE>) {includeRight = r.image.contains("]"); return new RangeSearchContext(includeLeft, includeRight, left, right);}
+}
+
+ArraySearchContext Array(): {Collection<SearchContext> contexts = new LinkedList<SearchContext>(); SearchContext parseable; Token min = null;} {
+     <ARR_OPEN> (parseable = Parseable()) {contexts.add(parseable);} (<ARR_DELIMITER> (parseable = Parseable()) {contexts.add(parseable);})* <RANGE_CLOSE> [<CARAT> min=<SIMPSTRLIT>] {return new ArraySearchContext(contexts, min == null ? 0 : Integer.valueOf(min.image));}
+}
