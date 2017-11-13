@@ -96,7 +96,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                     dateMentions.add(timeText);
                 }
             }
-            CDMModelStaging.stage(jCas, new CDMConditionOccurrence(mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
+            CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMConditionOccurrence(mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
         }
 
         // - Sign and Symptom
@@ -113,7 +113,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                     dateMentions.add(timeText);
                 }
             }
-            CDMModelStaging.stage(jCas, new CDMConditionOccurrence(mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
+            CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMConditionOccurrence(mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
         }
 
 
@@ -147,7 +147,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                     dateMentions.add(timeText);
                 }
             }
-            CDMModelStaging.stage(jCas, new CDMDrugExposure(mentionText, null, null, effectiveDrugDose, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.DRUG).toArray(new CDMDate[0]))); // TODO
+            CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMDrugExposure(mentionText, null, null, effectiveDrugDose, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.DRUG).toArray(new CDMDate[0]))); // TODO
         }
 
         // Measurement
@@ -173,7 +173,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                     } else {
                         dValue = Double.parseDouble(rangeItem);
                     }
-                    CDMModelStaging.stage(jCas, new CDMMeasurement(rangeItem + unit, null, null, dValue));
+                    CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMMeasurement(rangeItem + unit, null, null, dValue));
                 }
             } else {
                 Double dValue;
@@ -182,7 +182,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                 } else {
                     dValue = Double.parseDouble(value);
                 }
-                CDMModelStaging.stage(jCas, new CDMMeasurement(mentionText, null, null, dValue));
+                CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMMeasurement(mentionText, null, null, dValue));
             }
         }
         // Unstructured Observations
@@ -193,7 +193,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
         }
         for (Sentence s : JCasUtil.select(jCas, Sentence.class)) {
             if (tree.getCollisions(s.getBegin(), s.getEnd(), Annotation.class).size() == 0) {
-                CDMModelStaging.stage(jCas, new CDMUnstructuredObservation(s.getCoveredText()));
+                CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMUnstructuredObservation(s.getCoveredText()));
             }
         }
         AnnotationCache.removeAnnotationCache(id + "_used");

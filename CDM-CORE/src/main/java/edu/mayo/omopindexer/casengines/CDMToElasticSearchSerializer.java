@@ -26,7 +26,7 @@ public class CDMToElasticSearchSerializer extends JCasAnnotator_ImplBase {
         String id = JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID();
         ClinicalDocumentMetadata header = JCasUtil.selectSingle(jCas, ClinicalDocumentMetadata.class);
         // - Serialize
-        CDMToJSONSerializer serializer = new CDMToJSONSerializer(id, text, header, CDMModelStaging.unstage(jCas).toArray(new CDMModel[0]));
+        CDMToJSONSerializer serializer = new CDMToJSONSerializer(id, text, header, CDMModelStaging.unstage(id).toArray(new CDMModel[0]));
         ElasticSearchIndexer.getInstance().indexSerialized(serializer);
     }
 

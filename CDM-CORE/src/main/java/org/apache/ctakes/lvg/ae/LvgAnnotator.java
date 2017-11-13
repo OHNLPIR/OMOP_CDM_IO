@@ -240,49 +240,40 @@ public class LvgAnnotator extends JCasAnnotator_ImplBase {
     public void initialize(UimaContext aContext)
             throws ResourceInitializationException {
         super.initialize(aContext);
-        SENTINEL.incrementAndGet(); // mod::perf
-        configInit();
+        synchronized (SENTINEL) { // mod::perf
+            configInit();
 
-        try {
-            lvgCmd = lvgResource.getLvg();
+            try {
+                lvgCmd = lvgResource.getLvg();
 
-            if (useCmdCache) {
-                logger.info("Loading Cmd cache=" + cmdCacheFileLocation);
-                loadCmdCacheFile(cmdCacheFileLocation);
-                logger.info("Loaded " + normCacheMap.size() + " entries");
-            }
-
-            if (postLemmas) {
-                lvgLexItem = lvgResource.getLvgLex();
-                if (useLemmaCache) {
-                    logger.info("Loading Lemma cache=" + lemmaCacheFileLocation);
-                    loadLemmaCacheFile(lemmaCacheFileLocation);
-                    logger.info("Loaded " + lemmaCacheMap.size() + " entries");
+                if (useCmdCache) {
+                    logger.info("Loading Cmd cache=" + cmdCacheFileLocation);
+                    loadCmdCacheFile(cmdCacheFileLocation);
+                    logger.info("Loaded " + normCacheMap.size() + " entries");
                 }
-            }
 
-        } catch (IOException e) {
-            throw new ResourceInitializationException(e);
-        }
-
-        // mod::perf use a loading cache to bypass expensive LvgCmdApi#MutateToString() calls when possible
-        CacheBuilder builder = CacheBuilder.newBuilder();
-        builder.expireAfterAccess(180, TimeUnit.SECONDS); // TODO: may be appropriate to adjust
-        runtimeNormCache = builder.build(new CacheLoader<String, String>() {
-            @Override
-            public String load(String s) throws Exception {
-                return lvgCmd.MutateToString(s);
-            }
-        });
-        synchronized(SENTINEL) {
-            SENTINEL.notifyAll();
-            while (SENTINEL.get() < Integer.valueOf(System.getProperty("pipeline.threads"))) {
-                try {
-                    SENTINEL.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                if (postLemmas) {
+                    lvgLexItem = lvgResource.getLvgLex();
+                    if (useLemmaCache) {
+                        logger.info("Loading Lemma cache=" + lemmaCacheFileLocation);
+                        loadLemmaCacheFile(lemmaCacheFileLocation);
+                        logger.info("Loaded " + lemmaCacheMap.size() + " entries");
+                    }
                 }
+
+            } catch (IOException e) {
+                throw new ResourceInitializationException(e);
             }
+
+            // mod::perf use a loading cache to bypass expensive LvgCmdApi#MutateToString() calls when possible
+            CacheBuilder builder = CacheBuilder.newBuilder();
+            builder.expireAfterAccess(180, TimeUnit.SECONDS); // TODO: may be appropriate to adjust
+            runtimeNormCache = builder.build(new CacheLoader<String, String>() {
+                @Override
+                public String load(String s) throws Exception {
+                    return lvgCmd.MutateToString(s);
+                }
+            });
         }
     }
 

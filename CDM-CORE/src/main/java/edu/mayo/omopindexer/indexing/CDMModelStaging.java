@@ -16,14 +16,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CDMModelStaging {
     private static ConcurrentHashMap<String, List<CDMModel>> STAGING = new ConcurrentHashMap<>();
 
-    public static void stage(JCas cas, CDMModel model) {
-        String id = JCasUtil.selectSingle(cas, DocumentID.class).getDocumentID();
+    public static void stage(String id, CDMModel model) {
         List<CDMModel> models = STAGING.computeIfAbsent(id, k -> new LinkedList<>()); // This should be thread safe (the same JCAS in the same thread)
         models.add(model);
     }
 
-    public static List<CDMModel> unstage(JCas cas) {
-        String id = JCasUtil.selectSingle(cas, DocumentID.class).getDocumentID();
+    public static List<CDMModel> unstage(String id) {
         List<CDMModel> ret = STAGING.get(id);
         if (ret != null) {
             STAGING.remove(id);
