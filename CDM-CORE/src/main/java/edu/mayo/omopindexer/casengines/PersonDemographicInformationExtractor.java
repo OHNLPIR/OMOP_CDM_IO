@@ -24,13 +24,10 @@ import java.sql.SQLException;
 
 public class PersonDemographicInformationExtractor extends JCasAnnotator_ImplBase {
 
-    private UMLSLookup converterInstance;
-
     @Override
     public void initialize(UimaContext context) throws ResourceInitializationException {
         super.initialize(context);
         // Initialize Values - instance values are presumed threadsafe (one pipeline instance per thread)
-        converterInstance = UMLSLookup.newLookup();
     }
 
     public static AnalysisEngineDescription buildPipeline() throws ResourceInitializationException {
@@ -66,7 +63,7 @@ public class PersonDemographicInformationExtractor extends JCasAnnotator_ImplBas
                     if (fs instanceof UmlsConcept) {
                         UmlsConcept umlsConcept = (UmlsConcept)fs;
                         try {
-                            for (String snomedCode : converterInstance.getSourceCodesForVocab(
+                            for (String snomedCode : UMLSLookup.getSourceCodesForVocab(
                                     UMLSLookup.UMLSSourceVocabulary.SNOMEDCT_US, umlsConcept.getCui())) {
                                 CDMPerson_RACE ethnicity = CDMPerson_RACE.fromSNOMEDCTCode(snomedCode);
                                 if (ethnicity != null) {

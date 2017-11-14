@@ -12,7 +12,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: edu.mayo.bsi:UMLS-VTS:0.0.2-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: edu.mayo.bsi:UMLS-VTS:0.0.3-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: com.mchange:c3p0:0.9.5.2" level="project" />
     <orderEntry type="library" name="Maven: com.mchange:mchange-commons-java:0.2.11" level="project" />
     <orderEntry type="library" name="Maven: org.apache.ctakes:ctakes-type-system:4.0.0" level="project" />
