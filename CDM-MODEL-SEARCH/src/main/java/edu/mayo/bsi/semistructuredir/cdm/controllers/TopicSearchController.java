@@ -101,7 +101,7 @@ public class TopicSearchController {
             }
             Settings settings = Settings.builder() // TODO cleanup
                     .put("cluster.name", "elasticsearch").build();
-            try (TransportClient client = new PreBuiltTransportClient(settings).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9210))) {
+            try (TransportClient client = new PreBuiltTransportClient(settings).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9310))) {
                 for (String topicID : topicIDs) {
                     if (model.containsKey(topicID + "_results")) {
                         continue; // Already got results for this
@@ -132,6 +132,7 @@ public class TopicSearchController {
                     // - Obtain CDM artifacts following UIMA-REST-Server server request format
                     HttpResponse<JsonNode> jsonResponse = Unirest.post("http://localhost:8080/")
                             .header("accept", "application/json")
+                            .header("Content-Type", "application/json")
                             .body(new JSONObject()
                                     .put("streamName", "cdm")
                                     .put("metadata", (String) null)
@@ -150,7 +151,8 @@ public class TopicSearchController {
                     resp = client.prepareSearch().setQuery(run).setSize(1000).execute().actionGet();
                     LinkedList<TopicResultEntry> result = new LinkedList<>();
                     for (SearchHit hit : resp.getHits()) {
-                        result.add(new TopicResultEntry(hit.getId(), hit.getSource().get("RawText").toString(), hit.getScore()));
+                        // DO we really want to add the document text? (no)
+                        result.add(new TopicResultEntry(hit.getId(), null, hit.getScore()));
                     }
                     model.put(topicID + "_results", new TopicResult(topicID, desc, run.toString(), result));
                 }
@@ -210,6 +212,7 @@ public class TopicSearchController {
                 for (int id : personID) {
                     persons.should(QueryBuilders.termQuery("person_id", id));
                 }
+                root.must(persons);
             }
             document.must(new HasParentQueryBuilder("Encounter", new HasParentQueryBuilder("Person", root, false), false));
         }
