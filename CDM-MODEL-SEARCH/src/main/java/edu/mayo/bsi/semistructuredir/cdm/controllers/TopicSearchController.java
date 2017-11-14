@@ -51,7 +51,7 @@ public class TopicSearchController {
      * @param topicIDs A list of topic IDs to filter/get results for
      * @return The page to return
      */
-    @RequestMapping(value = "/topic", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public String handleTopicRequest(ModelMap model, @RequestParam("topic_id[]") String... topicIDs) {
         // No defined topic IDs, list topics
         if (topicIDs == null || topicIDs.length == 0) {
@@ -150,9 +150,9 @@ public class TopicSearchController {
                     resp = client.prepareSearch().setQuery(run).setSize(1000).execute().actionGet();
                     LinkedList<TopicResultEntry> result = new LinkedList<>();
                     for (SearchHit hit : resp.getHits()) {
-                        result.add(new TopicResultEntry(hit.getId(), hit.getSource().get("RawText").toString()));
+                        result.add(new TopicResultEntry(hit.getId(), hit.getSource().get("RawText").toString(), hit.getScore()));
                     }
-                    model.put(topicID + "_results", new TopicResult(topicID, desc, result));
+                    model.put(topicID + "_results", new TopicResult(topicID, desc, run.toString(), result));
                 }
                 return "topicsearch";
             } catch (UnknownHostException | UnirestException e) {

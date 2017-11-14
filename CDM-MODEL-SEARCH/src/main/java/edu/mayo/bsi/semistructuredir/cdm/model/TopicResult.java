@@ -5,12 +5,22 @@ import java.util.List;
 public class TopicResult {
     String topicID;
     String topicDesc;
+    String query;
     List<TopicResultEntry> results;
 
-    public TopicResult(String topicID, String topicDesc, List<TopicResultEntry> results) {
+    public TopicResult(String topicID, String topicDesc, String query, List<TopicResultEntry> results) {
         this.topicID = topicID;
         this.topicDesc = topicDesc;
+        this.query = query;
         this.results = results;
+    }
+
+    public String getQuery() {
+        return query;
+    }
+
+    public void setQuery(String query) {
+        this.query = query;
     }
 
     public String getTopicID() {
