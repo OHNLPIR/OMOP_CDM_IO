@@ -4,14 +4,11 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import edu.mayo.bsi.semistructuredir.cdm.StructuredDataQueryGenerator;
 import edu.mayo.bsi.semistructuredir.cdm.compiler.Parser;
+import edu.mayo.bsi.semistructuredir.cdm.elasticsearch.QueryGeneratorFactory;
 import edu.mayo.bsi.semistructuredir.cdm.model.TopicListEntry;
 import edu.mayo.bsi.semistructuredir.cdm.model.TopicResult;
 import edu.mayo.bsi.semistructuredir.cdm.model.TopicResultEntry;
-import edu.mayo.bsi.uima.server.rest.models.ServerRequest;
-import edu.mayo.bsi.uima.server.rest.models.ServerResponse;
-import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -28,14 +25,12 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
@@ -178,44 +173,9 @@ public class TopicSearchController {
         for (Object o : result) { // An array of JSON strings
             models.add(new JSONObject(new JSONTokener(o.toString())));
         }
-        return buildCDMQuery(models, persons);
-    }
-
-
-    private QueryBuilder buildCDMQuery(Collection<JSONObject> cdmModels, Integer... personID) {
-        // Build child
-        BoolQueryBuilder document = QueryBuilders.boolQuery();
-        for (JSONObject cdm : cdmModels) {
-            String type = cdm.optString("model_type");
-            if (type == null || type.length() == 0) {
-                continue; // Should never happen
-            }
-            BoolQueryBuilder elementQuery = QueryBuilders.boolQuery();
-            for (Map.Entry<String, Object> e : cdm.toMap().entrySet()) {
-                if (e.getValue().toString().isEmpty()) {
-                    continue;
-                }
-                if (!(e.getValue() instanceof JSONArray) && !e.getValue().toString().equals("[]")) {
-                    elementQuery.should(QueryBuilders.matchQuery(e.getKey(), e.getValue()));
-                } else {
-                    continue; // TODO add support for nested
-                }
-            }
-            document.should(new HasChildQueryBuilder(type, elementQuery, ScoreMode.Total));
-        }
-        if (personID != null && personID.length > 0) {
-            BoolQueryBuilder root = QueryBuilders.boolQuery();
-            if (personID.length == 1) {
-                root.must(QueryBuilders.termQuery("person_id", personID[0]));
-            } else {
-                BoolQueryBuilder persons = QueryBuilders.boolQuery();
-                for (int id : personID) {
-                    persons.should(QueryBuilders.termQuery("person_id", id));
-                }
-                root.must(persons);
-            }
-            document.must(new HasParentQueryBuilder("Encounter", new HasParentQueryBuilder("Person", root, false), false));
-        }
-        return document;
+        return QueryGeneratorFactory
+                .newCDMQuery()
+                .addCDMObjects(models.toArray(new JSONObject[models.size()]))
+                .addFilteringPersons(persons).build();
     }
 }

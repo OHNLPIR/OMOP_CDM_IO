@@ -3,7 +3,6 @@ package edu.mayo.bsi.semistructuredir.cdm;
 import edu.mayo.bsi.semistructuredir.cdm.controllers.TopicSearchController;
 import edu.mayo.bsi.semistructuredir.cdm.model.TopicResult;
 import edu.mayo.bsi.semistructuredir.cdm.model.TopicResultEntry;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -13,18 +12,19 @@ import org.springframework.ui.ModelMap;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
 @SpringBootApplication
 @EnableAutoConfiguration
-public class TopicSearchServlet extends SpringBootServletInitializer {
+public class TopicPoolingExecutor extends SpringBootServletInitializer {
 
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(TopicSearchServlet.class);
+        return application.sources(TopicPoolingExecutor.class);
     }
 
     //    public static void main(String... args) {
-//        SpringApplication.run(TopicSearchServlet.class);
+//        SpringApplication.run(TopicPoolingExecutor.class);
 //    }
 
     /**
@@ -34,9 +34,13 @@ public class TopicSearchServlet extends SpringBootServletInitializer {
      */
     public static void main(String... args) throws IOException {
         ModelMap in = new ModelMap();
-        String[] topicIDs = new String[] {"01", "02", "07", "08"};
-        new TopicSearchController().handleTopicRequest(in, topicIDs);
-        for (String topicID : topicIDs) {
+        ArrayList<String> names = new ArrayList<>(56);
+        for (File f : new File("topics").listFiles()) {
+            String name = f.getName().substring(0, f.getName().length() - 4);
+            names.add(name);
+        }
+        new TopicSearchController().handleTopicRequest(in, names.toArray(new String[names.size()]));
+        for (String topicID : names.toArray(new String[names.size()])) {
             TopicResult result = (TopicResult) in.get(topicID + "_results");
             System.out.println("Writing to " + topicID + ".pool");
             FileWriter out = new FileWriter(new File(topicID + ".pool"));
