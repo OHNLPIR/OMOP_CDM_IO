@@ -136,7 +136,7 @@ public class TopicSearchController {
                             .asJson();
                     JSONObject obj = jsonResponse.getBody().getObject();
                     QueryBuilder unstructuredQuery = handleNLPResponse(obj, patientIDs.toArray(new Integer[patientIDs.size()]));
-                    QueryBuilder textQuery = QueryBuilders.matchQuery("RawText", desc);
+                    QueryBuilder textQuery = QueryGeneratorFactory.newTextQuery().rawTextQuery("RawText", desc).build();
                     QueryBuilder run;
                     if (unstructuredQuery != null) {
                         run = QueryBuilders.boolQuery().should(textQuery.boost(0.5f)).should(unstructuredQuery.boost(0.5f));

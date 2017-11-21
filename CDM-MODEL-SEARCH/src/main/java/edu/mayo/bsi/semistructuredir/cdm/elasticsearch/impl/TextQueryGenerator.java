@@ -10,12 +10,12 @@ public class TextQueryGenerator {
         return new RawTextQuery(field, text);
     }
 
-    public MRFQuery mrfQuery(String field, String text, float termWeight, float orderedWeight, float unorderedWeight) {
-        return new MRFQuery(field, text, termWeight, orderedWeight, unorderedWeight);
+    public MRFQuery mrfQuery(float termWeight, float orderedWeight, float unorderedWeight, String field, String... text) {
+        return new MRFQuery(termWeight, orderedWeight, unorderedWeight, field, text);
     }
 
     public interface TextQuery {
-        boolean setOption(String opt, Object value);
+        TextQuery setOption(String opt, Object value);
         QueryBuilder build();
     }
 }

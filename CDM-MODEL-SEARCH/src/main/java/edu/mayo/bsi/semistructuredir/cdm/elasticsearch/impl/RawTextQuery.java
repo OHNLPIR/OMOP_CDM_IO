@@ -13,11 +13,11 @@ public class RawTextQuery implements TextQueryGenerator.TextQuery{
     }
 
     @Override
-    public boolean setOption(String opt, Object value) {
-        return false;
+    public TextQueryGenerator.TextQuery setOption(String opt, Object value) {
+        return this;
     }
 
     public QueryBuilder build() {
-        return QueryBuilders.matchPhraseQuery(field, text);
+        return QueryBuilders.matchQuery(field, text);
     }
 }

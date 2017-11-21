@@ -1,6 +1,7 @@
 package edu.mayo.bsi.semistructuredir.cdm.elasticsearch;
 
 import edu.mayo.bsi.semistructuredir.cdm.elasticsearch.impl.CDMQueryGenerator;
+import edu.mayo.bsi.semistructuredir.cdm.elasticsearch.impl.StructuredQueryGenerator;
 import edu.mayo.bsi.semistructuredir.cdm.elasticsearch.impl.TextQueryGenerator;
 
 /**
@@ -21,5 +22,12 @@ public interface QueryGeneratorFactory {
      */
     static TextQueryGenerator newTextQuery() {
         return new TextQueryGenerator();
+    }
+
+    /**
+     * @return A new query generator that parses structured query format queries
+     */
+    static StructuredQueryGenerator newStructuredQuery() {
+            return null;
     }
 }

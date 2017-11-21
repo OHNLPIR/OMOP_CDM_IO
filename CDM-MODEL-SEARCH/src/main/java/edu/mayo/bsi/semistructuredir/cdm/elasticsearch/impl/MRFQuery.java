@@ -33,8 +33,8 @@ public class MRFQuery implements TextQueryGenerator.TextQuery {
     }
 
     @Override
-    public boolean setOption(String opt, Object value) {
-        return false;
+    public TextQueryGenerator.TextQuery setOption(String opt, Object value) {
+        return this;
     }
 
     @Override
