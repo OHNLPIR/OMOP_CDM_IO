@@ -13,5 +13,8 @@
         <module>CDM-CORE</module>
         <module>CDM-STREAM-PLUGIN</module>
         <module>CDM-MODEL-SEARCH</module>
+        <module>CDM-TOPIC-POOL-GENERATOR</module>
+        <module>CDM-TOPIC-MODELING</module>
+        <module>CDM-EMIRS</module>
     </modules>
 </project>

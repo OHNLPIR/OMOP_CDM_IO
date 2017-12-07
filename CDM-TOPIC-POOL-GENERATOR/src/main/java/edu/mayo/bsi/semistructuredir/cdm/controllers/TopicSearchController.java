@@ -46,7 +46,6 @@ public class TopicSearchController {
      * @param topicIDs A list of topic IDs to filter/get results for
      * @return The page to return
      */
-    @RequestMapping(method = RequestMethod.GET)
     public String handleTopicRequest(ModelMap model, @RequestParam("topic_id[]") String... topicIDs) {
         // No defined topic IDs, list topics
         if (topicIDs == null || topicIDs.length == 0) {

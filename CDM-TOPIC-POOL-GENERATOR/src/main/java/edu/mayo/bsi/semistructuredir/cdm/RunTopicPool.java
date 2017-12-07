@@ -10,10 +10,6 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.ui.ModelMap;
 
 import java.io.File;
@@ -25,18 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@SpringBootApplication
-@EnableAutoConfiguration
-public class TopicPoolingExecutor extends SpringBootServletInitializer {
 
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(TopicPoolingExecutor.class);
-    }
-
-    //    public static void main(String... args) {
-//        SpringApplication.run(TopicPoolingExecutor.class);
-//    }
+public class RunTopicPool {
 
     /**
      * Dirty/undocumented demonstration code, not for production TODO

@@ -23,7 +23,7 @@ public class CDMQueryGenerator {
     public CDMQueryGenerator() {
         this.models = new LinkedList<>();
         this.personIDs = new LinkedList<>();
-        this.scoreMode = ScoreMode.Total;
+        this.scoreMode = ScoreMode.Avg;
     }
 
     public CDMQueryGenerator addCDMObjects(JSONObject... objects) {
