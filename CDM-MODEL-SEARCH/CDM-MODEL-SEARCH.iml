@@ -11,8 +11,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: org.json:json:20171018" level="project" />
-    <orderEntry type="library" name="Maven: edu.mayo.bsi.uima-server:UIMA-SERVER-REST:1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.elasticsearch:elasticsearch:5.6.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-core:6.6.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-analyzers-common:6.6.1" level="project" />
@@ -59,6 +57,8 @@
     <orderEntry type="library" name="Maven: com.github.spullara.mustache.java:compiler:0.9.3" level="project" />
     <orderEntry type="library" name="Maven: org.elasticsearch.plugin:percolator-client:5.6.2" level="project" />
     <orderEntry type="library" name="Maven: org.elasticsearch.plugin:parent-join-client:5.6.2" level="project" />
+    <orderEntry type="library" name="Maven: org.json:json:20171018" level="project" />
+    <orderEntry type="library" name="Maven: edu.mayo.bsi.uima-server:UIMA-SERVER-REST:1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: com.mashape.unirest:unirest-java:1.4.9" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpclient:4.5.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.httpcomponents:httpcore:4.4.4" level="project" />

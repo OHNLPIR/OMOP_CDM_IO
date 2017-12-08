@@ -13,21 +13,13 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.join.query.HasChildQueryBuilder;
-import org.elasticsearch.join.query.HasParentQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +28,6 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.util.*;
 
-@Controller
 public class TopicSearchController {
 
     /**
@@ -46,7 +37,7 @@ public class TopicSearchController {
      * @param topicIDs A list of topic IDs to filter/get results for
      * @return The page to return
      */
-    public String handleTopicRequest(ModelMap model, @RequestParam("topic_id[]") String... topicIDs) {
+    public String handleTopicRequest(HashMap model, String... topicIDs) {
         // No defined topic IDs, list topics
         if (topicIDs == null || topicIDs.length == 0) {
             File topicRawDir = new File("topic_desc");

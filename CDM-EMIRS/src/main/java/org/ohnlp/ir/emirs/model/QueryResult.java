@@ -2,6 +2,8 @@ package org.ohnlp.ir.emirs.model;
 
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class QueryResult {
     /**
@@ -11,7 +13,12 @@ public class QueryResult {
     /**
      * An ordered array of result hits
      */
-    private QueryHit[] hits;
+    private List<QueryHit> hits;
+
+    /**
+     * The patients associated with this result
+     */
+    private List<Patient> patients;
 
     public Query getQuery() {
         return query;
@@ -21,11 +28,20 @@ public class QueryResult {
         this.query = query;
     }
 
-    public QueryHit[] getHits() {
+    public List<QueryHit> getHits() {
         return hits;
     }
 
-    public void setHits(QueryHit[] hits) {
+    public void setHits(List<QueryHit> hits) {
         this.hits = hits;
     }
+
+    public List<Patient> getPatients() {
+        return patients;
+    }
+
+    public void setPatients(List<Patient> patients) {
+        this.patients = patients;
+    }
 }
+

@@ -1,0 +1,39 @@
+{
+  "properties": [
+    {
+      "name": "es.host",
+      "type": "java.lang.String",
+      "description": "The ElasticSearch hostname."
+    },
+    {
+      "name": "es.port",
+      "type": "java.lang.Integer",
+      "description": "The ElasticSearch transport client port number."
+    },
+    {
+      "name": "es.indexName",
+      "type": "java.lang.String",
+      "description": "The name of the ElasticSearch index."
+    },
+    {
+      "name": "es.clusterName",
+      "type": "java.lang.String",
+      "description": "The name of the ElasticSearch cluster."
+    },
+    {
+      "name": "uima.host",
+      "type": "java.lang.String",
+      "description": "The host of the UIMA rest server."
+    },
+    {
+      "name": "uima.port",
+      "type": "java.lang.Integer",
+      "description": "The port number of the UIMA rest server."
+    },
+    {
+      "name": "uima.queue",
+      "type": "java.lang.String",
+      "description": "The queue name to run."
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<jsp:useBean id="hits" scope="request" type="org.ohnlp.ir.emirs.model.QueryResult"/>
+<jsp:useBean id="results" scope="request" class="org.ohnlp.ir.emirs.model.QueryResult"/>
 
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -22,6 +22,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css"
           integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
     <link rel="shortcut icon" href="<c:url value="img/favicon.ico"/>"/>
 
     <!-- Latest compiled and minified JavaScript -->
@@ -32,47 +34,37 @@
 
 </head>
 <body class="mt-0" style="background-color: #bebebe; height:100%">
-<div id="header" style="background-color:#003DA5;height: 100px; margin:0; padding:0;">
-    <a href="<c:url value="/"/>"><img src="<c:url value="img/MC_stack_wht.png"/>" height="75px" alt="MC Logo"
-                                      style="float: left;padding-left: 15px; padding-top: 15px; margin-top:0"/></a>
-    <h2 class="text-center" style="padding-bottom: 30px;color: #ffffff; padding-top: 30px; margin:0 auto">Electronic
-        Medical Information Retrieval
-        System</h2>
+<div class="row" id="header" style="background-color:#003DA5;height: 100px; margin:0; padding:0;">
+    <div class="col-xs-1 " id="logo">
+        <a href="<c:url value="/"/>">
+            <img src="<c:url value="img/MC_stack_wht.png"/>" height="75px" alt="MC Logo"
+                 style="float: left; padding-left: 15px; padding-top: 15px; margin-top:0"/>
+        </a>
+    </div>
+    <div class="col-sm-11" id="header-text">
+        <h2 class="text-center" style="padding-bottom: 30px;color: #ffffff; padding-top: 30px; margin:0 auto">Electronic
+            Medical Information Retrieval
+            System</h2>
+    </div>
 </div>
-<c:choose>
-    <c:when test="${not empty hits}">
-        <div id="search" class="container"
-             style="float:top; height:10%; min-height:10vh; width:100%; border-bottom: 1px solid #808080">
-            <div id="search-with-result" class="container"
-                 style="float:top; height:10%; min-height:10vh; width:100%; border-bottom: 1px solid #808080">
-                <jsp:include page="search.jsp"/>
-            </div>
-        </div>
-        <div id="sidebar" class="container"
-             style="float:left; height:90%; min-height: 90vh; width:15%; border-right: 1px solid #808080">
+<div class="row" id="search">
+    <div class="col-xs-12 text-center" style="padding-top: 20px; padding-bottom: 20px; border-bottom: 1px solid #808080">
+        <jsp:include page="search.jsp"/>
+    </div>
+</div>
+<c:if test="${not empty results.query}">
+    <div class="row" id="results">
+        <div id="sidebar" class="col-sm-2"
+             style="float:left;">
             <jsp:include page="sidebar.jsp"/>
         </div>
-        <div id="content" class="container"
-             style="float:right; height:90%; min-height: 90vh; width:85%;">
-            <jsp:include page="hits.jsp"/>
+        <div id="content" class="col-xs-10"
+             style="float:right; padding-top: 10px; border-left: 1px solid #808080">
+            <jsp:include page="results.jsp"/>
         </div>
-    </c:when>
-    <c:otherwise>
-        <div id="search" class="container"
-             style="float:top; height:10%; min-height:10vh; width:100%; border-bottom: 1px solid #808080">
-            <jsp:include page="search.jsp"/>
-        </div>
-        <div id="sidebar" class="container"
-             style="float:left; height:90%; min-height: 90vh; width:15%; border-right: 1px solid #808080">
-            <jsp:include page="sidebar.jsp"/>
+    </div>
 
-        </div>
-        <div id="content" class="container"
-             style="float:right; height:90%; min-height: 90vh; width:85%;">
-            <jsp:include page="hits.jsp"/>
-        </div>
-    </c:otherwise>
-</c:choose>
+</c:if>
 
 </body>
 </html>

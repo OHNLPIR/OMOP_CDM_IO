@@ -10,7 +10,6 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
-import org.springframework.ui.ModelMap;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -19,6 +18,7 @@ import java.net.InetAddress;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -33,7 +33,7 @@ public class RunTopicPool {
         Settings settings = Settings.builder() // TODO cleanup
                 .put("cluster.name", "elasticsearch").build();
         try (TransportClient client = new PreBuiltTransportClient(settings).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9310))) {
-            ModelMap in = new ModelMap();
+            HashMap in = new HashMap<>();
             ArrayList<String> names = new ArrayList<>(56);
             for (File f : new File("topics").listFiles()) {
                 String name = f.getName().substring(0, f.getName().length() - 4);

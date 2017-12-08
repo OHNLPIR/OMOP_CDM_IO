@@ -24,6 +24,8 @@ public class Document {
      */
     private String text;
 
+    private String sectionName;
+
     public String getDocLinkId() {
         return docLinkId;
     }
@@ -54,5 +56,13 @@ public class Document {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getSectionName() {
+        return sectionName;
+    }
+
+    public void setSectionName(String sectionName) {
+        this.sectionName = sectionName;
     }
 }
