@@ -1,5 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<jsp:useBean id="results" scope="request" type="org.ohnlp.ir.emirs.model.QueryResult"/>
+<jsp:useBean id="results" scope="session" type="org.ohnlp.ir.emirs.model.QueryResult"/>
 <div class="panel-group">
     <div class="panel panel-default">
         <div class="panel-heading">
