@@ -229,7 +229,7 @@ public class AnnotationCache {
         public <T extends Annotation> Collection<T> getCovering(int start, int end, Class<T> clazz) {
             LinkedList<T> ret = new LinkedList<>();
             for (Annotation ann : annColl) {
-                if (ann.getBegin() >= start && ann.getEnd() <= end) {
+                if (ann.getBegin() <= start && ann.getEnd() >= end) {
                     if (clazz.isInstance(ann)) {
                         ret.add((T) ann);
                     }
@@ -242,7 +242,7 @@ public class AnnotationCache {
         public <T extends Annotation> Collection<T> getCovered(int start, int end, Class<T> clazz) {
             LinkedList<T> ret = new LinkedList<>();
             for (Annotation ann : annColl) {
-                if (ann.getBegin() <= start && ann.getEnd() >= end) {
+                if (ann.getBegin() >= start && ann.getEnd() <= end) {
                     if (clazz.isInstance(ann)) {
                         ret.add((T) ann);
                     }
