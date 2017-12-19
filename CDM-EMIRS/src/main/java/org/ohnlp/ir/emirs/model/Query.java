@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 @EnableConfigurationProperties(Properties.class)
 public class Query {
     private String structured;
+    private String cdmQuery;
     private String unstructured;
     private String jsonSrc;
 
@@ -40,5 +41,13 @@ public class Query {
     public QueryBuilder toESQuery() {
         QueryBuilder textQuery = QueryGeneratorFactory.newTextQuery().rawTextQuery("RawText", getUnstructured()).build();
         return textQuery; //TODO
+    }
+
+    public String getCdmQuery() {
+        return cdmQuery;
+    }
+
+    public void setCdmQuery(String cdmQuery) {
+        this.cdmQuery = cdmQuery;
     }
 }

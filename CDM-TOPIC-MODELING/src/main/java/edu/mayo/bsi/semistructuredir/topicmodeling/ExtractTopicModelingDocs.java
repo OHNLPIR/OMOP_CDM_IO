@@ -4,6 +4,8 @@ import java.io.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,8 +22,9 @@ public class ExtractTopicModelingDocs{
 
         ExecutorService pool = Executors.newFixedThreadPool(20);
         File dataDir = new File("data");
-        File outDir = new File("out");
+        File outDir = new File("raw_documents");
         outDir.mkdirs();
+        AtomicLong tracker = new AtomicLong();
         for (File f : dataDir.listFiles()) {
             pool.submit(() -> {
                 try {
@@ -49,6 +52,9 @@ public class ExtractTopicModelingDocs{
                                 sectionText = note.substring(sectionMatcher.end(), nextSectionFinder.start());
                             } else {
                                 sectionText = note.substring(sectionMatcher.end());
+                            }
+                            if (sectionText.length() < 1024) {
+                                continue;
                             }
                             // Make file
                             Pattern mcnPattern = Pattern.compile("MCN:([^\\|]+)");
@@ -91,6 +97,7 @@ public class ExtractTopicModelingDocs{
                             writer.write(sectionText);
                             writer.flush();
                             writer.close();
+                            tracker.incrementAndGet();
                         }
                     }
                 } catch (Exception e) {
@@ -100,5 +107,6 @@ public class ExtractTopicModelingDocs{
         }
         pool.shutdown();
         pool.awaitTermination(10000, TimeUnit.DAYS);
+        System.out.println("Wrote " + tracker.get() + " documents");
     }
 }

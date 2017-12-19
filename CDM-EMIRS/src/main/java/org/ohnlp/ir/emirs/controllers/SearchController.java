@@ -1,6 +1,5 @@
 package org.ohnlp.ir.emirs.controllers;
 
-import edu.mayo.bsi.semistructuredir.cdm.elasticsearch.QueryGeneratorFactory;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -29,7 +28,7 @@ public class SearchController {
     private Properties properties;
 
     @RequestMapping(value = "/_query", method = RequestMethod.POST)
-    public String postMapper(RedirectAttributes out, ModelMap model, @RequestParam String query) throws IOException {
+    public String postMapper(RedirectAttributes out, ModelMap model, @RequestParam Query query) throws IOException {
         if (client == null) {
             Settings settings = Settings.builder() // TODO cleanup
                     .put("cluster.name", properties.getEs().getClusterName()).build();
@@ -48,16 +47,15 @@ public class SearchController {
             modelQuery = new Query();
             out.addFlashAttribute("query", modelQuery);
         }
-//        QueryBuilder esQuery = query.toESQuery();
-        QueryBuilder esQuery = QueryGeneratorFactory.newTextQuery().rawTextQuery("RawText", query).build();
+        QueryBuilder esQuery = query.toESQuery();
         modelQuery.setJsonSrc(esQuery.toString());
-        modelQuery.setUnstructured(query);
         SearchResponse resp = client.prepareSearch(properties.getEs().getIndexName())
                 .setQuery(esQuery)
                 .setSize(1000)
                 .execute()
                 .actionGet();
         processResponse(out, model, resp, modelQuery);
+
         return "redirect:/";
     }
 

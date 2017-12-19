@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="webjars/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="webjars/bootstrap/3.3.7/css/bootstrap-theme.min.css">
     <script src="webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
+    <script src="webjars/"></script>
     <link rel="shortcut icon" href="<c:url value="img/favicon.ico"/>"/>
 
 </head>
