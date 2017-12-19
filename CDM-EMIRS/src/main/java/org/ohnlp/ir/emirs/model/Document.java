@@ -23,8 +23,12 @@ public class Document {
      * The actual text of the document itself
      */
     private String text;
-
+    /**
+     * The section name of the document
+     */
     private String sectionName;
+
+    private String sectionID;
 
     public String getDocLinkId() {
         return docLinkId;
@@ -64,5 +68,13 @@ public class Document {
 
     public void setSectionName(String sectionName) {
         this.sectionName = sectionName;
+    }
+
+    public String getSectionID() {
+        return sectionID;
+    }
+
+    public void setSectionID(String sectionID) {
+        this.sectionID = sectionID;
     }
 }

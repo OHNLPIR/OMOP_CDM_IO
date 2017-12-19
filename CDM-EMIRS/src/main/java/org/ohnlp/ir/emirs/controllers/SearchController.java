@@ -83,6 +83,7 @@ public class SearchController {
             doc.setDocType(docFields[3]); //TODO
             doc.setText(source.get("RawText").toString());
             doc.setSectionName(source.get("Section_Name").toString());
+            doc.setSectionID(source.get("Section_ID").toString());
             qHit.setDoc(doc);
             // Encounter
             Encounter encounter = new Encounter();

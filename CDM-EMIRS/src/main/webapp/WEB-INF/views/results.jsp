@@ -9,7 +9,7 @@
             <div class="panel-heading">
                 <div class="panel-title pull-left h4">
                     <a data-toggle="collapse"
-                       href="#${hit.doc.docLinkId}">${hit.doc.sectionName}
+                       href="#${hit.doc.docLinkId}v${hit.doc.revision}s${hit.doc.sectionID}">${hit.doc.sectionName}
                         - MRN: ${hit.patient.id}
                         - Id: ${hit.doc.docLinkId}v${hit.doc.revision}
                         - Type: ${hit.doc.docType}
@@ -18,8 +18,8 @@
                 <div class="panel-title pull-right">Score: ${hit.score}</div>
                 <div class="clearfix"></div>
             </div>
-            <div id="${hit.doc.docLinkId}" class="panel-collapse collapse">
-                <div class="panel-body">${fn:replace(hit.doc.text, '\\n', "<br/>")}</div>
+            <div id="${hit.doc.docLinkId}v${hit.doc.revision}s${hit.doc.sectionID}" class="panel-collapse collapse">
+                <div class="panel-body">${fn:replace(hit.doc.text, '\\n', "<p/>")}</div>
             </div>
         </div>
     </c:forEach>
