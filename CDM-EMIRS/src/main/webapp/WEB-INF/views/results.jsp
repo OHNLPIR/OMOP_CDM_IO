@@ -2,7 +2,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 
-<jsp:useBean id="results" scope="session" type="org.ohnlp.ir.emirs.model.QueryResult"/>
+<jsp:useBean id="results" scope="request" type="org.ohnlp.ir.emirs.model.QueryResult"/>
 <div class="panel-group">
     <c:forEach var="hit" items="${results.hits}">
         <div class="panel panel-default">

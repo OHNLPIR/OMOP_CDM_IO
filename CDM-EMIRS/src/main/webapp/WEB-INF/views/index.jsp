@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<jsp:useBean id="results" scope="session" class="org.ohnlp.ir.emirs.model.QueryResult"/>
+<jsp:useBean id="results" scope="request" class="org.ohnlp.ir.emirs.model.QueryResult"/>
+<jsp:useBean id="query" scope="request" class="org.ohnlp.ir.emirs.model.Query"/>
 
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -19,7 +20,7 @@
     <link rel="stylesheet" href="webjars/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="webjars/bootstrap/3.3.7/css/bootstrap-theme.min.css">
     <script src="webjars/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="webjars/"></script>
+    <script src="webjars/angularjs/1.6.6/angular.min.js"></script>
     <link rel="shortcut icon" href="<c:url value="img/favicon.ico"/>"/>
 
 </head>
@@ -43,6 +44,9 @@
     </div>
 </div>
 <c:if test="${not empty results.query}">
+    <div class="row" id="advanced-search">
+        <jsp:include page="cdm_editor.jsp"/>
+    </div>
     <div class="row" id="results">
         <div id="sidebar" class="col-sm-2"
              style="float:left;">
@@ -53,7 +57,6 @@
             <jsp:include page="results.jsp"/>
         </div>
     </div>
-
 </c:if>
 
 </body>

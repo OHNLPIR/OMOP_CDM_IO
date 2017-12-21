@@ -76,7 +76,7 @@ public class Properties {
         @NotBlank
         private int port;
         @NotBlank
-        private String queueName;
+        private String queue;
 
         public String getHost() {
             return host;
@@ -94,12 +94,12 @@ public class Properties {
             this.port = port;
         }
 
-        public String getQueueName() {
-            return queueName;
+        public String getQueue() {
+            return queue;
         }
 
-        public void setQueueName(String queueName) {
-            this.queueName = queueName;
+        public void setQueue(String queue) {
+            this.queue = queue;
         }
     }
 }

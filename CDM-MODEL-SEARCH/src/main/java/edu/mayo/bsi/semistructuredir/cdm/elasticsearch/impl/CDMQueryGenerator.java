@@ -52,12 +52,13 @@ public class CDMQueryGenerator {
                 continue; // Should never happen
             }
             BoolQueryBuilder elementQuery = QueryBuilders.boolQuery();
-            for (Map.Entry<String, Object> e : cdm.toMap().entrySet()) {
-                if (e.getValue().toString().isEmpty()) {
+            for (Object key : cdm.keySet()) {
+                Object value = cdm.get(key.toString());
+                if (value.toString().isEmpty()) {
                     continue;
                 }
-                if (!(e.getValue() instanceof JSONArray) && !e.getValue().toString().equals("[]")) {
-                    elementQuery.should(QueryBuilders.matchQuery(e.getKey(), e.getValue()));
+                if (!(value instanceof JSONArray) && !value.toString().equals("[]")) {
+                    elementQuery.should(QueryBuilders.matchQuery(key.toString(), value));
                 }
                 // TODO add support for nested
             }

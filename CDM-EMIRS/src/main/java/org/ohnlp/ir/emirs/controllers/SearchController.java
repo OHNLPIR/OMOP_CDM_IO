@@ -1,5 +1,8 @@
 package org.ohnlp.ir.emirs.controllers;
 
+
+import edu.mayo.bsi.uima.server.rest.models.ServerRequest;
+import edu.mayo.bsi.uima.server.rest.models.ServerResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -7,14 +10,18 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.ohnlp.ir.emirs.Properties;
 import org.ohnlp.ir.emirs.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
@@ -26,9 +33,11 @@ public class SearchController {
 
     private TransportClient client;
     private Properties properties;
+    private RestTemplate REST_CLIENT = new RestTemplate();
+    private String UIMA_REST_URL = null;
 
     @RequestMapping(value = "/_query", method = RequestMethod.POST)
-    public String postMapper(RedirectAttributes out, ModelMap model, @RequestParam Query query) throws IOException {
+    public String postMapper(RedirectAttributes out, ModelMap model, @ModelAttribute("query") Query query) throws IOException {
         if (client == null) {
             Settings settings = Settings.builder() // TODO cleanup
                     .put("cluster.name", properties.getEs().getClusterName()).build();
@@ -47,16 +56,38 @@ public class SearchController {
             modelQuery = new Query();
             out.addFlashAttribute("query", modelQuery);
         }
+        processQuery(modelQuery);
         QueryBuilder esQuery = query.toESQuery();
-        modelQuery.setJsonSrc(esQuery.toString());
         SearchResponse resp = client.prepareSearch(properties.getEs().getIndexName())
                 .setQuery(esQuery)
                 .setSize(1000)
                 .execute()
                 .actionGet();
         processResponse(out, model, resp, modelQuery);
-
         return "redirect:/";
+    }
+
+    /**
+     * Populates model query fields from unstructured text query,
+     * @param query
+     */
+    private void processQuery(Query query) {
+        // Initialize values from properties if needed
+        if (UIMA_REST_URL == null) {
+            UIMA_REST_URL = "http://" + properties.getUima().getHost() + ":" + properties.getUima().getPort() + "/";
+        }
+        if (query.getCdmQuery() == null) {
+            ServerRequest req = new ServerRequest(properties.getUima().getQueue(), null, query.getUnstructured(), Collections.singleton("cdm"));
+            ServerResponse resp = REST_CLIENT.postForObject(UIMA_REST_URL, req, ServerResponse.class);
+            String cdmRespRaw = resp.getContent().get(properties.getUima().getQueue());
+            JSONArray cdmResp = new JSONArray(cdmRespRaw);
+            ArrayList<JSONObject> parsedCDMModels = new ArrayList<>(cdmResp.length());
+            for (int i = 0; i < cdmResp.length(); i++) {
+                Object o = cdmResp.get(i);
+                parsedCDMModels.add(new JSONObject(new JSONTokener(o.toString())));
+            }
+            query.setCdmQuery(parsedCDMModels);
+        }
     }
 
     private void processResponse(RedirectAttributes out, ModelMap model, SearchResponse resp, Query query) {

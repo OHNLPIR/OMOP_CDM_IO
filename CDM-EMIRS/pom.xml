@@ -39,11 +39,23 @@
     </build>
 
     <dependencies>
-        <!-- CDM -->
+        <!-- CDM Query Support-->
         <dependency>
             <groupId>edu.mayo</groupId>
             <artifactId>CDM-MODEL-SEARCH</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <!-- UIMA RESTful server-->
+        <dependency>
+            <groupId>edu.mayo.bsi.uima-server</groupId>
+            <artifactId>UIMA-Server-REST</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <!-- Serialization -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20171018</version>
         </dependency>
         <!-- Compile -->
         <dependency>
@@ -69,6 +81,11 @@
             <groupId>org.webjars</groupId>
             <artifactId>angularjs</artifactId>
             <version>1.6.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>ng-tags-input</artifactId>
+            <version>3.2.0</version>
         </dependency>
         <!-- Provided -->
         <dependency>
@@ -99,6 +116,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
