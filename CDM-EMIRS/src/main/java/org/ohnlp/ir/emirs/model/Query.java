@@ -1,16 +1,22 @@
 package org.ohnlp.ir.emirs.model;
 
 import edu.mayo.bsi.semistructuredir.cdm.elasticsearch.QueryGeneratorFactory;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.json.JSONObject;
 import org.ohnlp.ir.emirs.Properties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 @Component
 @EnableConfigurationProperties(Properties.class)
 public class Query {
     private String structured;
-    private String cdmQuery;
+    private Collection<JSONObject> cdmQuery;
     private String unstructured;
     private String jsonSrc;
 
@@ -39,15 +45,22 @@ public class Query {
     }
 
     public QueryBuilder toESQuery() {
+        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
         QueryBuilder textQuery = QueryGeneratorFactory.newTextQuery().rawTextQuery("RawText", getUnstructured()).build();
-        return textQuery; //TODO
+        queryBuilder.should(textQuery);
+        if (cdmQuery != null && cdmQuery.size() > 0) {
+            QueryBuilder cdmQuery = QueryGeneratorFactory.newCDMQuery().addCDMObjects((JSONObject[]) getCdmQuery().toArray()).build();
+            queryBuilder.should(cdmQuery);
+        }
+        setJsonSrc(queryBuilder.toString());
+        return queryBuilder;
     }
 
-    public String getCdmQuery() {
+    public Collection<JSONObject>  getCdmQuery() {
         return cdmQuery;
     }
 
-    public void setCdmQuery(String cdmQuery) {
+    public void setCdmQuery(Collection<JSONObject> cdmQuery) {
         this.cdmQuery = cdmQuery;
     }
 }
