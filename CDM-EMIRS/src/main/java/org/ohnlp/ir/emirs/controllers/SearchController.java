@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
@@ -36,8 +37,8 @@ public class SearchController {
     private RestTemplate REST_CLIENT = new RestTemplate();
     private String UIMA_REST_URL = null;
 
-    @RequestMapping(value = "/_query", method = RequestMethod.POST)
-    public String postMapper(RedirectAttributes out, ModelMap model, @ModelAttribute("query") Query query) throws IOException {
+    @RequestMapping(value = "/", method = RequestMethod.POST)
+    public ModelAndView postMapper(RedirectAttributes out, ModelMap model, @ModelAttribute("query") Query query) throws IOException {
         if (client == null) {
             Settings settings = Settings.builder() // TODO cleanup
                     .put("cluster.name", properties.getEs().getClusterName()).build();
@@ -64,7 +65,8 @@ public class SearchController {
                 .execute()
                 .actionGet();
         processResponse(out, model, resp, modelQuery);
-        return "redirect:/";
+        model.put("query", modelQuery);
+        return new ModelAndView("index", model);
     }
 
     /**

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <jsp:useBean id="results" scope="request" class="org.ohnlp.ir.emirs.model.QueryResult"/>
-<jsp:useBean id="query" scope="request" class="org.ohnlp.ir.emirs.model.Query"/>
 
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -44,9 +43,6 @@
     </div>
 </div>
 <c:if test="${not empty results.query}">
-    <div class="row" id="advanced-search">
-        <jsp:include page="cdm_editor.jsp"/>
-    </div>
     <div class="row" id="results">
         <div id="sidebar" class="col-sm-2"
              style="float:left;">

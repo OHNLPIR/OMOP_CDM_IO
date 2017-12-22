@@ -1,0 +1,18 @@
+.cdm_object_editable_container {
+    margin: 2px;
+    padding: 0 5px;
+    display: inline-block;
+    float: left;
+    font: 12px "Helvetica Neue",Helvetica,Arial,sans-serif;
+    border: 1px solid #acacac;
+    border-radius: 3px;
+    background: linear-gradient(to bottom,#f0f9ff 0,#cbebff 47%,#a1dbff 100%);
+}
+
+.cdm_field_content {
+    font: 12px "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.cdm_field_content_editable:hover {
+    background: #acacac 50%;
+}
