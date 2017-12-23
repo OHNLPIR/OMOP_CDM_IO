@@ -1,14 +1,19 @@
-var app = angular.module("cdm_editor", []);
-app.controller("CDMTagsCtrl", function ($scope, $obj) {
-    this.cdmData = $obj;
-    this.initObjects = $obj;
+var app = angular.module("querybuilder", []);
+app.controller("QueryBuilderController", ['$scope', function ($scope) {
+    // Dirty fix, circumvent loading problems by pulling directly from previously loaded
+    this.cdmQuery = cdmLoad;
+    this.initObjects = JSON.parse(JSON.stringify(cdmLoad)); // Make a copy so edits don't affect initial value
+    this.unstructured = unstructuredLoad;
     this.addItem = function () {
-        this.cdmData.push($scope.item)
+        this.cdmQuery.push($scope.item)
     };
     this.removeItem = function ($toRemove) {
-        this.cdmData.splice($toRemove, 1);
+        this.cdmQuery.splice($toRemove, 1);
     };
     this.resetSoft = function() {
-        this.cdmData = this.initObjects;
+        this.cdmQuery = this.initObjects;
+    };
+    this.submit = function() {
+        // TODO
     }
-});
+}]);

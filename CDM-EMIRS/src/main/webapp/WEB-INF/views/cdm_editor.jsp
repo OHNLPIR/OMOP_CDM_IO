@@ -3,13 +3,11 @@
 
 <script src="webjars/ng-tags-input/3.2.0/ng-tags-input.min.js"></script>
 <script src="js/search_controller.js"></script>
-<link href="css/cdm_editor.css" rel="stylesheet">
-<link href="webjars/ng-tags-input/3.2.0/ng-tags-input.min.css" rel="stylesheet">
-<link href="webjars/ng-tags-input/3.2.0/ng-tags-input.bootstrap.min.css" rel="stylesheet">
+<link href="css/search.css" rel="stylesheet">
 
 <!-- First load CDM objects into the model from the supplied query -->
 <script>
-    app.value("$obj", ${results.query.cdmQuery});
+    app.value("$cdm", ${results.query.cdmQuery});
 </script>
 <div class="modal fade" id="cdm_query_editor" role="dialog" ng-app="cdm_editor" ng-controller="CDMTagsCtrl as cdm">
     <div class="modal-dialog modal-lg">
@@ -21,7 +19,7 @@
             <div class="modal-body">
                 <!-- Render the output objects-->
                 <ul>
-                    <li class="cdm_object_editable_container" ng-repeat="cdm_object in cdm.cdmData">
+                    <li class="cdm_object_editable_container" ng-repeat="cdm_object in cdm.cdmQuery">
                         <div class="cdm_object_fields pull-left">
                             <ul style="list-style: none; padding: 3px;">
                                 <li ng-repeat="(field, value) in cdm_object" ng-if="field != 'date' && field != 'model_type' && value.length > 0">
@@ -39,7 +37,7 @@
                 <div class="clearfix"></div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default pull-left" ng-click="alert(cdm.cdmData)">Reset from Text Query</button>
+                <button type="button" class="btn btn-default pull-left" ng-click="alert(cdm.cdmQuery)">Reset from Text Query</button>
                 <button type="button" class="btn btn-default pull-left" ng-click="cdm.resetSoft()">Reset to Last Executed</button>
                 <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Save and Close</button>
             </div>
