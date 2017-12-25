@@ -8,15 +8,11 @@ function Query(unstructured, cdmQuery) {
     this.removeItem = function ($toRemove) {
         this.cdmQuery.splice($toRemove, 1);
     };
-    this.resetSoft = function () {
-        this.cdmQuery = this.initObjects;
-    };
-
     this.submit = function ($http, model) {
-        $http.post('/', this).then(function(data) {
-            console.log(data.data);
+        $http.post('/_search', this).then(function(data) {
             if (data.data != null) {
-                model.query = data.data.query;
+                model.query.unstructured = data.data.query.unstructured;
+                model.query.cdmQuery = data.data.query.cdmQuery;
                 model.hits = data.data.hits;
             }
         });

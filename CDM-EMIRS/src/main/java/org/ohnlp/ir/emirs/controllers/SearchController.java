@@ -38,7 +38,7 @@ public class SearchController {
     private RestTemplate REST_CLIENT = new RestTemplate();
     private String UIMA_REST_URL = null;
 
-    @RequestMapping(value = "/", method = RequestMethod.POST)
+    @RequestMapping(value = "/_search", method = RequestMethod.POST)
     public @ResponseBody QueryResult postMapper(@RequestBody Query query) throws IOException {
         if (client == null) {
             Settings settings = Settings.builder() // TODO cleanup
