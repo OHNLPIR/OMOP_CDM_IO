@@ -1,5 +1,5 @@
 var app = angular.module("querybuilder", ['ngResource']);
-app.controller("QueryBuilderController", function ($scope, $resource) {
+app.controller("QueryBuilderController", function ($scope, $http) {
     // Dirty fix, circumvent loading problems by pulling directly from previously loaded
     this.cdmQuery = cdmLoad;
     this.initObjects = JSON.parse(JSON.stringify(cdmLoad)); // Make a copy so edits don't affect initial value
@@ -14,11 +14,9 @@ app.controller("QueryBuilderController", function ($scope, $resource) {
         this.cdmQuery = this.initObjects;
     };
     this.submit = function () {
-        var post = $resource('/');
-        var result = post.save(this).$promise;
-        result.then(function(data) {
-            console.log(data)
-        })
-
+        $http.post('/', this);
+        // .then(function(data, status, headers, config) {
+        //     document.write(data.data);
+        // });
     }
 });

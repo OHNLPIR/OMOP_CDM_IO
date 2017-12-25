@@ -9,23 +9,20 @@
 
 <script>
     <c:choose>
-        <c:when test="${not empty results.query}">
-            var unstructuredLoad = '${results.query.unstructured}';
-            var cdmLoad = ${results.query.cdmQuery};
-        </c:when>
-        <c:otherwise>
-            var unstructuredLoad = '';
-            var cdmLoad = [];
-        </c:otherwise>
+    <c:when test="${not empty results.query}">
+    var unstructuredLoad = '${results.query.unstructured}';
+    var cdmLoad = ${results.query.cdmQuery};
+    </c:when>
+    <c:otherwise>
+    var unstructuredLoad = '';
+    var cdmLoad = [];
+    </c:otherwise>
     </c:choose>
-    <%--app.value("unstructured", unstructured);--%>
-    <%--app.value("cdm", ${results.query.cdmQuery});--%>
-    <%--app.value("$qb.cdm", ${results.query.cdmQuery});--%>
-    <%--app.value("$qb.unstructured", ${results.query.unstructured});--%>
 </script>
 <div ng-app="querybuilder" class="container">
     <div ng-controller="QueryBuilderController as qb">
-        <form name="search" novalidate ng-submit="qb.submit()">
+        <%--<form name="search" novalidate ng-submit="qb.submit()">--%>
+        <form name="search" action="{{qb.submit()}}">
             <label>
                 Query
                 <input type="text" title="Query" value="${results.query.unstructured}" ng-model="qb.unstructured"/>
@@ -34,6 +31,7 @@
             <ul class="list-inline">
                 <li><a href="#" data-toggle="modal" data-target="#cdm_query_editor">Edit CDM Objects</a></li>
             </ul>
+
             <!-- CDM Query Editing -->
             <div class="modal fade" id="cdm_query_editor" role="dialog">
                 <div class="modal-dialog modal-lg">
@@ -80,10 +78,5 @@
             </div>
         </form>
     </div>
-    <form:form method="POST" action="/" modelAttribute="query">
-        <form:label path="unstructured">Query</form:label>
-        <form:input path="unstructured"/>
-        <input type="submit" value="Submit"/>
-    </form:form>
 </div>
 
