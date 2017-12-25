@@ -18,9 +18,7 @@ import org.ohnlp.ir.emirs.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -38,7 +36,7 @@ public class SearchController {
     private String UIMA_REST_URL = null;
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public ModelAndView postMapper(RedirectAttributes out, ModelMap model, @ModelAttribute("query") Query query) throws IOException {
+    public ModelAndView postMapper(RedirectAttributes out, ModelMap model, @RequestBody Query query) throws IOException {
         if (client == null) {
             Settings settings = Settings.builder() // TODO cleanup
                     .put("cluster.name", properties.getEs().getClusterName()).build();
@@ -52,20 +50,21 @@ public class SearchController {
         for (Map.Entry<String, Object> e : model.entrySet()) {
             out.addFlashAttribute(e.getKey(), e.getValue());
         }
-        Query modelQuery = (Query) out.getFlashAttributes().get("query");
-        if (modelQuery == null) {
-            modelQuery = new Query();
-            out.addFlashAttribute("query", modelQuery);
-        }
-        processQuery(modelQuery);
+//        Query modelQuery = (Query) out.getFlashAttributes().get("query");
+//        if (modelQuery == null) {
+//            modelQuery = new Query();
+//            out.addFlashAttribute("query", modelQuery);
+//        }
+//        processQuery(modelQuery);
+        processQuery(query);
         QueryBuilder esQuery = query.toESQuery();
         SearchResponse resp = client.prepareSearch(properties.getEs().getIndexName())
                 .setQuery(esQuery)
                 .setSize(1000)
                 .execute()
                 .actionGet();
-        processResponse(out, model, resp, modelQuery);
-        model.put("query", modelQuery);
+        processResponse(out, model, resp, query);
+        model.put("query", query);
         return new ModelAndView("index", model);
     }
 
@@ -78,7 +77,7 @@ public class SearchController {
         if (UIMA_REST_URL == null) {
             UIMA_REST_URL = "http://" + properties.getUima().getHost() + ":" + properties.getUima().getPort() + "/";
         }
-        if (query.getCdmQuery() == null) {
+        if (query.getCdmQuery() == null || query.getCdmQuery().size() == 0) {
             ServerRequest req = new ServerRequest(properties.getUima().getQueue(), null, query.getUnstructured(), Collections.singleton("cdm"));
             ServerResponse resp = REST_CLIENT.postForObject(UIMA_REST_URL, req, ServerResponse.class);
             String cdmRespRaw = resp.getContent().get(properties.getUima().getQueue());
