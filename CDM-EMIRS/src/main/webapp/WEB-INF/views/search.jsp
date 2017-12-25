@@ -4,28 +4,15 @@
 
 <script src="webjars/angularjs/1.6.6/angular-resource.min.js"></script>
 <script src="webjars/ng-tags-input/3.2.0/ng-tags-input.min.js"></script>
-<script src="js/search_controller.js"></script>
 <link href="css/search.css" rel="stylesheet">
 
-<script>
-    <c:choose>
-    <c:when test="${not empty results.query}">
-    var unstructuredLoad = '${results.query.unstructured}';
-    var cdmLoad = ${results.query.cdmQuery};
-    </c:when>
-    <c:otherwise>
-    var unstructuredLoad = '';
-    var cdmLoad = [];
-    </c:otherwise>
-    </c:choose>
-</script>
-<div ng-app="querybuilder" class="container">
-    <div ng-controller="QueryBuilderController as qb">
+<div class="container">
+    <div>
         <%--<form name="search" novalidate ng-submit="qb.submit()">--%>
-        <form name="search" action="{{qb.submit()}}">
+        <form name="search" action="{{EMIRS.submitQuery()}}">
             <label>
                 Query
-                <input type="text" title="Query" value="${results.query.unstructured}" ng-model="qb.unstructured"/>
+                <input type="text" title="Query" value="${results.query.unstructured}" ng-model="EMIRS.query.unstructured"/>
             </label>
             <button type="submit">Submit</button>
             <ul class="list-inline">
@@ -43,7 +30,7 @@
                         <div class="modal-body">
                             <!-- Render the output objects-->
                             <ul>
-                                <li class="cdm_object_editable_container" ng-repeat="cdm_object in qb.cdmQuery">
+                                <li class="cdm_object_editable_container" ng-repeat="cdm_object in EMIRS.query.cdmQuery">
                                     <div class="cdm_object_fields pull-left">
                                         <ul style="list-style: none; padding: 3px;">
                                             <li ng-repeat="(field, value) in cdm_object"

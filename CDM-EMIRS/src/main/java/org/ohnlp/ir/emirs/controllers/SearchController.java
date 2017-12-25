@@ -1,6 +1,10 @@
 package org.ohnlp.ir.emirs.controllers;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.mayo.bsi.uima.server.rest.models.ServerRequest;
 import edu.mayo.bsi.uima.server.rest.models.ServerResponse;
 import org.elasticsearch.action.search.SearchResponse;
@@ -20,7 +24,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
@@ -36,7 +39,7 @@ public class SearchController {
     private String UIMA_REST_URL = null;
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public ModelAndView postMapper(RedirectAttributes out, ModelMap model, @RequestBody Query query) throws IOException {
+    public @ResponseBody QueryResult postMapper(@RequestBody Query query) throws IOException {
         if (client == null) {
             Settings settings = Settings.builder() // TODO cleanup
                     .put("cluster.name", properties.getEs().getClusterName()).build();
@@ -45,10 +48,6 @@ public class SearchController {
                             new InetSocketTransportAddress(
                                     InetAddress.getByName(properties.getEs().getHost()),
                                     properties.getEs().getPort()));
-        }
-        // Baseline: keep preexisting objects in model
-        for (Map.Entry<String, Object> e : model.entrySet()) {
-            out.addFlashAttribute(e.getKey(), e.getValue());
         }
 //        Query modelQuery = (Query) out.getFlashAttributes().get("query");
 //        if (modelQuery == null) {
@@ -63,9 +62,8 @@ public class SearchController {
                 .setSize(1000)
                 .execute()
                 .actionGet();
-        processResponse(out, model, resp, query);
-        model.put("query", query);
-        return new ModelAndView("index", model);
+//        processResponse(out, model, resp, query);
+        return processResponse(resp, query);
     }
 
     /**
@@ -82,21 +80,21 @@ public class SearchController {
             ServerResponse resp = REST_CLIENT.postForObject(UIMA_REST_URL, req, ServerResponse.class);
             String cdmRespRaw = resp.getContent().get(properties.getUima().getQueue());
             JSONArray cdmResp = new JSONArray(cdmRespRaw);
-            ArrayList<JSONObject> parsedCDMModels = new ArrayList<>(cdmResp.length());
+            ArrayList<JsonNode> parsedCDMModels = new ArrayList<>(cdmResp.length());
             for (int i = 0; i < cdmResp.length(); i++) {
                 Object o = cdmResp.get(i);
-                parsedCDMModels.add(new JSONObject(new JSONTokener(o.toString())));
+                try {
+                    parsedCDMModels.add(new ObjectMapper().readValue(o.toString(), ObjectNode.class));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
             query.setCdmQuery(parsedCDMModels);
         }
     }
 
-    private void processResponse(RedirectAttributes out, ModelMap model, SearchResponse resp, Query query) {
-        QueryResult result = (QueryResult) model.get("results");
-        if (result == null) {
-            result = new QueryResult();
-            model.put("results", result);
-        }
+    private QueryResult processResponse(SearchResponse resp, Query query) {
+        QueryResult result = new QueryResult();
         Map<String, Patient> patientMap = new HashMap<>();
         Map<String, Integer> patientFreqMap = new HashMap<>();
         // Associated Query
@@ -145,7 +143,7 @@ public class SearchController {
         }
         result.setPatients(retList);
         result.setHits(hits);
-        out.addFlashAttribute("results", result);
+        return result;
     }
 
     public Properties getProperties() {
