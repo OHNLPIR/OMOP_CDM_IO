@@ -1,3 +1,16 @@
+// Utility method
+/**
+ * @param {Array} arr
+ * @param element
+ */
+function has(arr, element) {
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i] === element) {
+            return true;
+        }
+    }
+    return false;
+}
 // Declare Types
 function Query(unstructured, cdmQuery) {
     /**
@@ -29,19 +42,19 @@ function Query(unstructured, cdmQuery) {
                 filter.patients = [];
                 filter.patientOptions = [];
                 for (var i = 0; i < data.data.patients.length; i++) {
-                    if (!filter.patients.includes(data.data.patients[i].id)) {
+                    if (!has(filter.patients, data.data.patients[i].id)) {
                         filter.patients.push(data.data.patients[i].id);
                         filter.patientOptions.push(data.data.patients[i].id);
                     }
                 }
                 filter.sections = [];
                 filter.sectionOptions = [];
-                for (var i = 0; i < data.data.hits.length; i++) {
-                    if (!filter.sections.includes(data.data.hits[i].doc.sectionID)) {
-                        filter.sections.push(data.data.hits[i].doc.sectionID);
+                for (var j = 0; j < data.data.hits.length; j++) {
+                    if (!has(filter.sections, data.data.hits[j].doc.sectionID)) {
+                        filter.sections.push(data.data.hits[j].doc.sectionID);
                         filter.sectionOptions.push({
-                           id: data.data.hits[i].doc.sectionID,
-                            name: data.data.hits[i].doc.sectionName
+                           id: data.data.hits[j].doc.sectionID,
+                            name: data.data.hits[j].doc.sectionName
                         });
                     }
                 }
@@ -128,7 +141,7 @@ function Filter() {
      * @param {SearchHit} hit
      */
     this.shouldDisplay = function(hit) {
-        return this.patients.includes(hit.patient.id) && this.sections.includes(hit.doc.sectionID);
+        return has(this.patients, hit.patient.id) && has(this.sections, hit.doc.sectionID);
     }
 }
 
