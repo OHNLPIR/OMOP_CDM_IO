@@ -115,11 +115,20 @@
     <div id="sidebar" class="col-sm-2"
          style="float:left;">
         <!-- Sidebar -->
+        <!-- Patient ID Filter -->
         <label style="padding-top: 10px; padding-left: 10px; width: 90%">
             Patient IDs: <br/>
 
             <select multiple class="form-control" ng-multiple="true" ng-model="EMIRS.filter.patients"
                     ng-options="id for id in EMIRS.filter.patientOptions">
+            </select>
+        </label>
+        <!-- Section Type Filter -->
+        <label style="padding-top: 10px; padding-left: 10px; width: 90%">
+            Section Type: <br/>
+
+            <select multiple class="form-control" ng-multiple="true" ng-model="EMIRS.filter.sections"
+                    ng-options="section.id as section.name for section in EMIRS.filter.sectionOptions">
             </select>
         </label>
     </div>

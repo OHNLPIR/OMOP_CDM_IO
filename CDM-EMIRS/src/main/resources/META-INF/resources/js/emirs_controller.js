@@ -29,8 +29,21 @@ function Query(unstructured, cdmQuery) {
                 filter.patients = [];
                 filter.patientOptions = [];
                 for (var i = 0; i < data.data.patients.length; i++) {
-                    filter.patients.push(data.data.patients[i].id);
-                    filter.patientOptions.push(data.data.patients[i].id);
+                    if (!filter.patients.includes(data.data.patients[i].id)) {
+                        filter.patients.push(data.data.patients[i].id);
+                        filter.patientOptions.push(data.data.patients[i].id);
+                    }
+                }
+                filter.sections = [];
+                filter.sectionOptions = [];
+                for (var i = 0; i < data.data.hits.length; i++) {
+                    if (!filter.sections.includes(data.data.hits[i].doc.sectionID)) {
+                        filter.sections.push(data.data.hits[i].doc.sectionID);
+                        filter.sectionOptions.push({
+                           id: data.data.hits[i].doc.sectionID,
+                            name: data.data.hits[i].doc.sectionName
+                        });
+                    }
                 }
             }
         });
@@ -108,11 +121,14 @@ function Filter() {
      */
     this.patients = [];
     this.patientOptions = [];
+
+    this.sections = [];
+    this.sectionOptions = [];
     /**
      * @param {SearchHit} hit
      */
     this.shouldDisplay = function(hit) {
-        return this.patients.includes(hit.patient.id)
+        return this.patients.includes(hit.patient.id) && this.sections.includes(hit.doc.sectionID);
     }
 }
 
