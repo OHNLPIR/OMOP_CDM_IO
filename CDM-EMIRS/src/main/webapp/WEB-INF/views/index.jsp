@@ -127,7 +127,7 @@
         <label style="padding-top: 10px; padding-left: 10px; width: 90%">
             Section Type: <br/>
 
-            <select multiple size="20" class="form-control" ng-multiple="true" ng-model="EMIRS.filter.sections"
+            <select multiple size="{{EMIRS.filter.sectionOptions.length}}" class="form-control" ng-multiple="true" ng-model="EMIRS.filter.sections"
                     ng-options="section.id as section.name for section in EMIRS.filter.sectionOptions">
             </select>
         </label>
