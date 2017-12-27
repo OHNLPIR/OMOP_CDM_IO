@@ -36,6 +36,16 @@ public class Properties {
         private String indexName;
         @NotBlank
         private String clusterName;
+        @NotBlank
+        private int httpport;
+
+        public int getHttpport() {
+            return httpport;
+        }
+
+        public void setHttpport(int httpport) {
+            this.httpport = httpport;
+        }
 
         public String getHost() {
             return host;

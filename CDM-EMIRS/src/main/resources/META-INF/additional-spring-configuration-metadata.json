@@ -11,6 +11,11 @@
       "description": "The ElasticSearch transport client port number."
     },
     {
+      "name": "es.httpport",
+      "type": "java.lang.String",
+      "description": "The ElasticSearch HTTP Rest API Port."
+    },
+    {
       "name": "es.indexName",
       "type": "java.lang.String",
       "description": "The name of the ElasticSearch index."
