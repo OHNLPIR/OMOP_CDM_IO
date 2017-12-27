@@ -1,6 +1,10 @@
 // Declare Types
 function Query(unstructured, cdmQuery) {
+    /**
+     * @type {String}
+     */
     this.unstructured = unstructured;
+    this.lastRefresh = (' ' + unstructured).slice(1); // Force a string copy because chrome retains reference otherwise
     this.cdmQuery = cdmQuery;
     this.addItem = function () {
         this.cdmQuery.push($scope.item)
@@ -8,14 +12,43 @@ function Query(unstructured, cdmQuery) {
     this.removeItem = function ($toRemove) {
         this.cdmQuery.splice($toRemove, 1);
     };
-    this.submit = function ($http, model) {
+    /**
+     *
+     * @param $http
+     * @param {Model} model
+     * @param {Filter} filter
+     */
+    this.submit = function ($http, model, filter) {
         $http.post('/_search', this).then(function(data) {
             if (data.data != null) {
                 model.query.unstructured = data.data.query.unstructured;
                 model.query.cdmQuery = data.data.query.cdmQuery;
                 model.hits = data.data.hits;
+                model.completed = true;
+                model.submitted = false;
+                filter.patients = [];
+                filter.patientOptions = [];
+                for (var i = 0; i < data.data.patients.length; i++) {
+                    filter.patients.push(data.data.patients[i].id);
+                    filter.patientOptions.push(data.data.patients[i].id);
+                }
             }
         });
+    };
+    this.refresh = function($http, force) {
+        if (this.unstructured === null || this.unstructured.length === 0) {
+            this.cdmQuery = [];
+        } else {
+            if (force || this.unstructured !== this.lastRefresh) {
+                var state = this;
+                this.lastRefresh = this.unstructured;
+                $http.post('/_cdm', this.unstructured).then(function(data){
+                    if (data.data != null) {
+                        state.cdmQuery = data.data;
+                    }
+                });
+            }
+        }
     }
 }
 
@@ -65,13 +98,35 @@ function SearchHit(patient, encounter, doc, score) {
 function Model(query, hits) {
     this.query = query;
     this.hits = hits;
+    this.completed = false;
+    this.submitted = false;
+}
+
+function Filter() {
+    /**
+     * @type {Array}
+     */
+    this.patients = [];
+    this.patientOptions = [];
+    /**
+     * @param {SearchHit} hit
+     */
+    this.shouldDisplay = function(hit) {
+        return this.patients.includes(hit.patient.id)
+    }
 }
 
 var app = angular.module("EMIRSApp", []);
 app.controller("EMIRSCtrl", function ($scope, $http) {
     this.model = new Model(new Query('', []), []);
-
+    this.filter = new Filter();
     this.submitQuery = function () {
-        this.model.query.submit($http, this.model);
-    }
+        this.model.submitted = true;
+        this.model.completed = false;
+        this.model.query.submit($http, this.model, this.filter);
+    };
+
+    this.refresh = function(force) {
+        this.model.query.refresh($http, force);
+    };
 });

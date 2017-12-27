@@ -39,7 +39,8 @@ public class SearchController {
     private String UIMA_REST_URL = null;
 
     @RequestMapping(value = "/_search", method = RequestMethod.POST)
-    public @ResponseBody QueryResult postMapper(@RequestBody Query query) throws IOException {
+    public @ResponseBody
+    QueryResult postMapper(@RequestBody Query query) throws IOException {
         if (client == null) {
             Settings settings = Settings.builder() // TODO cleanup
                     .put("cluster.name", properties.getEs().getClusterName()).build();
@@ -68,6 +69,7 @@ public class SearchController {
 
     /**
      * Populates model query fields from unstructured text query,
+     *
      * @param query
      */
     private void processQuery(Query query) {
@@ -76,21 +78,30 @@ public class SearchController {
             UIMA_REST_URL = "http://" + properties.getUima().getHost() + ":" + properties.getUima().getPort() + "/";
         }
         if (query.getCdmQuery() == null || query.getCdmQuery().size() == 0) {
-            ServerRequest req = new ServerRequest(properties.getUima().getQueue(), null, query.getUnstructured(), Collections.singleton("cdm"));
-            ServerResponse resp = REST_CLIENT.postForObject(UIMA_REST_URL, req, ServerResponse.class);
-            String cdmRespRaw = resp.getContent().get(properties.getUima().getQueue());
-            JSONArray cdmResp = new JSONArray(cdmRespRaw);
-            ArrayList<JsonNode> parsedCDMModels = new ArrayList<>(cdmResp.length());
-            for (int i = 0; i < cdmResp.length(); i++) {
-                Object o = cdmResp.get(i);
-                try {
-                    parsedCDMModels.add(new ObjectMapper().readValue(o.toString(), ObjectNode.class));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-            query.setCdmQuery(parsedCDMModels);
+            query.setCdmQuery(getCDMObjects(query.getUnstructured()));
         }
+    }
+
+    @RequestMapping(value = "/_cdm", method = RequestMethod.POST)
+    public @ResponseBody ArrayList<JsonNode> getCDMObjects(@RequestBody String text) {
+        // Initialize values from properties if needed
+        if (UIMA_REST_URL == null) {
+            UIMA_REST_URL = "http://" + properties.getUima().getHost() + ":" + properties.getUima().getPort() + "/";
+        }
+        ServerRequest req = new ServerRequest(properties.getUima().getQueue(), null, text, Collections.singleton("cdm"));
+        ServerResponse resp = REST_CLIENT.postForObject(UIMA_REST_URL, req, ServerResponse.class);
+        String cdmRespRaw = resp.getContent().get(properties.getUima().getQueue());
+        JSONArray cdmResp = new JSONArray(cdmRespRaw);
+        ArrayList<JsonNode> parsedCDMModels = new ArrayList<>(cdmResp.length());
+        for (int i = 0; i < cdmResp.length(); i++) {
+            Object o = cdmResp.get(i);
+            try {
+                parsedCDMModels.add(new ObjectMapper().readValue(o.toString(), ObjectNode.class));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return parsedCDMModels;
     }
 
     private QueryResult processResponse(SearchResponse resp, Query query) {
@@ -131,7 +142,7 @@ public class SearchController {
             qHit.setPatient(patient);
             qHit.setScore(hit.getScore());
             hits.add(qHit);
-            patientFreqMap.merge(pid, 1, (k,v) -> v + 1);
+            patientFreqMap.merge(pid, 1, (k, v) -> v + 1);
         }
         // Associated Patients
         // - Order them
