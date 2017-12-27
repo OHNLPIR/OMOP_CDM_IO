@@ -61,9 +61,10 @@ function Query(unstructured, cdmQuery) {
             }
         });
     };
-    this.refresh = function($http, force) {
+    this.refresh = function($http, force, callback) {
         if (this.unstructured === null || this.unstructured.length === 0) {
             this.cdmQuery = [];
+            callback();
         } else {
             if (force || this.unstructured !== this.lastRefresh) {
                 var state = this;
@@ -72,7 +73,10 @@ function Query(unstructured, cdmQuery) {
                     if (data.data != null) {
                         state.cdmQuery = data.data;
                     }
+                    callback();
                 });
+            } else {
+                callback();
             }
         }
     }
@@ -152,8 +156,7 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
     this.submitQuery = function () {
         this.model.submitted = true;
         this.model.completed = false;
-        this.model.query.refresh($http, false);
-        this.model.query.submit($http, this.model, this.filter);
+        this.model.query.refresh($http, false, this.model.query.submit($http, this.model, this.filter));
     };
 
     this.refresh = function(force) {
