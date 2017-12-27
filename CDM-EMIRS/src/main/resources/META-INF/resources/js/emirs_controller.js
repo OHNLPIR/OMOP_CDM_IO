@@ -25,7 +25,6 @@ function Query(unstructured, cdmQuery) {
     this.removeItem = function ($toRemove) {
         this.cdmQuery.splice($toRemove, 1);
     };
-
     /**
      *
      * @param $http
@@ -33,42 +32,43 @@ function Query(unstructured, cdmQuery) {
      * @param {Filter} filter
      */
     this.submit = function ($http, model, filter) {
-        return new function() {
-            $http.post('/_search', this).then(function (data) {
-                if (data.data != null) {
-                    model.query.unstructured = data.data.query.unstructured;
-                    model.query.cdmQuery = data.data.query.cdmQuery;
-                    model.hits = data.data.hits;
-                    model.completed = true;
-                    model.submitted = false;
-                    filter.patients = [];
-                    filter.patientOptions = [];
-                    for (var i = 0; i < data.data.patients.length; i++) {
-                        if (!has(filter.patients, data.data.patients[i].id)) {
-                            filter.patients.push(data.data.patients[i].id);
-                            filter.patientOptions.push(data.data.patients[i].id);
-                        }
-                    }
-                    filter.sections = [];
-                    filter.sectionOptions = [];
-                    for (var j = 0; j < data.data.hits.length; j++) {
-                        if (!has(filter.sections, data.data.hits[j].doc.sectionID)) {
-                            filter.sections.push(data.data.hits[j].doc.sectionID);
-                            filter.sectionOptions.push({
-                                id: data.data.hits[j].doc.sectionID,
-                                name: data.data.hits[j].doc.sectionName
-                            });
-                        }
+        $http.post('/_search', {
+            unstructured: model.query.unstructured,
+            cdmQuery: model.query.cdmQuery
+        }).then(function(data) {
+            if (data.data != null) {
+                model.query.unstructured = data.data.query.unstructured;
+                model.query.cdmQuery = data.data.query.cdmQuery;
+                model.hits = data.data.hits;
+                model.completed = true;
+                model.submitted = false;
+                filter.patients = [];
+                filter.patientOptions = [];
+                for (var i = 0; i < data.data.patients.length; i++) {
+                    if (!has(filter.patients, data.data.patients[i].id)) {
+                        filter.patients.push(data.data.patients[i].id);
+                        filter.patientOptions.push(data.data.patients[i].id);
                     }
                 }
-            });
-        };
+                filter.sections = [];
+                filter.sectionOptions = [];
+                for (var j = 0; j < data.data.hits.length; j++) {
+                    if (!has(filter.sections, data.data.hits[j].doc.sectionID)) {
+                        filter.sections.push(data.data.hits[j].doc.sectionID);
+                        filter.sectionOptions.push({
+                           id: data.data.hits[j].doc.sectionID,
+                            name: data.data.hits[j].doc.sectionName
+                        });
+                    }
+                }
+            }
+        });
     };
-    this.refresh = function($http, force, callback) {
+    this.refresh = function($http, force, callback, model, filter) {
         if (this.unstructured === null || this.unstructured.length === 0) {
             this.cdmQuery = [];
             if (callback) {
-                callback();
+                callback($http, model, filter);
             }
         } else {
             if (force || this.unstructured !== this.lastRefresh) {
@@ -79,12 +79,12 @@ function Query(unstructured, cdmQuery) {
                         state.cdmQuery = data.data;
                     }
                     if (callback) {
-                        callback();
+                        callback($http, model, filter);
                     }
                 });
             } else {
                 if (callback) {
-                    callback();
+                    callback($http, model, filter);
                 }
             }
         }
@@ -165,7 +165,7 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
     this.submitQuery = function () {
         this.model.submitted = true;
         this.model.completed = false;
-        this.model.query.refresh($http, false, this.model.query.submit($http, this.model, this.filter));
+        this.model.query.refresh($http, false, this.model.query.submit, this.model, this.filter);
     };
 
     this.refresh = function(force) {
