@@ -68,14 +68,18 @@
                                     <!-- Render the output objects-->
                                     <ul>
                                         <li class="cdm_object_editable_container"
-                                            ng-repeat="cdm_object in EMIRS.model.query.cdmQuery">
+                                            ng-repeat="cdm_object in EMIRS.model.query.cdmQuery"
+                                            ng-init="objectIdx = $index">
                                             <div class="cdm_object_fields pull-left">
                                                 <ul style="list-style: none; padding: 3px;">
                                                     <li ng-repeat="(field, value) in cdm_object"
-                                                        ng-if="field != 'date' && field != 'model_type' && value.length > 0">
+                                                        ng-if="field != 'date' && field != 'model_type'">
                                                         <div class="cdm_field_content">
-                                                    <span>{{field}}: <span class="cdm_field_content_editable"
-                                                                           contenteditable="true">{{value}}</span></span>
+                                                            <label>
+                                                                {{field}}:
+                                                                <input type="text" class="cdm_field_content_editable"
+                                                                       ng-model="EMIRS.model.query.cdmQuery[objectIdx][field]"/>
+                                                            </label>
                                                         </div>
                                                     </li>
                                                 </ul>
@@ -120,15 +124,20 @@
             Patient ID({{EMIRS.filter.patientOptions.length}}): <br/>
 
             <select multiple class="form-control" ng-multiple="true" ng-model="EMIRS.filter.patients"
-                    ng-options="id for id in EMIRS.filter.patientOptions">
+                    ng-options="id
+                    for
+                    id in EMIRS.filter.patientOptions">
             </select>
         </label>
         <!-- Section Type Filter -->
         <label style="padding-top: 10px; padding-left: 10px; width: 90%">
             Section Type: <br/>
 
-            <select multiple size="{{EMIRS.filter.sectionOptions.length}}" class="form-control" ng-multiple="true" ng-model="EMIRS.filter.sections"
-                    ng-options="section.id as section.name for section in EMIRS.filter.sectionOptions">
+            <select multiple size="{{EMIRS.filter.sectionOptions.length}}" class="form-control" ng-multiple="true"
+                    ng-model="EMIRS.filter.sections"
+                    ng-options="section.id as section.name
+                    for
+                    section in EMIRS.filter.sectionOptions">
             </select>
         </label>
     </div>
