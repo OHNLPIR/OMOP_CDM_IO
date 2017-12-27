@@ -25,6 +25,7 @@ function Query(unstructured, cdmQuery) {
     this.removeItem = function ($toRemove) {
         this.cdmQuery.splice($toRemove, 1);
     };
+
     /**
      *
      * @param $http
@@ -32,39 +33,43 @@ function Query(unstructured, cdmQuery) {
      * @param {Filter} filter
      */
     this.submit = function ($http, model, filter) {
-        $http.post('/_search', this).then(function(data) {
-            if (data.data != null) {
-                model.query.unstructured = data.data.query.unstructured;
-                model.query.cdmQuery = data.data.query.cdmQuery;
-                model.hits = data.data.hits;
-                model.completed = true;
-                model.submitted = false;
-                filter.patients = [];
-                filter.patientOptions = [];
-                for (var i = 0; i < data.data.patients.length; i++) {
-                    if (!has(filter.patients, data.data.patients[i].id)) {
-                        filter.patients.push(data.data.patients[i].id);
-                        filter.patientOptions.push(data.data.patients[i].id);
+        return new function() {
+            $http.post('/_search', this).then(function (data) {
+                if (data.data != null) {
+                    model.query.unstructured = data.data.query.unstructured;
+                    model.query.cdmQuery = data.data.query.cdmQuery;
+                    model.hits = data.data.hits;
+                    model.completed = true;
+                    model.submitted = false;
+                    filter.patients = [];
+                    filter.patientOptions = [];
+                    for (var i = 0; i < data.data.patients.length; i++) {
+                        if (!has(filter.patients, data.data.patients[i].id)) {
+                            filter.patients.push(data.data.patients[i].id);
+                            filter.patientOptions.push(data.data.patients[i].id);
+                        }
+                    }
+                    filter.sections = [];
+                    filter.sectionOptions = [];
+                    for (var j = 0; j < data.data.hits.length; j++) {
+                        if (!has(filter.sections, data.data.hits[j].doc.sectionID)) {
+                            filter.sections.push(data.data.hits[j].doc.sectionID);
+                            filter.sectionOptions.push({
+                                id: data.data.hits[j].doc.sectionID,
+                                name: data.data.hits[j].doc.sectionName
+                            });
+                        }
                     }
                 }
-                filter.sections = [];
-                filter.sectionOptions = [];
-                for (var j = 0; j < data.data.hits.length; j++) {
-                    if (!has(filter.sections, data.data.hits[j].doc.sectionID)) {
-                        filter.sections.push(data.data.hits[j].doc.sectionID);
-                        filter.sectionOptions.push({
-                           id: data.data.hits[j].doc.sectionID,
-                            name: data.data.hits[j].doc.sectionName
-                        });
-                    }
-                }
-            }
-        });
+            });
+        };
     };
     this.refresh = function($http, force, callback) {
         if (this.unstructured === null || this.unstructured.length === 0) {
             this.cdmQuery = [];
-            callback();
+            if (callback) {
+                callback();
+            }
         } else {
             if (force || this.unstructured !== this.lastRefresh) {
                 var state = this;
@@ -73,10 +78,14 @@ function Query(unstructured, cdmQuery) {
                     if (data.data != null) {
                         state.cdmQuery = data.data;
                     }
-                    callback();
+                    if (callback) {
+                        callback();
+                    }
                 });
             } else {
-                callback();
+                if (callback) {
+                    callback();
+                }
             }
         }
     }
