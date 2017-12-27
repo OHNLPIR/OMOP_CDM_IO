@@ -77,7 +77,7 @@ public class SearchController {
         if (UIMA_REST_URL == null) {
             UIMA_REST_URL = "http://" + properties.getUima().getHost() + ":" + properties.getUima().getPort() + "/";
         }
-        if (query.getCdmQuery() == null || query.getCdmQuery().size() == 0) {
+        if (query.getCdmQuery() == null) {
             query.setCdmQuery(getCDMObjects(query.getUnstructured()));
         }
     }
