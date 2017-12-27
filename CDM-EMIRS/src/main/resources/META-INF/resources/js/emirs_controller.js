@@ -152,6 +152,7 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
     this.submitQuery = function () {
         this.model.submitted = true;
         this.model.completed = false;
+        this.model.query.refresh($http, false);
         this.model.query.submit($http, this.model, this.filter);
     };
 
