@@ -117,7 +117,7 @@
         <!-- Sidebar -->
         <!-- Patient ID Filter -->
         <label style="padding-top: 10px; padding-left: 10px; width: 90%">
-            Patient IDs: <br/>
+            Patient ID({{EMIRS.filter.patientOptions.length}}): <br/>
 
             <select multiple class="form-control" ng-multiple="true" ng-model="EMIRS.filter.patients"
                     ng-options="id for id in EMIRS.filter.patientOptions">
@@ -159,7 +159,9 @@
     </div>
 </div>
 <div class="row" id="footer" style="border-top: 1px solid #808080">
-
+    <div class="col-xs-12 text-center" ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true">
+        Search Statistics | {{EMIRS.model.hits.length}} Documents | {{EMIRS.filter.patientOptions.length}} Patients
+    </div>
 </div>
 
 </body>
