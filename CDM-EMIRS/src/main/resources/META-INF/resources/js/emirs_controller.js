@@ -162,7 +162,7 @@ function Model(query, hits) {
     this.completed = false;
     this.submitted = false;
     this.currentPage = 0;
-    this.pageSize = 5;
+    this.pageSize = 50;
     this.currPageCount = 0;
     this.currNumPagesArr = [];
     this.numberOfPages = function() {

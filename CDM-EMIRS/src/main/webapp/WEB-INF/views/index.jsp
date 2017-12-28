@@ -52,6 +52,7 @@
                     </label>
                     <button type="submit">Submit</button>
                     <ul class="list-inline">
+                        <li><a href="#" data-toggle="modal" data-target="#structured_query_editor">Edit Structured Data</a></li>
                         <li><a href="#" data-toggle="modal" data-target="#cdm_query_editor"
                                ng-click="EMIRS.refresh(false);">Edit CDM Objects</a></li>
                     </ul>
@@ -66,7 +67,7 @@
                                 </div>
                                 <div class="modal-body">
                                     <!-- Render the output objects-->
-                                    <ul>
+                                    <ul style="padding-left: 20px;">
                                         <li class="cdm_object_editable_container"
                                             ng-repeat="cdm_object in EMIRS.model.query.cdmQuery"
                                             ng-init="objectIdx = $index">
@@ -173,20 +174,26 @@
                 </div>
             </div>
         </div>
-        <ul class="pagination">
-            <script>
-                function paginationStyle(currPage, index) {
-                    if (currPage === index) {
-                        return 'active';
-                    } else {
-                        return '';
-                    }
-                }
-            </script>
-            <li ng-repeat="ignored in EMIRS.model.getNumPagesAsArr()" ng-class="{active: EMIRS.model.currentPage === $index}">
-                <a href="#" ng-click="EMIRS.model.currentPage = $index" >{{$index + 1}}</a>
-            </li>
-        </ul>
+        <br/>
+        <div id="pager" class="text-center">
+            <ul class="pagination">
+                <li ng-class="{disabled: EMIRS.model.currentPage === 0}">
+                    <a href="#"
+                       ng-click="EMIRS.model.currentPage !== 0 ? EMIRS.model.currentPage = EMIRS.model.currentPage - 1 : ''">
+                        &larr;
+                    </a>
+                </li>
+                <li ng-repeat="ignored in EMIRS.model.getNumPagesAsArr()" ng-class="{active: EMIRS.model.currentPage === $index}">
+                    <a href="#" ng-click="EMIRS.model.currentPage = $index">{{$index + 1}}</a>
+                </li>
+                <li ng-class="{disabled: EMIRS.model.currentPage === EMIRS.model.numberOfPages() - 1}">
+                    <a href="#"
+                       ng-click="EMIRS.model.currentPage !== EMIRS.model.numberOfPages() - 1 ? EMIRS.model.currentPage = EMIRS.model.currentPage + 1 : ''">
+                        &rarr;
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
 <div class="row" id="footer" style="border-top: 1px solid #808080">
