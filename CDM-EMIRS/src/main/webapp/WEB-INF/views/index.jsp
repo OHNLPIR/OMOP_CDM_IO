@@ -96,6 +96,15 @@
                                             ng-click="EMIRS.refresh(true);">Reset
                                         from Text Query
                                     </button>
+                                    <div class="dropdown pull-left" style="padding-left: 3px;">
+                                        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Add CDM Object
+                                            <span class="caret"></span></button>
+                                        <ul class="dropdown-menu">
+                                            <li ng-repeat="item in EMIRS.mappings.cdmOptions">
+                                                <a href="#" ng-click="EMIRS.model.query.newCDM(EMIRS.mappings, item)">{{item}}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                     <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Save
                                         and
                                         Close
@@ -121,23 +130,23 @@
         <!-- Sidebar -->
         <!-- Patient ID Filter -->
         <label style="padding-top: 10px; padding-left: 10px; width: 90%">
-            Patient ID({{EMIRS.filter.patientOptions.length}}): <br/>
+            Patient ID({{EMIRS.model.filter.patientOptions.length}}): <br/>
 
-            <select multiple class="form-control" ng-multiple="true" ng-model="EMIRS.filter.patients"
+            <select multiple class="form-control" ng-multiple="true" ng-model="EMIRS.model.filter.patients"
                     ng-options="id
                     for
-                    id in EMIRS.filter.patientOptions">
+                    id in EMIRS.model.filter.patientOptions">
             </select>
         </label>
         <!-- Section Type Filter -->
         <label style="padding-top: 10px; padding-left: 10px; width: 90%">
             Section Type: <br/>
 
-            <select multiple size="{{EMIRS.filter.sectionOptions.length}}" class="form-control" ng-multiple="true"
-                    ng-model="EMIRS.filter.sections"
+            <select multiple size="{{EMIRS.model.filter.sectionOptions.length}}" class="form-control" ng-multiple="true"
+                    ng-model="EMIRS.model.filter.sections"
                     ng-options="section.id as section.name
                     for
-                    section in EMIRS.filter.sectionOptions">
+                    section in EMIRS.model.filter.sectionOptions">
             </select>
         </label>
     </div>
@@ -145,8 +154,7 @@
          style="float:right; padding-top: 10px; border-left: 1px solid #808080">
         <!-- Results -->
         <div class="panel-group">
-            <div class="panel panel-default" ng-repeat="hit in EMIRS.model.hits"
-                 ng-if="EMIRS.filter.shouldDisplay(hit)">
+            <div class="panel panel-default" ng-repeat="hit in EMIRS.model.getHits() | startFrom:EMIRS.model.currentPage*EMIRS.model.pageSize | limitTo:EMIRS.model.pageSize">
                 <div class="panel-heading">
                     <div class="panel-title pull-left h4">
                         <a data-toggle="collapse"
@@ -165,11 +173,25 @@
                 </div>
             </div>
         </div>
+        <ul class="pagination">
+            <script>
+                function paginationStyle(currPage, index) {
+                    if (currPage === index) {
+                        return 'active';
+                    } else {
+                        return '';
+                    }
+                }
+            </script>
+            <li ng-repeat="ignored in EMIRS.model.getNumPagesAsArr()" ng-class="{active: EMIRS.model.currentPage === $index}">
+                <a href="#" ng-click="EMIRS.model.currentPage = $index" >{{$index + 1}}</a>
+            </li>
+        </ul>
     </div>
 </div>
 <div class="row" id="footer" style="border-top: 1px solid #808080">
     <div class="col-xs-12 text-center" ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true">
-        Search Statistics | {{EMIRS.model.hits.length}} Documents | {{EMIRS.filter.patientOptions.length}} Patients
+        Search Statistics | {{EMIRS.model.hits.length}} Documents | {{EMIRS.model.filter.patientOptions.length}} Patients
     </div>
 </div>
 

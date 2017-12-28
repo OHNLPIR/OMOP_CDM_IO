@@ -11,6 +11,7 @@ function has(arr, element) {
     }
     return false;
 }
+
 // Declare Types
 function Query(unstructured, cdmQuery) {
     /**
@@ -35,7 +36,7 @@ function Query(unstructured, cdmQuery) {
         $http.post('/_search', {
             unstructured: model.query.unstructured,
             cdmQuery: model.query.cdmQuery
-        }).then(function(resp) {
+        }).then(function (resp) {
             if (resp.data != null) {
                 model.query.unstructured = resp.data.query.unstructured;
                 model.query.cdmQuery = resp.data.query.cdmQuery;
@@ -56,7 +57,7 @@ function Query(unstructured, cdmQuery) {
                     if (!has(filter.sections, resp.data.hits[j].doc.sectionID)) {
                         filter.sections.push(resp.data.hits[j].doc.sectionID);
                         filter.sectionOptions.push({
-                           id: resp.data.hits[j].doc.sectionID,
+                            id: resp.data.hits[j].doc.sectionID,
                             name: resp.data.hits[j].doc.sectionName
                         });
                     }
@@ -64,7 +65,7 @@ function Query(unstructured, cdmQuery) {
             }
         });
     };
-    this.refresh = function($http, force, callback, model, filter) {
+    this.refresh = function ($http, force, callback, model, filter) {
         if (this.unstructured === null || this.unstructured.length === 0) {
             this.cdmQuery = [];
             if (callback) {
@@ -74,7 +75,7 @@ function Query(unstructured, cdmQuery) {
             if (force || this.unstructured !== this.lastRefresh) {
                 var state = this;
                 this.lastRefresh = this.unstructured;
-                $http.post('/_cdm', this.unstructured).then(function(resp){
+                $http.post('/_cdm', this.unstructured).then(function (resp) {
                     if (resp.data != null) {
                         state.cdmQuery = resp.data;
                     }
@@ -88,6 +89,26 @@ function Query(unstructured, cdmQuery) {
                 }
             }
         }
+    };
+
+    /**
+     * @param {MappingDefinition} mappings
+     * @param {String} item
+     */
+    this.newCDM = function (mappings, item) {
+        var mappingConfig = mappings.mappings[item];
+        var newObj = {
+            model_type: item
+        };
+        for (var key in mappingConfig.properties) {
+            if (!mappingConfig.properties.hasOwnProperty(key)) {
+                continue;
+            }
+            if (key !== 'date' && key !== 'type') {
+                newObj[key] = '';
+            }
+        }
+        this.cdmQuery.push(newObj);
     }
 }
 
@@ -137,8 +158,42 @@ function SearchHit(patient, encounter, doc, score) {
 function Model(query, hits) {
     this.query = query;
     this.hits = hits;
+    this.filter = new Filter();
     this.completed = false;
     this.submitted = false;
+    this.currentPage = 0;
+    this.pageSize = 5;
+    this.currPageCount = 0;
+    this.currNumPagesArr = [];
+    this.numberOfPages = function() {
+        return Math.ceil(this.getHits().length/this.pageSize);
+    };
+
+    this.getHits = function () {
+        var ret = [];
+        for (var i = 0; i < this.hits.length; i++) {
+            if (this.filter.shouldDisplay(this.hits[i])) {
+                ret.push(this.hits[i]);
+            }
+        }
+        return ret;
+    };
+
+    this.getNumPagesAsArr = function () { // Hack to allow for ng-repeat on set integer value
+        var limit = this.numberOfPages();
+        if (limit === this.currPageCount) {
+            return this.currNumPagesArr;
+        } else {
+            var ret = [];
+            for (var i = 0; i < limit; i++) {
+                ret.push({});
+            }
+            this.currNumPagesArr = ret;
+            this.currPageCount = limit;
+            return ret;
+        }
+
+    }
 }
 
 function Filter() {
@@ -153,9 +208,9 @@ function Filter() {
     /**
      * @param {SearchHit} hit
      */
-    this.shouldDisplay = function(hit) {
+    this.shouldDisplay = function (hit) {
         return has(this.patients, hit.patient.id) && has(this.sections, hit.doc.sectionID);
-    }
+    };
 }
 
 function ObjectMapping() {
@@ -171,7 +226,7 @@ function MappingDefinition(mapping) {
     this.cdmOptions = [];
     this.structOptions = [];
     var scope = this;
-    this.initOpts = function() {
+    this.initOpts = function () {
         for (var key in scope.mappings) {
             if (!scope.mappings.hasOwnProperty(key)) {
                 continue;
@@ -190,10 +245,9 @@ function MappingDefinition(mapping) {
 var app = angular.module("EMIRSApp", []);
 app.controller("EMIRSCtrl", function ($scope, $http) {
     this.model = new Model(new Query('', []), []);
-    this.filter = new Filter();
     var scope = this;
-    this.mappingInit = function() {
-        return $http.get('/_mappings').then(function(resp) {
+    this.mappingInit = function () {
+        return $http.get('/_mappings').then(function (resp) {
             scope.mappings = new MappingDefinition(resp.data);
         });
     };
@@ -202,10 +256,18 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
     this.submitQuery = function () {
         this.model.submitted = true;
         this.model.completed = false;
-        this.model.query.refresh($http, false, this.model.query.submit, this.model, this.filter);
+        this.model.query.refresh($http, false, this.model.query.submit, this.model, this.model.filter);
     };
 
-    this.refresh = function(force) {
+    this.refresh = function (force) {
         this.model.query.refresh($http, force);
     };
 });
+// Used for pagination
+app.filter('startFrom', function() {
+    return function(input, start) {
+        start = +start; //parse to int
+        return input.slice(start);
+    }
+});
+
