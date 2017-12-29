@@ -13,18 +13,35 @@ function has(arr, element) {
 }
 
 // Declare Types
+function Clause(type) {
+    this.type = '';
+    this.recordType = type;
+    this.field = '';
+    this.content = '';
+}
 function Query(unstructured, cdmQuery) {
     /**
      * @type {String}
      */
     this.unstructured = unstructured;
+    /**
+     * @type {Array.<Clause>}
+     */
+    this.structured = [];
     this.lastRefresh = (' ' + unstructured).slice(1); // Force a string copy because chrome retains reference otherwise
     this.cdmQuery = cdmQuery;
-    this.addItem = function () {
-        this.cdmQuery.push($scope.item)
+    this.addCDMItem = function ($item) {
+        this.cdmQuery.push($item)
     };
-    this.removeItem = function ($toRemove) {
+    this.removeCDMItem = function ($toRemove) {
         this.cdmQuery.splice($toRemove, 1);
+    };
+
+    this.addStructuredItem = function ($type) {
+        this.structured.push(new Clause($type));
+    };
+    this.removeStructuredItem = function ($index) {
+        this.structured.splice($index, 1);
     };
     /**
      *
@@ -156,17 +173,21 @@ function SearchHit(patient, encounter, doc, score) {
  * @constructor
  */
 function Model(query, hits) {
+    // -- Model Attributes
     this.query = query;
     this.hits = hits;
     this.filter = new Filter();
+    // -- Status
     this.completed = false;
     this.submitted = false;
+    // -- Pagination
     this.currentPage = 0;
     this.pageSize = 50;
     this.currPageCount = 0;
     this.currNumPagesArr = [];
-    this.numberOfPages = function() {
-        return Math.ceil(this.getHits().length/this.pageSize);
+    // -- Functions
+    this.numberOfPages = function () {
+        return Math.ceil(this.getHits().length / this.pageSize);
     };
 
     this.getHits = function () {
@@ -244,6 +265,9 @@ function MappingDefinition(mapping) {
 
 var app = angular.module("EMIRSApp", []);
 app.controller("EMIRSCtrl", function ($scope, $http) {
+    // Global Constants
+    this.CLAUSE_TYPES = ["Must", "Should", "Should Not", "Must Not"];
+    // Model and functions
     this.model = new Model(new Query('', []), []);
     var scope = this;
     this.mappingInit = function () {
@@ -264,8 +288,8 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
     };
 });
 // Used for pagination
-app.filter('startFrom', function() {
-    return function(input, start) {
+app.filter('startFrom', function () {
+    return function (input, start) {
         start = +start; //parse to int
         return input.slice(start);
     }

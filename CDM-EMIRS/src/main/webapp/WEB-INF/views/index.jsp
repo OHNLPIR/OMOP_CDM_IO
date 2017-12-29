@@ -58,7 +58,55 @@
                     </ul>
                     <!-- Structured Query Editing -->
                     <div class="modal fade" id="structured_query_editor" role="dialog">
-
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                    <h4 class="modal-title">Structured Data Query Editor</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="panel-group">
+                                        <!-- One panel per structured data type -->
+                                        <div class="panel panel-default" ng-repeat="rType in EMIRS.mappings.structOptions" >
+                                            <div class="panel-heading">
+                                                <div class="panel-title pull-left h4">{{rType}}</div>
+                                                <div class="clearfix"></div>
+                                            </div>
+                                            <div class="panel-body">
+                                                <script>
+                                                    var hasResult = false; // Temporary value used to store whether result was found
+                                                </script>
+                                                <ul>
+                                                    <li ng-repeat="clause in EMIRS.model.query.structured track by $index" ng-show="clause.recordType === rType" ng-init="clauseIdx = $index">
+                                                        <script>
+                                                            hasResult = true;
+                                                        </script>
+                                                        <div class="input-group">
+                                                            <select class="form-control" ng-model="EMIRS.model.query.structured[$index].type" title="filter">
+                                                                <option ng-repeat="type in EMIRS.CLAUSE_TYPES" value="{{type}}">{{type}}</option>
+                                                            </select>
+                                                            <select class="form-control" ng-model="EMIRS.model.query.structured[$index].field" title="field">
+                                                                <option ng-repeat="(field, ignored) in EMIRS.mappings.mappings[rType].properties" value="{{field}}">{{field}}</option>
+                                                            </select>
+                                                            <!-- TODO do fancy stuff with input types here -->
+                                                            <input type="text" ng-model="EMIRS.model.query.structured[$index].content" title="content"/>
+                                                            <div class="btn-group">
+                                                                <button type="button" class="btn btn-secondary" ng-click="EMIRS.model.query.addStructuredItem(rType);">&plus;</button>
+                                                                <button type="button" class="btn btn-secondary" ng-click="EMIRS.model.query.removeStructuredItem($index)">&minus;</button>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                                <div ng-if="(EMIRS.model.query.structured | filter: {recordType: rType}).length === 0">
+                                                    <button type="button" class="btn btn-btn-default" ng-click="EMIRS.model.query.addStructuredItem(rType);">Add new clause</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer"></div>
+                            </div>
+                        </div>
                     </div>
                     <!-- CDM Query Editing -->
                     <div class="modal fade" id="cdm_query_editor" role="dialog">
@@ -89,7 +137,7 @@
                                                 </ul>
                                             </div>
                                             <div class="cdm_object_remove pull-right">
-                                                <span ng-click="EMIRS.model.query.removeItem($index)">&times;</span>
+                                                <span ng-click="EMIRS.model.query.removeCDMItem($index)">&times;</span>
                                             </div>
                                         </li>
                                     </ul>
