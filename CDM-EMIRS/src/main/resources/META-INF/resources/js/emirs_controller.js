@@ -248,6 +248,7 @@ function MappingDefinition(mapping) {
     this.structOptions = [];
     var scope = this;
     this.initOpts = function () {
+        scope.structOptions.push("Person");
         for (var key in scope.mappings) {
             if (!scope.mappings.hasOwnProperty(key)) {
                 continue;
@@ -269,6 +270,7 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
     this.CLAUSE_TYPES = ["Must", "Should", "Should Not", "Must Not"];
     // Model and functions
     this.model = new Model(new Query('', []), []);
+    this.structuredReferenceBar = false;
     var scope = this;
     this.mappingInit = function () {
         return $http.get('/_mappings').then(function (resp) {
