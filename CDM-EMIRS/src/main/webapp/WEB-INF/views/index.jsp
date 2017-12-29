@@ -72,25 +72,20 @@
                                                 <div class="panel-title pull-left h4">{{rType}}</div>
                                                 <div class="clearfix"></div>
                                             </div>
-                                            <div class="panel-body">
-                                                <script>
-                                                    var hasResult = false; // Temporary value used to store whether result was found
-                                                </script>
-                                                <ul>
-                                                    <li ng-repeat="clause in EMIRS.model.query.structured track by $index" ng-show="clause.recordType === rType" ng-init="clauseIdx = $index">
-                                                        <script>
-                                                            hasResult = true;
-                                                        </script>
-                                                        <div class="input-group">
-                                                            <select class="form-control" ng-model="EMIRS.model.query.structured[$index].type" title="filter">
+                                            <div class="panel-body text-left">
+                                                <ul style="padding-left: 0">
+                                                    <li class="list-unstyled" ng-repeat="clause in EMIRS.model.query.structured track by $index" ng-show="clause.recordType === rType" ng-init="clauseIdx = $index">
+                                                        <div class="input-group col-xs-12">
+                                                            <select class="input-small" ng-model="EMIRS.model.query.structured[clauseIdx].type" title="filter">
                                                                 <option ng-repeat="type in EMIRS.CLAUSE_TYPES" value="{{type}}">{{type}}</option>
                                                             </select>
-                                                            <select class="form-control" ng-model="EMIRS.model.query.structured[$index].field" title="field">
+                                                            <select class="input-small" ng-model="EMIRS.model.query.structured[clauseIdx].field" title="field">
+                                                                <option value="" disabled selected hidden>Choose a Field...</option>
                                                                 <option ng-repeat="(field, ignored) in EMIRS.mappings.mappings[rType].properties" value="{{field}}">{{field}}</option>
                                                             </select>
                                                             <!-- TODO do fancy stuff with input types here -->
-                                                            <input type="text" ng-model="EMIRS.model.query.structured[$index].content" title="content"/>
-                                                            <div class="btn-group">
+                                                            <input type="text" class="input-small" ng-model="EMIRS.model.query.structured[clauseIdx].content" title="content" placeholder="Search Query"/>
+                                                            <div class="btn-group" style="padding-left: 5px;">
                                                                 <button type="button" class="btn btn-secondary" ng-click="EMIRS.model.query.addStructuredItem(rType);">&plus;</button>
                                                                 <button type="button" class="btn btn-secondary" ng-click="EMIRS.model.query.removeStructuredItem($index)">&minus;</button>
                                                             </div>
@@ -104,7 +99,13 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="modal-footer"></div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default pull-left" >Query Syntax Reference</button>
+                                    <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Save
+                                        and
+                                        Close
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

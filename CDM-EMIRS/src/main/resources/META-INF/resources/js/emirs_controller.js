@@ -14,7 +14,7 @@ function has(arr, element) {
 
 // Declare Types
 function Clause(type) {
-    this.type = '';
+    this.type = "Should";
     this.recordType = type;
     this.field = '';
     this.content = '';
