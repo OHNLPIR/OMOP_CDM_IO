@@ -5,14 +5,18 @@ import edu.mayo.bsi.semistructuredir.cdm.controllers.TopicSearchController;
 import edu.mayo.bsi.semistructuredir.cdm.elasticsearch.QueryGeneratorFactory;
 import edu.mayo.bsi.semistructuredir.cdm.model.TopicResult;
 import edu.mayo.bsi.semistructuredir.cdm.model.TopicResultEntry;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.join.query.HasParentQueryBuilder;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.io.File;
@@ -47,10 +51,18 @@ public class RunTopicPool {
                 for (String topicID : names) {
                     File structuredFile = new File(topicStructuredDir, topicID + ".ssq");
                     QueryBuilder structuredQuery = Parser.generateQuery(structuredFile.getAbsolutePath());
-                    LinkedList<Integer> patientIDs = new LinkedList<>();
-                    for (SearchHit hit : client.prepareSearch("index").setQuery(structuredQuery).setSize(1000).execute().actionGet().getHits()) {
-                        patientIDs.add(Integer.valueOf(hit.getId()));
-                    }
+                    SearchResponse scrollResp = client.prepareSearch("index")
+                            .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC)
+                            .setScroll(new TimeValue(60000))
+                            .setQuery(structuredQuery)
+                            .setSize(100).get();
+                    ArrayList<Integer> patientIDs = new ArrayList<>();
+                    do {
+                        for (SearchHit hit : scrollResp.getHits()) {
+                            patientIDs.add(Integer.valueOf(hit.getId()));
+                        }
+                        scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
+                    } while(scrollResp.getHits().getHits().length != 0);
                     File topicRawDir = new File("topic_desc");
                     File topicDesc = new File(topicRawDir, topicID + ".txt");
                     if (!topicDesc.exists()) {
@@ -67,20 +79,11 @@ public class RunTopicPool {
                     } catch (IOException e) {
                         throw new RuntimeException(e); // TODO
                     }
-                    BoolQueryBuilder root;
+                    QueryBuilder root;
                     if (patientIDs.size() > 0) {
-                        root = QueryBuilders.boolQuery();
-                        if (patientIDs.size() == 1) {
-                            root.must(QueryBuilders.termQuery("person_id", patientIDs.get(0)));
-                        } else {
-                            BoolQueryBuilder persons = QueryBuilders.boolQuery();
-                            for (int id : patientIDs) {
-                                persons.should(QueryBuilders.termQuery("person_id", id));
-                            }
-                            root.must(persons);
-                        }
+                        root = QueryBuilders.termsQuery("person_id", patientIDs);
                     } else {
-                        root = QueryBuilders.boolQuery().should(QueryBuilders.matchAllQuery());
+                        root =  new HasParentQueryBuilder("Encounter", QueryBuilders.matchAllQuery(), false);
                     }
                     System.out.println("Writing to " + topicID + "_" + s.name() + ".pool");
                     FileWriter out = new FileWriter(new File(topicID + "_" + s.name() + ".pool"));

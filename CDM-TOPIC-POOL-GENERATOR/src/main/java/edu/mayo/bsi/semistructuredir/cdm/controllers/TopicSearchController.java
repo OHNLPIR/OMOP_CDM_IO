@@ -13,11 +13,14 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.join.query.HasParentQueryBuilder;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -96,12 +99,18 @@ public class TopicSearchController {
                     File structuredFile = new File(topicStructuredDir, topicID + ".ssq");
                     QueryBuilder structuredQuery = Parser.generateQuery(structuredFile.getAbsolutePath());
                     //TODO hardcoded
-                    SearchResponse resp =
-                            client.prepareSearch("index").setQuery(structuredQuery).setSize(1000).execute().actionGet();
-                    ArrayList<Integer> patientIDs = new ArrayList<>((int) resp.getHits().totalHits);
-                    for (SearchHit hit : resp.getHits()) {
-                        patientIDs.add(Integer.valueOf(hit.getId()));
-                    }
+                    SearchResponse scrollResp = client.prepareSearch("index")
+                            .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC)
+                            .setScroll(new TimeValue(60000))
+                            .setQuery(structuredQuery)
+                            .setSize(100).get();
+                    ArrayList<Integer> patientIDs = new ArrayList<>();
+                    do {
+                        for (SearchHit hit : scrollResp.getHits()) {
+                            patientIDs.add(Integer.valueOf(hit.getId()));
+                        }
+                        scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
+                    } while(scrollResp.getHits().getHits().length != 0);
                     // we have these IDs, now run a document level search
                     // - Get topic description TODO do we really need to redo here?
                     File descFile = new File(new File("topic_desc"), topicID + ".txt");
@@ -135,21 +144,14 @@ public class TopicSearchController {
                     } else {
                         documentQuery = textQuery;
                     }
+                    QueryBuilder root;
                     if (patientIDs.size() > 0) {
-                        BoolQueryBuilder root = QueryBuilders.boolQuery();
-                        if (patientIDs.size() == 1) {
-                            root.must(QueryBuilders.termQuery("person_id", patientIDs.get(0)));
-                        } else {
-                            BoolQueryBuilder persons = QueryBuilders.boolQuery();
-                            for (int id : patientIDs) {
-                                persons.should(QueryBuilders.termQuery("person_id", id));
-                            }
-                            root.must(persons);
-                        }
-                        documentQuery = QueryBuilders.boolQuery().should(documentQuery);
-                        ((BoolQueryBuilder)documentQuery).filter(new HasParentQueryBuilder("Encounter", new HasParentQueryBuilder("Person", root, false), false));
+                        root = QueryBuilders.termsQuery("person_id", patientIDs);
+                    } else {
+                        root =  new HasParentQueryBuilder("Encounter", QueryBuilders.matchAllQuery(), false);
                     }
-                    resp = client.prepareSearch().setQuery(documentQuery).setSize(1000).execute().actionGet();
+                    QueryBuilder actualQuery = QueryBuilders.boolQuery().should(documentQuery).filter(new HasParentQueryBuilder("Encounter", new HasParentQueryBuilder("Person", root, false), false));
+                    SearchResponse resp = client.prepareSearch().setQuery(documentQuery).setSize(1000).execute().actionGet();
                     LinkedList<TopicResultEntry> result = new LinkedList<>();
                     for (SearchHit hit : resp.getHits()) {
                         // DO we really want to add the document text? (no)
