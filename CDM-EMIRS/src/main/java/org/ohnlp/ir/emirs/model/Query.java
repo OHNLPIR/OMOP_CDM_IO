@@ -7,12 +7,9 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.json.JSONObject;
-import org.ohnlp.ir.emirs.Properties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 
 @Component
 public class Query {
@@ -66,5 +63,20 @@ public class Query {
 
     public void setCdmQuery(Collection<JsonNode> cdmQuery) {
         this.cdmQuery = cdmQuery;
+    }
+
+    public String getStructuredAsSSQ() {
+        Map<String, List<Clause>> map = new HashMap<>();
+        for (Clause clause : structured) {
+            map.computeIfAbsent(clause.getRecordType(), (k) -> new LinkedList<>()).add(clause);
+        }
+        StringBuilder out = new StringBuilder();
+        for (Map.Entry<String, List<Clause>> e : map.entrySet()) {
+            out.append("type: ").append(e.getKey()).append("\n");
+            for (Clause c : e.getValue()) {
+                out.append(c.getAsSSQ()).append("\n");
+            }
+        }
+        return out.toString();
     }
 }

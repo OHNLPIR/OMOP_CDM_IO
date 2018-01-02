@@ -40,4 +40,30 @@ public class Clause {
     public void setContent(String content) {
         this.content = content;
     }
+
+    /**
+     * Converts this Clause POJO to its equivalent version in the SSQ query language
+     * @return The equivalent version of this clause in the SSQ query language
+     */
+    public String getAsSSQ() {
+        String filter;
+        switch (this.type) {
+            case "Must":
+                filter = "+";
+                break;
+            case "Should":
+                filter = "";
+                break;
+            case "Must Not":
+                filter = "-";
+                break;
+            case "Should Not":
+                filter = "~";
+                break;
+            default:
+                filter = "";
+                break;
+        }
+        return "    " + filter + " " + field + " " + content;
+    }
 }
