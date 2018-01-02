@@ -65,15 +65,7 @@ public class Query {
                 // Hacky way to always fail for all filter by adding a has parent check that will always fail (person with encounter parent)
                 query = new HasParentQueryBuilder("Encounter", QueryBuilders.matchAllQuery(), false);
             } else {
-                if (patientIDFilter.size() == 1) {
-                    query = QueryBuilders.termQuery("person_id", patientIDFilter.get(0));
-                } else {
-                    BoolQueryBuilder temp = QueryBuilders.boolQuery();
-                    for (int id : patientIDFilter) {
-                        temp.should(QueryBuilders.termQuery("person_id", id));
-                    }
-                    query = temp;
-                }
+                query = QueryBuilders.termsQuery("person_id", patientIDFilter);
             }
             queryBuilder.filter(new HasParentQueryBuilder(
                     "Encounter",
