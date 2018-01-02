@@ -13,8 +13,10 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.join.query.HasParentQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.json.JSONArray;
@@ -127,19 +129,33 @@ public class TopicSearchController {
                     JSONObject obj = jsonResponse.getBody().getObject();
                     QueryBuilder unstructuredQuery = handleNLPResponse(obj, patientIDs.toArray(new Integer[patientIDs.size()]));
                     QueryBuilder textQuery = QueryGeneratorFactory.newTextQuery().rawTextQuery("RawText", desc).build();
-                    QueryBuilder run;
+                    QueryBuilder documentQuery;
                     if (unstructuredQuery != null) {
-                        run = QueryBuilders.boolQuery().should(textQuery.boost(0.5f)).should(unstructuredQuery.boost(0.5f));
+                        documentQuery = QueryBuilders.boolQuery().should(textQuery.boost(0.5f)).should(unstructuredQuery.boost(0.5f));
                     } else {
-                        run = textQuery;
+                        documentQuery = textQuery;
                     }
-                    resp = client.prepareSearch().setQuery(run).setSize(1000).execute().actionGet();
+                    if (patientIDs.size() > 0) {
+                        BoolQueryBuilder root = QueryBuilders.boolQuery();
+                        if (patientIDs.size() == 1) {
+                            root.must(QueryBuilders.termQuery("person_id", patientIDs.get(0)));
+                        } else {
+                            BoolQueryBuilder persons = QueryBuilders.boolQuery();
+                            for (int id : patientIDs) {
+                                persons.should(QueryBuilders.termQuery("person_id", id));
+                            }
+                            root.must(persons);
+                        }
+                        documentQuery = QueryBuilders.boolQuery().should(documentQuery);
+                        ((BoolQueryBuilder)documentQuery).filter(new HasParentQueryBuilder("Encounter", new HasParentQueryBuilder("Person", root, false), false));
+                    }
+                    resp = client.prepareSearch().setQuery(documentQuery).setSize(1000).execute().actionGet();
                     LinkedList<TopicResultEntry> result = new LinkedList<>();
                     for (SearchHit hit : resp.getHits()) {
                         // DO we really want to add the document text? (no)
                         result.add(new TopicResultEntry(hit.getId(), null, hit.getScore()));
                     }
-                    model.put(topicID + "_results", new TopicResult(topicID, desc, run.toString(), result));
+                    model.put(topicID + "_results", new TopicResult(topicID, desc, documentQuery.toString(), result));
                 }
                 return "topicsearch";
             } catch (UnknownHostException | UnirestException e) {
@@ -155,8 +171,8 @@ public class TopicSearchController {
         if (content == null) {
             return null;
         }
-        JSONArray result = content.getJSONArray("cdm"); // TODO magic values
-        if (result == null || result.length() == 0) {
+        JSONArray result = new JSONArray(content.getString("cdm")); // TODO magic values
+        if (result.length() == 0) {
             return null;
         }
         Collection<JSONObject> models = new LinkedList<>();

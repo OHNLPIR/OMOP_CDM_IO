@@ -1,5 +1,6 @@
 package edu.mayo.bsi.semistructuredir.cdm;
 
+import edu.mayo.bsi.semistructuredir.cdm.compiler.Parser;
 import edu.mayo.bsi.semistructuredir.cdm.controllers.TopicSearchController;
 import edu.mayo.bsi.semistructuredir.cdm.elasticsearch.QueryGeneratorFactory;
 import edu.mayo.bsi.semistructuredir.cdm.model.TopicResult;
@@ -7,7 +8,10 @@ import edu.mayo.bsi.semistructuredir.cdm.model.TopicResultEntry;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.join.query.HasParentQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
@@ -16,10 +20,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 
 public class RunTopicPool {
@@ -30,6 +31,7 @@ public class RunTopicPool {
      * @throws IOException If file cannot be written
      */
     public static void main(String... ignored) throws IOException {
+        File topicStructuredDir = new File("topics");
         Settings settings = Settings.builder() // TODO cleanup
                 .put("cluster.name", "elasticsearch").build();
         try (TransportClient client = new PreBuiltTransportClient(settings).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9310))) {
@@ -43,6 +45,12 @@ public class RunTopicPool {
             for (Similarity s : Similarity.values()) {
                 setSimilarity("index", client, s);
                 for (String topicID : names) {
+                    File structuredFile = new File(topicStructuredDir, topicID + ".ssq");
+                    QueryBuilder structuredQuery = Parser.generateQuery(structuredFile.getAbsolutePath());
+                    LinkedList<Integer> patientIDs = new LinkedList<>();
+                    for (SearchHit hit : client.prepareSearch("index").setQuery(structuredQuery).setSize(1000).execute().actionGet().getHits()) {
+                        patientIDs.add(Integer.valueOf(hit.getId()));
+                    }
                     File topicRawDir = new File("topic_desc");
                     File topicDesc = new File(topicRawDir, topicID + ".txt");
                     if (!topicDesc.exists()) {
@@ -59,13 +67,28 @@ public class RunTopicPool {
                     } catch (IOException e) {
                         throw new RuntimeException(e); // TODO
                     }
-
+                    BoolQueryBuilder root;
+                    if (patientIDs.size() > 0) {
+                        root = QueryBuilders.boolQuery();
+                        if (patientIDs.size() == 1) {
+                            root.must(QueryBuilders.termQuery("person_id", patientIDs.get(0)));
+                        } else {
+                            BoolQueryBuilder persons = QueryBuilders.boolQuery();
+                            for (int id : patientIDs) {
+                                persons.should(QueryBuilders.termQuery("person_id", id));
+                            }
+                            root.must(persons);
+                        }
+                    } else {
+                        root = QueryBuilders.boolQuery().should(QueryBuilders.matchAllQuery());
+                    }
                     System.out.println("Writing to " + topicID + "_" + s.name() + ".pool");
                     FileWriter out = new FileWriter(new File(topicID + "_" + s.name() + ".pool"));
                     QueryBuilder textQuery = QueryGeneratorFactory.newTextQuery().rawTextQuery("RawText", desc).build();
                     System.out.println(textQuery.toString());
+                    QueryBuilder actualQuery = QueryBuilders.boolQuery().should(textQuery).filter(new HasParentQueryBuilder("Encounter", new HasParentQueryBuilder("Person", root, false), false));
                     boolean flag = false;
-                    for (SearchHit e : client.prepareSearch("index").setQuery(textQuery).setSize(1000).execute().actionGet().getHits()) {
+                    for (SearchHit e : client.prepareSearch("index").setQuery(actualQuery).setSize(1000).execute().actionGet().getHits()) {
                         if (!flag) {
                             flag = true;
                         } else {
@@ -80,9 +103,10 @@ public class RunTopicPool {
                         System.out.println("Writing to " + topicID + "_mrf.pool");
                         out = new FileWriter(new File(topicID + "_mrf.pool"));
                         textQuery = QueryGeneratorFactory.newTextQuery().mrfQuery(0.8f, 0.1f, 0.1f,"RawText", desc.split(" ")).build();
+                        actualQuery = QueryBuilders.boolQuery().should(textQuery).filter(new HasParentQueryBuilder("Encounter", new HasParentQueryBuilder("Person", root, false), false));
                         System.out.println(textQuery.toString());
                         flag = false;
-                        for (SearchHit e : client.prepareSearch("index").setQuery(textQuery).setSize(1000).execute().actionGet().getHits()) {
+                        for (SearchHit e : client.prepareSearch("index").setQuery(actualQuery).setSize(1000).execute().actionGet().getHits()) {
                             if (!flag) {
                                 flag = true;
                             } else {
