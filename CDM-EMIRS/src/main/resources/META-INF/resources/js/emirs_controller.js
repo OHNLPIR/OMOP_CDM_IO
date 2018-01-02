@@ -52,10 +52,12 @@ function Query(unstructured, cdmQuery) {
     this.submit = function ($http, model, filter) {
         $http.post('/_search', {
             unstructured: model.query.unstructured,
+            structured: model.query.structured,
             cdmQuery: model.query.cdmQuery
         }).then(function (resp) {
             if (resp.data != null) {
                 model.query.unstructured = resp.data.query.unstructured;
+                model.query.structured = resp.data.query.structured;
                 model.query.cdmQuery = resp.data.query.cdmQuery;
                 model.hits = resp.data.hits;
                 model.completed = true;

@@ -16,16 +16,16 @@ import java.util.Collection;
 
 @Component
 public class Query {
-    private String structured;
+    private Collection<Clause> structured;
     private Collection<JsonNode> cdmQuery;
     private String unstructured;
     private String jsonSrc;
 
-    public String getStructured() {
+    public Collection<Clause> getStructured() {
         return structured;
     }
 
-    public void setStructured(String structured) {
+    public void setStructured(Collection<Clause> structured) {
         this.structured = structured;
     }
 

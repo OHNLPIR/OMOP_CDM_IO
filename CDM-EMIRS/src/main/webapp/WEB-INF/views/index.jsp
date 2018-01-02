@@ -90,7 +90,7 @@
                                                     <li>Can be used with range and boolean syntax</li>
                                                 </ul>
                                             </div>
-                                            <div ng-class="EMIRS.structuredReferenceBar ? 'col-xs-9' : 'col-xs-12'" ng-style="EMIRS.structuredReferenceBar ? {'border-left': '1px solid #e5e5e5'} : {}}">
+                                            <div ng-class="EMIRS.structuredReferenceBar ? 'col-xs-9' : 'col-xs-12'" ng-style="EMIRS.structuredReferenceBar ? {'border-left': '1px solid #e5e5e5'} : {}">
                                                 <div class="panel panel-default"
                                                      ng-repeat="rType in EMIRS.mappings.structOptions">
                                                     <div class="panel-heading">
