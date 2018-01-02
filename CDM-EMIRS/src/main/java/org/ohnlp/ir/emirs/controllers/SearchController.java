@@ -78,6 +78,18 @@ public class SearchController {
         if (query.getCdmQuery() == null) {
             query.setCdmQuery(getCDMObjects(query.getUnstructured()));
         }
+        if (query.getStructured() != null && query.getStructured().size() > 0) {
+            SearchResponse resp = client.prepareSearch(properties.getEs().getIndexName())
+                    .setQuery(query.getPatientIDFilterQuery())
+                    .setSize(50000)
+                    .execute()
+                    .actionGet();
+            ArrayList<Integer> patientIDs = new ArrayList<>();
+            for (SearchHit hit : resp.getHits()) {
+                patientIDs.add(Integer.valueOf(hit.getId()));
+            }
+            query.setPatientIDFilter(patientIDs);
+        }
     }
 
     @RequestMapping(value = "/_cdm", method = RequestMethod.POST)

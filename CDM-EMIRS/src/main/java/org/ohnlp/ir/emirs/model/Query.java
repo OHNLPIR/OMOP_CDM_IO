@@ -1,11 +1,13 @@
 package org.ohnlp.ir.emirs.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import edu.mayo.bsi.semistructuredir.cdm.elasticsearch.QueryGeneratorFactory;
 import edu.mayo.bsi.semistructuredir.cdm.elasticsearch.impl.CDMQueryGenerator;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.search.MatchQuery;
 import org.elasticsearch.join.query.HasParentQueryBuilder;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
@@ -13,11 +15,13 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 @Component
+@JsonIgnoreProperties({"patientIDFilter", "patientIDFilterQuery"})
 public class Query {
     private Collection<Clause> structured;
     private Collection<JsonNode> cdmQuery;
     private String unstructured;
     private String jsonSrc;
+    private ArrayList<Integer> patientIDFilter;
 
     public Collection<Clause> getStructured() {
         return structured;
@@ -54,19 +58,48 @@ public class Query {
             }
             queryBuilder.should(cdmQuery.build());
         }
-        if (structured != null && structured.size() > 0) {
-            String ssqQuery = getStructuredAsSSQ();
+
+        if (patientIDFilter != null) {
+            QueryBuilder query;
+            if (patientIDFilter.size() == 0) {
+                // Hacky way to always fail for all filter by adding a has parent check that will always fail (person with encounter parent)
+                query = new HasParentQueryBuilder("Encounter", QueryBuilders.matchAllQuery(), false);
+            } else {
+                if (patientIDFilter.size() == 1) {
+                    query = QueryBuilders.termQuery("person_id", patientIDFilter.get(0));
+                } else {
+                    BoolQueryBuilder temp = QueryBuilders.boolQuery();
+                    for (int id : patientIDFilter) {
+                        temp.should(QueryBuilders.termQuery("person_id", id));
+                    }
+                    query = temp;
+                }
+            }
             queryBuilder.filter(new HasParentQueryBuilder(
                     "Encounter",
                     new HasParentQueryBuilder(
                             "Person",
-                            QueryGeneratorFactory.newStructuredQuery().setStructuredQuery(ssqQuery).build(),
+                            query,
                             false),
                     false)
             );
         }
+        if (structured != null && structured.size() > 0) {
+            BoolQueryBuilder temp = QueryBuilders.boolQuery();
+            temp.should(queryBuilder);
+            temp.should(QueryGeneratorFactory.newStructuredQuery().setStructuredQuery(getStructuredAsSSQ(false)).build());
+        }
         setJsonSrc(queryBuilder.toString());
         return queryBuilder;
+    }
+
+    public QueryBuilder getPatientIDFilterQuery() {
+        String ssqQuery = getStructuredAsSSQ(true);
+        return QueryGeneratorFactory.newStructuredQuery().setStructuredQuery(ssqQuery).build();
+    }
+
+    public void setPatientIDFilter(ArrayList<Integer> patientIDs) {
+        this.patientIDFilter = patientIDs;
     }
 
     public Collection<JsonNode> getCdmQuery() {
@@ -77,16 +110,24 @@ public class Query {
         this.cdmQuery = cdmQuery;
     }
 
-    public String getStructuredAsSSQ() {
+    public String getStructuredAsSSQ(boolean filtering) {
         Map<String, List<Clause>> map = new HashMap<>();
         for (Clause clause : structured) {
             map.computeIfAbsent(clause.getRecordType(), (k) -> new LinkedList<>()).add(clause);
         }
         StringBuilder out = new StringBuilder();
         for (Map.Entry<String, List<Clause>> e : map.entrySet()) {
-            out.append("type: ").append(e.getKey()).append("\n");
+            StringBuilder nextType = new StringBuilder();
+            nextType.append("type: ").append(e.getKey()).append("\n");
+            int appendedClauses = 0;
             for (Clause c : e.getValue()) {
-                out.append(c.getAsSSQ()).append("\n");
+                if (!filtering || c.getType().equalsIgnoreCase("Must") || c.getType().equalsIgnoreCase("Must Not")) {
+                    nextType.append(c.getAsSSQ()).append("\n");
+                    appendedClauses++;
+                }
+            }
+            if (appendedClauses > 0) {
+                out.append(nextType); // No guarantee that it won't only have should/should not clauses
             }
         }
         return out.toString();
