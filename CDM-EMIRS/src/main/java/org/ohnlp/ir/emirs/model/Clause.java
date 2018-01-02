@@ -43,6 +43,7 @@ public class Clause {
 
     /**
      * Converts this Clause POJO to its equivalent version in the SSQ query language
+     *
      * @return The equivalent version of this clause in the SSQ query language
      */
     public String getAsSSQ() {
@@ -64,6 +65,8 @@ public class Clause {
                 filter = "";
                 break;
         }
-        return "    " + filter + " " + field + " " + content;
+        return "    " + filter + " " + field + ": " + ((content.startsWith("[") || content.startsWith("R[") ||
+                (content.startsWith("(") || content.startsWith("R(")))
+                ? content : "\"" + content + "\"");
     }
 }

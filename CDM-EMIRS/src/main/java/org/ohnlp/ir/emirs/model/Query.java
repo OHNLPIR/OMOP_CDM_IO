@@ -6,6 +6,7 @@ import edu.mayo.bsi.semistructuredir.cdm.elasticsearch.impl.CDMQueryGenerator;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.join.query.HasParentQueryBuilder;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
@@ -52,6 +53,17 @@ public class Query {
                 cdmQuery.addCDMObjects(new JSONObject(node.toString()));
             }
             queryBuilder.should(cdmQuery.build());
+        }
+        if (structured != null && structured.size() > 0) {
+            String ssqQuery = getStructuredAsSSQ();
+            queryBuilder.filter(new HasParentQueryBuilder(
+                    "Encounter",
+                    new HasParentQueryBuilder(
+                            "Person",
+                            QueryGeneratorFactory.newStructuredQuery().setStructuredQuery(ssqQuery).build(),
+                            false),
+                    false)
+            );
         }
         setJsonSrc(queryBuilder.toString());
         return queryBuilder;

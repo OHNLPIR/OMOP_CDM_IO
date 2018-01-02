@@ -2,6 +2,7 @@
 package edu.mayo.bsi.semistructuredir.cdm.compiler;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import org.elasticsearch.index.query.QueryBuilder;
 
@@ -40,6 +41,26 @@ public class Parser implements ParserConstants {
         System.out.println(file);
         e.printStackTrace();
         return null;
+    }
+  }
+
+  public static QueryBuilder generateQueryFromString(String string) {
+    try {
+
+      InputStream s = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8.name()));
+      Topic t;
+      if (instance == null) {
+        instance = new Parser(s);
+      } else {
+        Parser.ReInit(s);
+      }
+      t = instance.Topic();
+      s.close();
+      return t.toQuery();
+    } catch (Exception e) {
+      System.out.println(string);
+      e.printStackTrace();
+      return null;
     }
   }
 

@@ -43,6 +43,26 @@ public class Parser {
     }
   }
 
+  public static QueryBuilder generateQueryFromString(String string) {
+    try {
+
+        InputStream s = new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8.name()));
+        Topic t;
+        if (instance == null) {
+          instance = new Parser(s);
+        } else {
+          Parser.ReInit(s);
+        }
+        t = instance.Topic();
+        s.close();
+        return t.toQuery();
+    } catch (Exception e) {
+        System.out.println(string);
+        e.printStackTrace();
+        return null;
+    }
+  }
+
   public static String tostring(Token t) {
     return t.image.substring(1, t.image.length() - 1);
   }

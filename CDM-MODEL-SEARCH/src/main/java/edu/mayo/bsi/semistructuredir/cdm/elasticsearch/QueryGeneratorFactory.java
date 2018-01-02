@@ -28,6 +28,6 @@ public interface QueryGeneratorFactory {
      * @return A new query generator that parses structured query format queries
      */
     static StructuredQueryGenerator newStructuredQuery() {
-            return null;
+            return new StructuredQueryGenerator();
     }
 }
