@@ -316,7 +316,7 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
      * @param {PatientHit} hit
      */
     this.showPatientSpecificResults = function(hit) {
-        this.currPageCount = 0;
+        this.currentPage = 0;
         this.currPatientDocHits = hit.docs;
         this.currPatientDocHits = this.getHits();
     };
