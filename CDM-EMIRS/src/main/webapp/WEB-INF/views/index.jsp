@@ -239,35 +239,45 @@
     <p class="col-xs-12 text-center">No Results Found</p>
 </div>
 <div class="row" id="results" ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true">
-    <div id="sidebar" class="col-sm-2"
+    <div id="sidebar-document-view" class="col-sm-2"
          style="float:left;">
-        <!-- Sidebar -->
+        <label style="padding-top: 10px; padding-left: 10px; width:90%">
+            Current Model View: <br/>
+            <select class="input form-control"
+                    ng-model="EMIRS.currView"
+                    title="field">
+                <option ng-repeat="view in EMIRS.VIEW_TYPES"
+                        value="{{view}}">{{view}}
+                </option>
+            </select>
+        </label>
         <!-- Patient ID Filter -->
         <label style="padding-top: 10px; padding-left: 10px; width: 90%">
-            Patient ID({{EMIRS.model.filter.patientOptions.length}}): <br/>
+            Patient ID({{EMIRS.model.docFilter.patientOptions.length}}): <br/>
 
-            <select multiple class="form-control" ng-multiple="true" ng-model="EMIRS.model.filter.patients"
+            <select multiple class="form-control" ng-multiple="true" ng-model="EMIRS.model.docFilter.patients"
                     ng-options="id
                     for
-                    id in EMIRS.model.filter.patientOptions">
+                    id in EMIRS.model.docFilter.patientOptions">
             </select>
         </label>
         <!-- Section Type Filter -->
         <label style="padding-top: 10px; padding-left: 10px; width: 90%">
             Section Type: <br/>
 
-            <select multiple size="{{EMIRS.model.filter.sectionOptions.length}}" class="form-control" ng-multiple="true"
-                    ng-model="EMIRS.model.filter.sections"
+            <select multiple size="{{EMIRS.model.docFilter.sectionOptions.length}}" class="form-control" ng-multiple="true"
+                    ng-model="EMIRS.model.docFilter.sections"
                     ng-options="section.id as section.name
                     for
-                    section in EMIRS.model.filter.sectionOptions">
+                    section in EMIRS.model.docFilter.sectionOptions">
             </select>
         </label>
     </div>
     <div id="content" class="col-xs-10"
          style="float:right; padding-top: 10px; border-left: 1px solid #808080">
         <!-- Results -->
-        <div class="panel-group">
+        <!-- Group by Document -->
+        <div class="panel-group" ng-if="EMIRS.currView === 'Document'">
             <div class="panel panel-default"
                  ng-repeat="hit in EMIRS.model.getHits() | startFrom:EMIRS.model.currentPage*EMIRS.model.pageSize | limitTo:EMIRS.model.pageSize">
                 <div class="panel-heading">
@@ -288,11 +298,36 @@
                 </div>
             </div>
         </div>
+        <!-- Group by Patient -->
+        <div class="panel-group" ng-if="EMIRS.currView === 'Patient'">
+            <div class="panel panel-default"
+                 ng-repeat="hit in EMIRS.model.getPatientHits() | startFrom:EMIRS.model.currentPage*EMIRS.model.pageSize | limitTo:EMIRS.model.pageSize">
+                <div class="panel-heading">
+                    <div class="panel-title pull-left h4">
+                        MRN: {{hit.patient.id}}</div>
+                    <div class="panel-title pull-right">Documents: {{hit.docs.length}} Score: {{hit.score}}</div>
+                    <div class="clearfix"></div>
+                </div>
+                <div id="patient-{{hit.patient.id}}">
+                    <div class="panel-body">
+                        <ul class="list-unstyled">
+                            <li>Gender: {{hit.patient.gender}}</li>
+                            <li>Date of Birth: {{hit.patient.dob | date:'MM/dd/yyyy'}}</li>
+                            <li>Ethnicity: {{hit.patient.ethnicity}}</li>
+                            <li>Race: {{hit.patient.race}}</li>
+                            <li>City: {{hit.patient.city}}</li>
+                            <li><a href="#" data-toggle="modal" data-target="#doc_results"
+                                   ng-click="EMIRS.showPatientSpecificResults(hit);">Show matched documents</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
         <br/>
     </div>
 </div>
-<div class="row" id="pager" style="border-top: 1px solid #808080"
-     ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true">
+<div class="row" id="pager-document-view" style="border-top: 1px solid #808080"
+     ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true && EMIRS.currView === 'Document'">
     <div class="col-xs-12 text-center">
         <ul class="pagination">
             <li ng-class="{disabled: EMIRS.model.currentPage === 0}">
@@ -316,10 +351,68 @@
 </div>
 <div class="row" id="footer" style="border-top: 1px solid #808080">
     <div class="col-xs-12 text-center" ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true">
-        Search Statistics | {{EMIRS.model.hits.length}} Documents | {{EMIRS.model.filter.patientOptions.length}}
+        Search Statistics | {{EMIRS.model.hits.length}} Documents | {{EMIRS.model.docFilter.patientOptions.length}}
         Patients
     </div>
 </div>
-
+<!-- Patient Document Results Modal -->
+<div class="modal fade" id="doc_results" role="dialog">
+    <div class="modal-dialog modal-lg" style="width:1200px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Matched Documents</h4>
+            </div>
+            <div class="modal-body">
+                <div class="panel-group" ng-if="EMIRS.currView === 'Patient'">
+                    <div class="panel panel-default"
+                         ng-repeat="hit in EMIRS.currPatientDocHits | startFrom:EMIRS.currentPage*EMIRS.pageSize | limitTo:EMIRS.pageSize">
+                        <div class="panel-heading">
+                            <div class="panel-title pull-left h4">
+                                <a data-toggle="collapse"
+                                   href="#personview-{{hit.doc.docLinkId}}v{{hit.doc.revision}}s{{hit.doc.sectionID}}">{{hit.doc.sectionName}}
+                                    - MRN: {{hit.patient.id}}
+                                    - Id: {{hit.doc.docLinkId}}v{{hit.doc.revision}}
+                                    - Type: {{hit.doc.docType}}
+                                </a>
+                            </div>
+                            <div class="panel-title pull-right">Score: {{hit.score}}</div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div id="personview-{{hit.doc.docLinkId}}v{{hit.doc.revision}}s{{hit.doc.sectionID}}"
+                             class="panel-collapse collapse">
+                            <div class="panel-body">{{hit.doc.text}}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="row" id="modal-pager-patient-view" style="border-top: 1px solid #808080"
+                     ng-if="EMIRS.currPatientDocHits.length > 0 && EMIRS.model.completed === true">
+                    <div class="col-xs-12 text-center">
+                        <ul class="pagination">
+                            <li ng-class="{disabled: EMIRS.currentPage === 0}">
+                                <a href="#"
+                                   ng-click="EMIRS.currentPage !== 0 ? EMIRS.currentPage = EMIRS.currentPage - 1 : ''">
+                                    &larr;
+                                </a>
+                            </li>
+                            <li ng-repeat="ignored in EMIRS.getNumPagesAsArr()"
+                                ng-class="{active: EMIRS.currentPage === $index}">
+                                <a href="#" ng-click="EMIRS.currentPage = $index">{{$index + 1}}</a>
+                            </li>
+                            <li ng-class="{disabled: EMIRS.currentPage === EMIRS.numberOfPages() - 1}">
+                                <a href="#"
+                                   ng-click="EMIRS.currentPage !== EMIRS.numberOfPages() - 1 ? EMIRS.currentPage = EMIRS.currentPage + 1 : ''">
+                                    &rarr;
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

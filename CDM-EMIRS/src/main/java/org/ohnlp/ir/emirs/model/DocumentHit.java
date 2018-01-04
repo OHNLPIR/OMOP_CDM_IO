@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
  * A returned search result from a query
  */
 @Component
-public class QueryHit {
+public class DocumentHit {
     private Patient patient;
     private Encounter encounter;
     private Document doc;

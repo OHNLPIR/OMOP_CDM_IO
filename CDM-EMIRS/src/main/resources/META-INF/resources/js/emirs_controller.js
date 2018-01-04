@@ -60,6 +60,7 @@ function Query(unstructured, cdmQuery) {
                 model.query.structured = resp.data.query.structured;
                 model.query.cdmQuery = resp.data.query.cdmQuery;
                 model.hits = resp.data.hits;
+                model.patientHits = resp.data.patientHits;
                 model.completed = true;
                 model.submitted = false;
                 filter.patients = [];
@@ -169,16 +170,31 @@ function SearchHit(patient, encounter, doc, score) {
 }
 
 /**
+ * @param {Patient} patient
+ * @param {Array.<SearchHit>} docs
+ * @param {float} score
+ * @constructor
+ */
+function PatientHit(patient, docs, score) {
+    this.patient = patient;
+    this.docs = docs;
+    this.score = score;
+}
+
+/**
  *
  * @param {Query} query
  * @param {Array.<SearchHit>} hits
+ * @param {Array.<PatientHit>} patientHits
  * @constructor
  */
-function Model(query, hits) {
+function Model(query, hits, patientHits) {
     // -- Model Attributes
     this.query = query;
     this.hits = hits;
-    this.filter = new Filter();
+    this.patientHits = patientHits;
+    this.docFilter = new Filter();
+    this.patientFilter = new Filter();
     // -- Status
     this.completed = false;
     this.submitted = false;
@@ -187,7 +203,7 @@ function Model(query, hits) {
     this.pageSize = 50;
     this.currPageCount = 0;
     this.currNumPagesArr = [];
-    // -- Functions
+    // -- Functions (Document View)
     this.numberOfPages = function () {
         return Math.ceil(this.getHits().length / this.pageSize);
     };
@@ -195,11 +211,18 @@ function Model(query, hits) {
     this.getHits = function () {
         var ret = [];
         for (var i = 0; i < this.hits.length; i++) {
-            if (this.filter.shouldDisplay(this.hits[i])) {
+            if (this.docFilter.shouldDisplay(this.hits[i])) {
                 ret.push(this.hits[i]);
             }
         }
         return ret;
+    };
+
+    /**
+     * @returns {Array<PatientHit>|*}
+     */
+    this.getPatientHits = function () {
+        return this.patientHits;
     };
 
     this.getNumPagesAsArr = function () { // Hack to allow for ng-repeat on set integer value
@@ -215,8 +238,7 @@ function Model(query, hits) {
             this.currPageCount = limit;
             return ret;
         }
-
-    }
+    };
 }
 
 function Filter() {
@@ -270,8 +292,53 @@ var app = angular.module("EMIRSApp", []);
 app.controller("EMIRSCtrl", function ($scope, $http) {
     // Global Constants
     this.CLAUSE_TYPES = ["Must", "Should", "Should Not", "Must Not"];
+    this.VIEW_TYPES = ["Document", "Patient"];
     // Model and functions
-    this.model = new Model(new Query('', []), []);
+    this.currView = "Document";
+    // Patient view pagination TODO really messy...
+    this.currPatientDocHits = [];
+    this.currentPage = 0;
+    this.pageSize = 15;
+    this.currPageCount = 0;
+    this.currNumPagesArr = [];
+    // Patient view pagination support TODO this needs refactoring
+
+    this.getHits = function () {
+        var ret = [];
+        for (var i = 0; i < this.currPatientDocHits.length; i++) {
+            if (this.model.docFilter.shouldDisplay(this.currPatientDocHits[i])) {
+                ret.push(this.currPatientDocHits[i]);
+            }
+        }
+        return ret;
+    };
+    /**
+     * @param {PatientHit} hit
+     */
+    this.showPatientSpecificResults = function(hit) {
+        this.currPatientDocHits = hit.docs;
+        this.currPatientDocHits = this.getHits();
+    };
+    this.numberOfPages = function () {
+        return Math.ceil(this.getHits().length / this.pageSize);
+    };
+    this.getNumPagesAsArr = function () { // Hack to allow for ng-repeat on set integer value
+        var limit = this.numberOfPages();
+        if (limit === this.currPageCount) {
+            return this.currNumPagesArr;
+        } else {
+            var ret = [];
+            for (var i = 0; i < limit; i++) {
+                ret.push({});
+            }
+            this.currNumPagesArr = ret;
+            this.currPageCount = limit;
+            return ret;
+        }
+    };
+
+
+    this.model = new Model(new Query('', []), [], []);
     this.structuredReferenceBar = false;
     var scope = this;
     this.mappingInit = function () {
@@ -284,7 +351,7 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
     this.submitQuery = function () {
         this.model.submitted = true;
         this.model.completed = false;
-        this.model.query.refresh($http, false, this.model.query.submit, this.model, this.model.filter);
+        this.model.query.refresh($http, false, this.model.query.submit, this.model, this.model.docFilter);
     };
 
     this.refresh = function (force) {

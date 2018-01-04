@@ -12,11 +12,13 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.json.JSONArray;
+import org.json.JSONObject;
 import org.ohnlp.ir.emirs.Properties;
 import org.ohnlp.ir.emirs.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.*;
 
 @Controller
@@ -51,12 +54,6 @@ public class SearchController {
                                     InetAddress.getByName(properties.getEs().getHost()),
                                     properties.getEs().getPort()));
         }
-//        Query modelQuery = (Query) out.getFlashAttributes().get("query");
-//        if (modelQuery == null) {
-//            modelQuery = new Query();
-//            out.addFlashAttribute("query", modelQuery);
-//        }
-//        processQuery(modelQuery);
         processQuery(query);
         QueryBuilder esQuery = query.toESQuery();
         SearchResponse resp = client.prepareSearch(properties.getEs().getIndexName())
@@ -64,7 +61,6 @@ public class SearchController {
                 .setSize(1000)
                 .execute()
                 .actionGet();
-//        processResponse(out, model, resp, query);
         return processResponse(resp, query);
     }
 
@@ -98,6 +94,48 @@ public class SearchController {
         }
     }
 
+    @RequestMapping(value = "/_patient", method = RequestMethod.POST)
+    public @ResponseBody Patient getPatient(@RequestBody String id) {
+        if (client == null) {
+            Settings settings = Settings.builder() // TODO cleanup
+                    .put("cluster.name", properties.getEs().getClusterName()).build();
+            try {
+                client = new PreBuiltTransportClient(settings)
+                        .addTransportAddress(
+                                new InetSocketTransportAddress(
+                                        InetAddress.getByName(properties.getEs().getHost()),
+                                        properties.getEs().getPort()));
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
+        }
+        QueryBuilder esQuery = QueryBuilders.idsQuery("Person").addIds(id);
+        SearchResponse resp = client.prepareSearch(properties.getEs().getIndexName())
+                .setQuery(esQuery)
+                .setFetchSource(true)
+                .setSize(1)
+                .execute()
+                .actionGet();
+        SearchHit[] results = resp.getHits().getHits();
+        if (results.length == 0) {
+            return null;
+        } else {
+            SearchHit hit = results[0];
+            JSONObject source = new JSONObject(hit.getSourceAsString());
+            Date dob = null;
+            Long dobMillis = source.optLong("date_of_birth", Long.MIN_VALUE);
+            if (dobMillis != Long.MIN_VALUE) {
+                dob = new Date(dobMillis);
+            }
+            return new Patient(id,
+                    source.optString("gender"),
+                    source.optString("ethnicity"),
+                    source.optString("race"),
+                    source.optString("city"),
+                    dob);
+        }
+    }
+
     @RequestMapping(value = "/_cdm", method = RequestMethod.POST)
     public @ResponseBody ArrayList<JsonNode> getCDMObjects(@RequestBody String text) {
         // Initialize values from properties if needed
@@ -127,9 +165,9 @@ public class SearchController {
         // Associated Query
         result.setQuery(query);
         // Associated Documents
-        List<QueryHit> hits = new LinkedList<>();
+        List<DocumentHit> hits = new LinkedList<>();
         for (SearchHit hit : resp.getHits()) {
-            QueryHit qHit = new QueryHit();
+            DocumentHit qHit = new DocumentHit();
             // Document
             Document doc = new Document();
             Map<String, Object> source = hit.getSource();
@@ -150,11 +188,8 @@ public class SearchController {
             qHit.setEncounter(encounter);
             // Patient
             String pid = docFields[0].trim();
-            Patient patient = patientMap.computeIfAbsent(pid, k -> {
-                Patient p = new Patient();
-                p.setId(pid);
-                return p;
-            });
+            // TODO: parallelize maybe
+            Patient patient = patientMap.computeIfAbsent(pid, k -> getPatient(pid));
             qHit.setPatient(patient);
             qHit.setScore(hit.getScore());
             hits.add(qHit);
@@ -170,6 +205,7 @@ public class SearchController {
         }
         result.setPatients(retList);
         result.setHits(hits);
+        result.calculatePatientHits();
         return result;
     }
 

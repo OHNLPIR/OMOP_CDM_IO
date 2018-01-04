@@ -15,7 +15,17 @@ public class Patient {
     private String race;
     private String city;
     private Date dob;
-    private long hits;
+
+    public Patient() {};
+
+    public Patient(String id, String gender, String ethnicity, String race, String city, Date dob) {
+        this.id = id;
+        this.gender = gender;
+        this.ethnicity = ethnicity;
+        this.race = race;
+        this.city = city;
+        this.dob = dob;
+    }
 
     public String getId() {
         return id;
@@ -63,13 +73,5 @@ public class Patient {
 
     public void setDob(Date dob) {
         this.dob = dob;
-    }
-
-    public long getHits() {
-        return hits;
-    }
-
-    public void setHits(long hits) {
-        this.hits = hits;
     }
 }
