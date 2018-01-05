@@ -343,22 +343,11 @@
                     &larr;
                 </a>
             </li>
-            <li ng-repeat="idx in EMIRS.model.getNumPagesAsArr()"
-                ng-class="{active: EMIRS.model.currentPage === $index, disabled: ((idx - EMIRS.model.currentPage) == 5 || (idx - EMIRS.model.currentPage) == -5) && !(EMIRS.model.numberOfPages() <= 10 ||
-                idx < 2 ||
-                idx > EMIRS.model.numberOfPages() - 3)}"
-                ng-show="EMIRS.model.numberOfPages() <= 10 ||
-                idx < 2 ||
-                idx > EMIRS.model.numberOfPages() - 3 ||
-                (0 <= (idx - EMIRS.model.currentPage) && (idx - EMIRS.model.currentPage) <= 5) ||
-                (-5 <= (idx - EMIRS.model.currentPage) && (idx - EMIRS.model.currentPage) <= 0)">
-                <a href="#" ng-click="EMIRS.model.currentPage = $index" ng-show="EMIRS.model.numberOfPages() <= 10 ||
-                idx < 2 ||
-                idx > EMIRS.model.numberOfPages() - 3 ||
-                (idx - EMIRS.model.currentPage) <= 4 && (idx - EMIRS.model.currentPage) >= -4">{{$index + 1}}</a>
-                <a href="#" ng-show="((idx - EMIRS.model.currentPage) == 5 || (idx - EMIRS.model.currentPage) == -5) && !(EMIRS.model.numberOfPages() <= 10 ||
-                idx < 2 ||
-                idx > EMIRS.model.numberOfPages() - 3)">...</a>
+            <li ng-repeat="count in EMIRS.model.numberOfPages() | range:EMIRS.model.pageSize:EMIRS.model.currentPage+1"
+                ng-class="{active: EMIRS.model.currentPage === count}"
+                >
+                    <a href="#" ng-if="count|isNum" ng-click="EMIRS.model.currentPage = count">{{count+1}}</a>
+                    <a href="#" ng-if="!(count|isNum)">{{count}}</a>
             </li>
             <li ng-class="{disabled: EMIRS.model.currentPage === EMIRS.model.numberOfPages() - 1}">
                 <a href="#"

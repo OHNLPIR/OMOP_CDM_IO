@@ -374,4 +374,42 @@ app.filter('startFrom', function () {
         return input.slice(start);
     }
 });
+app.filter('range', function() {
+    return function(val, limit, current) {
+        var arr = [];
+        // val = val / limit;
+        if (current < 6) {
+
+            for (var i = 0; i < 8; i++)
+                arr.push(i);
+            arr.push("...");
+            arr.push(val - 1)
+        } else if (current > (val - 5)) {
+            arr.push(0);
+            arr.push("...");
+            for (var i = val - 7; i < val; i++)
+                arr.push(i);
+        } else {
+            arr.push(0);
+            arr.push("...");
+            arr.push(current - 3);
+            arr.push(current - 2);
+            arr.push(current - 1);
+            arr.push(current);
+            arr.push(current + 1);
+            arr.push("....");
+            arr.push(val - 1)
+        }
+        return arr;
+    }
+}).filter('slice', function() {
+    return function(arr, end, start) {
+        start = start || 0;
+        return (arr || []).slice(start, start + end);
+    };
+}).filter('isNum', function() {
+    return function(val) {
+        return !isNaN(val)
+    };
+});
 
