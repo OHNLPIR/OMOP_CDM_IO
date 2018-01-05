@@ -294,9 +294,9 @@ var app = angular.module("EMIRSApp", []);
 app.controller("EMIRSCtrl", function ($scope, $http) {
     // Global Constants
     this.CLAUSE_TYPES = ["Must", "Should", "Should Not", "Must Not"];
-    this.VIEW_TYPES = ["Document", "Patient"];
+    this.VIEW_TYPES = ["Patient", "Document"];
     // Model and functions
-    this.currView = "Document";
+    this.currView = "Patient";
     // Patient view pagination TODO really messy...
     this.currPatientDocHits = [];
     this.currentPage = 0;
