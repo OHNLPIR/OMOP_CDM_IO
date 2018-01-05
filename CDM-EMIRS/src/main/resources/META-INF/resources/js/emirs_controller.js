@@ -196,6 +196,7 @@ function Model(query, hits, patientHits) {
     this.patientHits = patientHits;
     this.docFilter = new Filter();
     this.docJudgements = {};
+    this.patientJudgements = {};
     // -- Status
     this.completed = false;
     this.submitted = false;

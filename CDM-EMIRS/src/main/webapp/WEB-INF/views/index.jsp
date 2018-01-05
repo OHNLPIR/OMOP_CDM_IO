@@ -326,8 +326,23 @@
                     <div class="panel-title pull-left h4">
                         MRN: {{hit.patient.id}}
                     </div>
-                    <div class="panel-title pull-right">Documents: {{EMIRS.getHitsFor(hit.docs).length}} | Score:
-                        {{hit.score}}
+                    <div class="panel-title pull-right">
+                        <div class="pull-left">
+                            Documents: {{EMIRS.getHitsFor(hit.docs).length}} | Score:{{hit.score}}
+                        </div>
+
+                        <div class="btn-group pull-right" style="padding-left: 10px" data-toggle="buttons">
+                            <div class="btn btn-primary"
+                                 ng-class="{active: EMIRS.model.patientJudgements[hit.patient.id]}"
+                                 ng-click="EMIRS.model.patientJudgements[hit.patient.id] = true">
+                                &#10004;
+                            </div>
+                            <div class="btn btn-primary"
+                                 ng-class="{active: EMIRS.model.patientJudgements[hit.patient.id] === false}"
+                                 ng-click="EMIRS.model.patientJudgements[hit.patient.id] = false">
+                                &#10006;
+                            </div>
+                        </div>
                     </div>
                     <div class="clearfix"></div>
                 </div>
@@ -400,7 +415,23 @@
                                     - Type: {{hit.doc.docType}}
                                 </a>
                             </div>
-                            <div class="panel-title pull-right">Score: {{hit.score}}</div>
+                            <div class="panel-title pull-right">
+                                <div class="pull-left">
+                                    Score: {{hit.score}}
+                                </div>
+                                <div class="btn-group pull-right" style="padding-left: 10px" data-toggle="buttons">
+                                    <div class="btn btn-primary"
+                                         ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID]}"
+                                         ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = true">
+                                        &#10004;
+                                    </div>
+                                    <div class="btn btn-primary"
+                                         ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID] === false}"
+                                         ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = false">
+                                        &#10006;
+                                    </div>
+                                </div>
+                            </div>
                             <div class="clearfix"></div>
                         </div>
                         <div id="personview-{{hit.doc.docLinkId}}v{{hit.doc.revision}}s{{hit.doc.sectionID}}"
