@@ -241,13 +241,14 @@
     <p class="col-xs-12 text-center">No Results Found</p>
 </div>
 <div class="row" id="results" ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true">
-    <div id="sidebar-document-view" class="col-sm-2"
+    <div id="sidebar" class="col-sm-2"
          style="float:left;">
         <label style="padding-top: 10px; padding-left: 10px; width:90%">
             Current Model View: <br/>
             <select class="input form-control"
                     ng-model="EMIRS.currView"
-                    title="field">
+                    title="field"
+                    ng-change="EMIRS.model.currentPage = 0">
                 <option ng-repeat="view in EMIRS.VIEW_TYPES"
                         value="{{view}}">{{view}}
                 </option>
@@ -309,7 +310,6 @@
                     <div class="panel-title pull-left h4">
                         MRN: {{hit.patient.id}}
                     </div>
-                    c
                     <div class="panel-title pull-right">Documents: {{EMIRS.getHitsFor(hit.docs).length}} | Score:
                         {{hit.score}}
                     </div>
