@@ -63,6 +63,10 @@ function Query(unstructured, cdmQuery) {
                 model.patientHits = resp.data.patientHits;
                 model.completed = true;
                 model.submitted = false;
+                model.docJudgements = {};
+                for (var i = 0; i < resp.data.hits.length; i++) {
+                    // model.docJudgements[resp.data.hits[i].doc.indexDocID] = "na";
+                }
                 filter.patients = [];
                 filter.patientOptions = [];
                 for (var i = 0; i < resp.data.patients.length; i++) {
@@ -194,7 +198,7 @@ function Model(query, hits, patientHits) {
     this.hits = hits;
     this.patientHits = patientHits;
     this.docFilter = new Filter();
-    this.patientFilter = new Filter();
+    this.docJudgements = {};
     // -- Status
     this.completed = false;
     this.submitted = false;

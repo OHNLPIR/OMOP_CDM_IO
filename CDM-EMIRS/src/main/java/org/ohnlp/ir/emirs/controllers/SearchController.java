@@ -178,6 +178,7 @@ public class SearchController {
             doc.setDocLinkId(docFields[1]);
             doc.setRevision(docFields[2]);
             doc.setDocType(docFields[3]); //TODO
+            doc.setIndexDocID(docIDRaw);
             doc.setText(source.get("RawText").toString());
             doc.setSectionName(source.get("Section_Name").toString());
             doc.setSectionID(source.get("Section_ID").toString());

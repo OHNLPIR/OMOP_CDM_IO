@@ -293,7 +293,19 @@
                             - Type: {{hit.doc.docType}}
                         </a>
                     </div>
-                    <div class="panel-title pull-right">Score: {{hit.score}}</div>
+                    <div class="panel-title pull-right">
+                        <div class="pull-left">
+                            Score: {{hit.score}}
+                        </div>
+                        <div class="btn-group pull-right" style="padding-left: 10px" data-toggle="buttons">
+                            <label class="btn btn-primary" ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = true">
+                                <input type="radio" name="relevance-{{hit.doc.docLinkId}}{{hit.doc.revision}}{{hit.doc.sectionID}}"  value="true" > &#10004;
+                            </label>
+                            <label class="btn btn-primary" ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = false">
+                                <input type="radio" name="relevance-{{hit.doc.docLinkId}}{{hit.doc.revision}}{{hit.doc.sectionID}}" value="false"> &#10006;
+                            </label>
+                        </div>
+                    </div>
                     <div class="clearfix"></div>
                 </div>
                 <div id="{{hit.doc.docLinkId}}v{{hit.doc.revision}}s{{hit.doc.sectionID}}"

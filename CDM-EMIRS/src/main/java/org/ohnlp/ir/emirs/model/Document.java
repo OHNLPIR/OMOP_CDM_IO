@@ -30,6 +30,16 @@ public class Document {
 
     private String sectionID;
 
+    private String indexDocID;
+
+    public String getIndexDocID() {
+        return indexDocID;
+    }
+
+    public void setIndexDocID(String indexDocID) {
+        this.indexDocID = indexDocID;
+    }
+
     public String getDocLinkId() {
         return docLinkId;
     }
