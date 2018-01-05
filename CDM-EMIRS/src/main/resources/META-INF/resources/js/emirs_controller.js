@@ -64,6 +64,7 @@ function Query(unstructured, cdmQuery) {
                 model.completed = true;
                 model.submitted = false;
                 model.docJudgements = {};
+                model.patientJudgements = {};
                 filter.patients = [];
                 filter.patientOptions = [];
                 for (var i = 0; i < resp.data.patients.length; i++) {
