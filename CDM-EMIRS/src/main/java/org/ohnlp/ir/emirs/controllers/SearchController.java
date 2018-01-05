@@ -59,6 +59,7 @@ public class SearchController {
         SearchResponse resp = client.prepareSearch(properties.getEs().getIndexName())
                 .setQuery(esQuery)
                 .setSize(1000)
+                .setScroll(new TimeValue(60000))
                 .execute()
                 .actionGet();
         return processResponse(resp, query);
@@ -166,6 +167,7 @@ public class SearchController {
         result.setQuery(query);
         // Associated Documents
         List<DocumentHit> hits = new LinkedList<>();
+        do {
         for (SearchHit hit : resp.getHits()) {
             DocumentHit qHit = new DocumentHit();
             // Document
@@ -195,6 +197,9 @@ public class SearchController {
             hits.add(qHit);
             patientFreqMap.merge(pid, 1, (k, v) -> v + 1);
         }
+            resp = client.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
+        } while(resp.getHits().getHits().length != 0);
+
         // Associated Patients
         // - Order them
         List<Map.Entry<String, Integer>> sortable = new ArrayList<>(patientFreqMap.entrySet());

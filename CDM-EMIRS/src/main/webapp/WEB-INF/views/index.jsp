@@ -305,7 +305,7 @@
                 <div class="panel-heading">
                     <div class="panel-title pull-left h4">
                         MRN: {{hit.patient.id}}</div>
-                    <div class="panel-title pull-right">Documents: {{hit.docs.length}} Score: {{hit.score}}</div>
+c                    <div class="panel-title pull-right">Documents: {{EMIRS.getHitsFor(hit.docs).length}} | Score: {{hit.score}}</div>
                     <div class="clearfix"></div>
                 </div>
                 <div id="patient-{{hit.patient.id}}">

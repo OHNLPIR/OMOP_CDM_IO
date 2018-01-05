@@ -302,7 +302,15 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
     this.currPageCount = 0;
     this.currNumPagesArr = [];
     // Patient view pagination support TODO this needs refactoring
-
+    this.getHitsFor = function (hits) {
+        var ret = [];
+        for (var i = 0; i < hits.length; i++) {
+            if (this.model.docFilter.shouldDisplay(hits[i])) {
+                ret.push(hits[i]);
+            }
+        }
+        return ret;
+    };
     this.getHits = function () {
         var ret = [];
         for (var i = 0; i < this.currPatientDocHits.length; i++) {
