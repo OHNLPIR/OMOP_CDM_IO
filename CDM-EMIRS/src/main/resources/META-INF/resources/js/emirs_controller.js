@@ -374,10 +374,10 @@ app.filter('startFrom', function () {
         return input.slice(start);
     }
 });
+// TODO from stack overflow, understand this code and cleanup/modify
 app.filter('range', function() {
     return function(val, limit, current) {
         var arr = [];
-        // val = val / limit;
         if (current < 6) {
 
             for (var i = 0; i < 8; i++)
