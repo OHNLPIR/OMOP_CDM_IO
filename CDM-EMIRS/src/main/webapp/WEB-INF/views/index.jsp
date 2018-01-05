@@ -72,11 +72,11 @@
                                             <div class="col-xs-3 text-left" ng-if="EMIRS.structuredReferenceBar">
                                                 <h3>Syntax Reference</h3>
                                                 <ul class="list-unstyled">
-                                                    <li> </li>
+                                                    <li></li>
                                                     <li class="h4">Boolean Logic</li>
                                                     <li>(X OR Y OR Z) &rArr; [x, y, z]</li>
                                                     <li>At least N of x,y,z &rArr; [x, y, z]^N</li>
-                                                    <li> </li>
+                                                    <li></li>
                                                     <li class="h4">Ranges</li>
                                                     <li>Range x to y, inclusive &rArr; R[x, y]</li>
                                                     <li>Range x to y, exclusive &rArr; R(x, y)</li>
@@ -84,13 +84,15 @@
                                                     <li>? >= x &rArr; R[x,)</li>
                                                     <li>? < x &rArr; R(,x)</li>
                                                     <li>? <= x &rArr; R(,x]</li>
-                                                    <li> </li>
+                                                    <li></li>
                                                     <li class="h4">Dates</li>
-                                                    <li>Can be Represented Via (YYYY-MM-DD) including the parentheses</li>
+                                                    <li>Can be Represented Via (YYYY-MM-DD) including the parentheses
+                                                    </li>
                                                     <li>Can be used with range and boolean syntax</li>
                                                 </ul>
                                             </div>
-                                            <div ng-class="EMIRS.structuredReferenceBar ? 'col-xs-9' : 'col-xs-12'" ng-style="EMIRS.structuredReferenceBar ? {'border-left': '1px solid #e5e5e5'} : {}">
+                                            <div ng-class="EMIRS.structuredReferenceBar ? 'col-xs-9' : 'col-xs-12'"
+                                                 ng-style="EMIRS.structuredReferenceBar ? {'border-left': '1px solid #e5e5e5'} : {}">
                                                 <div class="panel panel-default"
                                                      ng-repeat="rType in EMIRS.mappings.structOptions">
                                                     <div class="panel-heading">
@@ -102,9 +104,9 @@
                                                     <div class="panel-body text-left">
                                                         <ul class="list-unstyled">
                                                             <li
-                                                                ng-repeat="clause in EMIRS.model.query.structured track by $index"
-                                                                ng-show="clause.recordType === rType"
-                                                                ng-init="clauseIdx = $index">
+                                                                    ng-repeat="clause in EMIRS.model.query.structured track by $index"
+                                                                    ng-show="clause.recordType === rType"
+                                                                    ng-init="clauseIdx = $index">
                                                                 <div class="input-group col-xs-12">
                                                                     <select class="input-small"
                                                                             ng-model="EMIRS.model.query.structured[clauseIdx].type"
@@ -265,7 +267,8 @@
         <label style="padding-top: 10px; padding-left: 10px; width: 90%">
             Section Type: <br/>
 
-            <select multiple size="{{EMIRS.model.docFilter.sectionOptions.length}}" class="form-control" ng-multiple="true"
+            <select multiple size="{{EMIRS.model.docFilter.sectionOptions.length}}" class="form-control"
+                    ng-multiple="true"
                     ng-model="EMIRS.model.docFilter.sections"
                     ng-options="section.id as section.name
                     for
@@ -304,8 +307,12 @@
                  ng-repeat="hit in EMIRS.model.getPatientHits() | startFrom:EMIRS.model.currentPage*EMIRS.model.pageSize | limitTo:EMIRS.model.pageSize">
                 <div class="panel-heading">
                     <div class="panel-title pull-left h4">
-                        MRN: {{hit.patient.id}}</div>
-c                    <div class="panel-title pull-right">Documents: {{EMIRS.getHitsFor(hit.docs).length}} | Score: {{hit.score}}</div>
+                        MRN: {{hit.patient.id}}
+                    </div>
+                    c
+                    <div class="panel-title pull-right">Documents: {{EMIRS.getHitsFor(hit.docs).length}} | Score:
+                        {{hit.score}}
+                    </div>
                     <div class="clearfix"></div>
                 </div>
                 <div id="patient-{{hit.patient.id}}">
@@ -336,9 +343,22 @@ c                    <div class="panel-title pull-right">Documents: {{EMIRS.getH
                     &larr;
                 </a>
             </li>
-            <li ng-repeat="ignored in EMIRS.model.getNumPagesAsArr()"
-                ng-class="{active: EMIRS.model.currentPage === $index}">
-                <a href="#" ng-click="EMIRS.model.currentPage = $index">{{$index + 1}}</a>
+            <li ng-repeat="idx in EMIRS.model.getNumPagesAsArr()"
+                ng-class="{active: EMIRS.model.currentPage === $index, disabled: ((idx - EMIRS.model.currentPage) == 5 || (idx - EMIRS.model.currentPage) == -5) && !(EMIRS.model.numberOfPages() <= 10 ||
+                idx < 2 ||
+                idx > EMIRS.model.numberOfPages() - 3)}"
+                ng-show="EMIRS.model.numberOfPages() <= 10 ||
+                idx < 2 ||
+                idx > EMIRS.model.numberOfPages() - 3 ||
+                (0 <= (idx - EMIRS.model.currentPage) && (idx - EMIRS.model.currentPage) <= 5) ||
+                (-5 <= (idx - EMIRS.model.currentPage) && (idx - EMIRS.model.currentPage) <= 0)">
+                <a href="#" ng-click="EMIRS.model.currentPage = $index" ng-show="EMIRS.model.numberOfPages() <= 10 ||
+                idx < 2 ||
+                idx > EMIRS.model.numberOfPages() - 3 ||
+                (idx - EMIRS.model.currentPage) <= 4 && (idx - EMIRS.model.currentPage) >= -4">{{$index + 1}}</a>
+                <a href="#" ng-show="((idx - EMIRS.model.currentPage) == 5 || (idx - EMIRS.model.currentPage) == -5) && !(EMIRS.model.numberOfPages() <= 10 ||
+                idx < 2 ||
+                idx > EMIRS.model.numberOfPages() - 3)">...</a>
             </li>
             <li ng-class="{disabled: EMIRS.model.currentPage === EMIRS.model.numberOfPages() - 1}">
                 <a href="#"

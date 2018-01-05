@@ -232,7 +232,7 @@ function Model(query, hits, patientHits) {
         } else {
             var ret = [];
             for (var i = 0; i < limit; i++) {
-                ret.push({});
+                ret.push(i);
             }
             this.currNumPagesArr = ret;
             this.currPageCount = limit;
