@@ -284,10 +284,10 @@
         <div class="panel-group" ng-if="EMIRS.currView === 'Document'">
             <div class="panel panel-default"
                  ng-repeat="hit in EMIRS.model.getHits() | startFrom:EMIRS.model.currentPage*EMIRS.model.pageSize | limitTo:EMIRS.model.pageSize">
-                <div class="panel-heading">
+                <div class="panel-heading clearfix">
                     <div class="panel-title pull-left h4">
                         <a data-toggle="collapse"
-                           href="\#{{hit.doc.docLinkId}}v{{hit.doc.revision}}s{{hit.doc.sectionID}}">{{hit.doc.sectionName}}
+                           href="\#{{hit.doc.indexDocID}}">{{hit.doc.sectionName}}
                             - MRN: {{hit.patient.id}}
                             - Id: {{hit.doc.docLinkId}}v{{hit.doc.revision}}
                             - Type: {{hit.doc.docType}}
@@ -298,17 +298,21 @@
                             Score: {{hit.score}}
                         </div>
                         <div class="btn-group pull-right" style="padding-left: 10px" data-toggle="buttons">
-                            <label class="btn btn-primary" ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = true">
-                                <input type="radio" name="relevance-{{hit.doc.docLinkId}}{{hit.doc.revision}}{{hit.doc.sectionID}}"  value="true" > &#10004;
-                            </label>
-                            <label class="btn btn-primary" ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = false">
-                                <input type="radio" name="relevance-{{hit.doc.docLinkId}}{{hit.doc.revision}}{{hit.doc.sectionID}}" value="false"> &#10006;
-                            </label>
+                            <div class="btn btn-primary"
+                                 ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID]}"
+                                 ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = true">
+                                &#10004;
+                            </div>
+                            <div class="btn btn-primary"
+                                 ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID] === false}"
+                                 ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = false">
+                                &#10006;
+                            </div>
                         </div>
                     </div>
                     <div class="clearfix"></div>
                 </div>
-                <div id="{{hit.doc.docLinkId}}v{{hit.doc.revision}}s{{hit.doc.sectionID}}"
+                <div id="{{hit.doc.indexDocID}}"
                      class="panel-collapse collapse">
                     <div class="panel-body">{{hit.doc.text}}</div>
                 </div>
@@ -357,8 +361,8 @@
             </li>
             <li ng-repeat="count in EMIRS.model.numberOfPages() | range:EMIRS.model.pageSize:EMIRS.model.currentPage+1"
                 ng-class="{active: EMIRS.model.currentPage === count, disabled: !(count|isNum)}">
-                    <a href="#" ng-if="count|isNum" ng-click="EMIRS.model.currentPage = count">{{count+1}}</a>
-                    <a href="#" ng-if="!(count|isNum)">{{count}}</a>
+                <a href="#" ng-if="count|isNum" ng-click="EMIRS.model.currentPage = count">{{count+1}}</a>
+                <a href="#" ng-if="!(count|isNum)">{{count}}</a>
             </li>
             <li ng-class="{disabled: EMIRS.model.currentPage === EMIRS.model.numberOfPages() - 1}">
                 <a href="#"

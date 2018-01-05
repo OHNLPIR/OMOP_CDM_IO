@@ -64,9 +64,6 @@ function Query(unstructured, cdmQuery) {
                 model.completed = true;
                 model.submitted = false;
                 model.docJudgements = {};
-                for (var i = 0; i < resp.data.hits.length; i++) {
-                    // model.docJudgements[resp.data.hits[i].doc.indexDocID] = "na";
-                }
                 filter.patients = [];
                 filter.patientOptions = [];
                 for (var i = 0; i < resp.data.patients.length; i++) {
