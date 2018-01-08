@@ -19,6 +19,7 @@ function Clause(type) {
     this.field = '';
     this.content = '';
 }
+
 function Query(unstructured, cdmQuery) {
     /**
      * @type {String}
@@ -326,7 +327,7 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
     /**
      * @param {PatientHit} hit
      */
-    this.showPatientSpecificResults = function(hit) {
+    this.showPatientSpecificResults = function (hit) {
         this.currentPage = 0;
         this.currPatientDocHits = hit.docs;
         this.currPatientDocHits = this.getHits();
@@ -369,6 +370,78 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
     this.refresh = function (force) {
         this.model.query.refresh($http, force);
     };
+
+    this.currFile = null;
+    // Handle file selection
+    var currController = this;
+    $scope.$on("fileSelected", function (event, args) {
+        $scope.$apply(function () {
+            //add the file object to the scope's files collection
+            currController.currFile = args.file;
+        });
+    });
+
+    this.loadUploaded = function () {
+        if (this.currFile === null) {
+            return;
+        }
+        var fr = new FileReader();
+        var currController = this;
+        fr.onload = function (e) {
+            // Deep copy so that we don't overwrite function methods
+            var contents = e.target.result;
+            var obj = JSON.parse(contents);
+
+            // - Copy Query
+            currController.model.query.unstructured = obj.model.query.unstructured;
+            currController.model.query.structured = obj.model.query.structured;
+            currController.model.query.cdmQuery = obj.model.query.cdmQuery;
+            currController.model.query.lastRefresh = obj.model.query.lastRefresh;
+            // - Copy Hits
+            currController.model.hits = obj.model.hits;
+            currController.model.patientHits = obj.model.patientHits;
+            // - Copy Filters
+            currController.model.docFilter.patients = obj.model.docFilter.patients;
+            currController.model.docFilter.patientOptions = obj.model.docFilter.patientOptions;
+            currController.model.docFilter.sections = obj.model.docFilter.sections;
+            currController.model.docFilter.sectionOptions = obj.model.docFilter.sectionOptions;
+            // - Copy Judgements
+            currController.model.docJudgements = obj.model.docJudgements;
+            currController.model.patientJudgements = obj.model.patientJudgements;
+            // - Restore View State
+            currController.currView = obj.currView;
+            currController.model.completed = obj.model.completed;
+            currController.model.submitted = obj.model.submitted;
+            currController.model.currentPage = obj.model.currentPage;
+            currController.model.pageSize = obj.model.pageSize;
+            currController.model.currPageCount = obj.model.currPageCount;
+            currController.model.currNumPagesArr = obj.model.currNumPagesArr;
+            // - TODO reset pagination for patient view modals
+            // Apply to angular (so that it redraws)
+            $scope.$apply();
+        };
+        fr.readAsText(this.currFile);
+    };
+
+
+    // export state to json file
+    this.exportToFile = function () {
+        var exportName = prompt("Please input a name for this query", "Query Name");
+        var filename = exportName + ".json";
+        var blob = new Blob([angular.toJson(this, true)], {type: 'text/plain'});
+        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
+            window.navigator.msSaveOrOpenBlob(blob, filename);
+        } else {
+            var e = document.createEvent('MouseEvents'),
+                a = document.createElement('a');
+            a.download = filename;
+            a.href = window.URL.createObjectURL(blob);
+            a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
+            e.initEvent('click', true, false);
+            a.dispatchEvent(e);
+            // window.URL.revokeObjectURL(url); // clean the url.createObjectURL resource
+        }
+    }
 });
 // Used for pagination
 app.filter('startFrom', function () {
@@ -378,8 +451,8 @@ app.filter('startFrom', function () {
     }
 });
 // TODO from stack overflow, understand this code and cleanup/modify
-app.filter('range', function() {
-    return function(val, limit, current) {
+app.filter('range', function () {
+    return function (val, limit, current) {
         var arr = [];
         if (current < 6) {
 
@@ -405,14 +478,30 @@ app.filter('range', function() {
         }
         return arr;
     }
-}).filter('slice', function() {
-    return function(arr, end, start) {
+}).filter('slice', function () {
+    return function (arr, end, start) {
         start = start || 0;
         return (arr || []).slice(start, start + end);
     };
-}).filter('isNum', function() {
-    return function(val) {
+}).filter('isNum', function () {
+    return function (val) {
         return !isNaN(val)
     };
 });
+app.directive('fileUpload', function () {
+    return {
+        scope: true,        //create a new scope
+        link: function (scope, el, attrs) {
+            el.bind('change', function (event) {
+                var files = event.target.files;
+                //iterate files since 'multiple' may be specified on the element
+                for (var i = 0; i < files.length; i++) {
+                    //emit event upward
+                    scope.$emit("fileSelected", {file: files[i]});
+                }
+            });
+        }
+    };
+});
+
 

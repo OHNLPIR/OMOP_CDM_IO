@@ -388,10 +388,17 @@
         </ul>
     </div>
 </div>
-<div class="row" id="footer" style="border-top: 1px solid #808080">
-    <div class="col-xs-12 text-center" ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true">
+<div class="row" id="footer" style="border-top: 1px solid #808080; padding-top: 10px;">
+    <div class="col-xs-10 text-center" ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true">
         Search Statistics | {{EMIRS.model.hits.length}} Documents | {{EMIRS.model.docFilter.patientOptions.length}}
         Patients
+    </div>
+    <div class="col-xs-2 pull-right">
+        <ul class="list-inline">
+            <li><a href="#" data-toggle="modal" data-target="#query_load_modal">Load Saved Query</a></li>
+            <li><a href="#" ng-click="EMIRS.exportToFile()">Save Current Query</a></li>
+        </ul>
+
     </div>
 </div>
 <!-- Patient Document Results Modal -->
@@ -466,6 +473,27 @@
                         </ul>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- File Upload Modal -->
+<!-- Patient Document Results Modal -->
+<div class="modal fade" id="query_load_modal" role="dialog">
+    <div class="modal-dialog" style="width:1200px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Upload Query</h4>
+            </div>
+            <div class="modal-body">
+                <label>
+                    Saved query file:
+                    <input type="file" file-upload>
+                </label>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" data-dismiss="modal" ng-click="EMIRS.loadUploaded()">Submit</button>
             </div>
         </div>
     </div>
