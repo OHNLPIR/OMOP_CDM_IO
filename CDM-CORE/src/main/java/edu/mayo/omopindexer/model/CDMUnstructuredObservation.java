@@ -10,11 +10,21 @@ import org.json.JSONObject;
 public class CDMUnstructuredObservation implements CDMModel {
     /** The textual contents of this unstructured observation */
     private final String mention;
+    /**
+     * NLP Positional Information
+     */
+    private final int begin;
+    /**
+     * NLP Positional Information
+     */
+    private final int end;
 
     /** Included for reflection compatibility: do not use, do not remove */
-    private CDMUnstructuredObservation() {this(null);}
+    private CDMUnstructuredObservation() {this(0, 0, null);}
 
-    public CDMUnstructuredObservation(String mention) {
+    public CDMUnstructuredObservation(int begin, int end, String mention) {
+        this.begin = begin;
+        this.end = end;
         this.mention = mention;
     }
 

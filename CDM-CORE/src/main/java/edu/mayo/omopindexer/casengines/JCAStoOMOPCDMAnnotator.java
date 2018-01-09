@@ -84,6 +84,8 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
         // Condition Occurrences
         // - Disease and Disorder
         for (DiseaseDisorderMention mention : JCasUtil.select(jCas, DiseaseDisorderMention.class)) {
+            int begin = mention.getBegin();
+            int end = mention.getEnd();
             // - Add to used
             usedAnns.add(mention);
             // - Handle Text
@@ -94,13 +96,17 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                 for (TimeMention t : sentenceToTime.get(s)) {
                     String timeText = t.getCoveredText();
                     dateMentions.add(timeText);
+                    begin = Math.min(begin, t.getBegin());
+                    end = Math.max(end, t.getEnd());
                 }
             }
-            CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMConditionOccurrence(mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
+            CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMConditionOccurrence(begin, end, mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
         }
 
         // - Sign and Symptom
         for (SignSymptomMention mention : JCasUtil.select(jCas, SignSymptomMention.class)) {
+            int begin = mention.getBegin();
+            int end = mention.getEnd();
             // - Add to used
             usedAnns.add(mention);
             // - Handle Text
@@ -111,15 +117,19 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                 for (TimeMention t : sentenceToTime.get(s)) {
                     String timeText = t.getCoveredText();
                     dateMentions.add(timeText);
+                    begin = Math.min(begin, t.getBegin());
+                    end = Math.max(end, t.getEnd());
                 }
             }
-            CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMConditionOccurrence(mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
+            CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMConditionOccurrence(begin, end, mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
         }
 
 
         // Drug Exposures
         // - Medication
         for (MedicationMention mention : JCasUtil.select(jCas, MedicationMention.class)) {
+            int begin = mention.getBegin();
+            int end = mention.getEnd();
             // - Add to used
             usedAnns.add(mention);
             Map<String, String> mentionText = expandUMLSConcepts(mention.getCoveredText(), mention.getOntologyConceptArr());
@@ -138,6 +148,8 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                     }
                 }
                 effectiveDrugDose = currMax.getCoveredText(); //TODO is this quantity or effective?
+                begin = Math.min(begin, currMax.getBegin());
+                end = Math.max(end, currMax.getEnd());
             }
             // - Handle Date
             List<String> dateMentions = new LinkedList<>();
@@ -145,13 +157,17 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                 for (TimeMention t : sentenceToTime.get(s)) {
                     String timeText = t.getCoveredText();
                     dateMentions.add(timeText);
+                    begin = Math.min(begin, t.getBegin());
+                    end = Math.max(end, t.getEnd());
                 }
             }
-            CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMDrugExposure(mentionText, null, null, effectiveDrugDose, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.DRUG).toArray(new CDMDate[0]))); // TODO
+            CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMDrugExposure(begin, end, mentionText, null, null, effectiveDrugDose, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.DRUG).toArray(new CDMDate[0]))); // TODO
         }
 
         // Measurement
         for (MeasurementAnnotation mention : JCasUtil.select(jCas, MeasurementAnnotation.class)) {
+            int begin = mention.getBegin();
+            int end = mention.getEnd();
             // - Add to used
             usedAnns.add(mention);
             String mentionText = mention.getCoveredText();
@@ -173,7 +189,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                     } else {
                         dValue = Double.parseDouble(rangeItem);
                     }
-                    CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMMeasurement(rangeItem + unit, null, null, dValue));
+                    CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMMeasurement(begin, end, rangeItem + unit, null, null, dValue));
                 }
             } else {
                 Double dValue;
@@ -182,7 +198,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                 } else {
                     dValue = Double.parseDouble(value);
                 }
-                CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMMeasurement(mentionText, null, null, dValue));
+                CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMMeasurement(begin, end, mentionText, null, null, dValue));
             }
         }
         // Unstructured Observations
@@ -193,7 +209,7 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
         }
         for (Sentence s : JCasUtil.select(jCas, Sentence.class)) {
             if (tree.getCollisions(s.getBegin(), s.getEnd(), Annotation.class).size() == 0) {
-                CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMUnstructuredObservation(s.getCoveredText()));
+                CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMUnstructuredObservation(s.getBegin(), s.getEnd(), s.getCoveredText()));
             }
         }
         AnnotationCache.removeAnnotationCache(id + "_used");

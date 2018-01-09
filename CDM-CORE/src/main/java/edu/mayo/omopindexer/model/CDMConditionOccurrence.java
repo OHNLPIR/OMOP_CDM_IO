@@ -14,6 +14,14 @@ import java.util.Map;
 public class CDMConditionOccurrence implements CDMModel {
     /** A mapping of condition occurrences to their vocabulary types */
     private final Map<String, String> mention;
+    /**
+     * NLP Positional Information
+     */
+    private final int begin;
+    /**
+     * NLP Positional Information
+     */
+    private final int end;
 
     /**
      *  An array of {@link edu.mayo.omopindexer.model.CDMDate} representations for this occurrence's date information
@@ -22,11 +30,13 @@ public class CDMConditionOccurrence implements CDMModel {
     private final CDMDate[] date;
 
     /** Included for reflection compatibility: do not use, do not remove */
-    private CDMConditionOccurrence() {this(null, null);}
+    private CDMConditionOccurrence() {this(0, 0, null, null);}
 
-    public CDMConditionOccurrence(Map<String, String> occurrenceMentions, CDMDate... dates) {
+    public CDMConditionOccurrence(int begin, int end, Map<String, String> occurrenceMentions, CDMDate... dates) {
         this.mention = occurrenceMentions;
         this.date = dates;
+        this.begin = begin;
+        this.end = end;
     }
 
     /**
@@ -61,6 +71,8 @@ public class CDMConditionOccurrence implements CDMModel {
         }
         ret.put("date", dateArray);
         ret.put("model_type", "ConditionOccurrence");
+        ret.put("begin", begin);
+        ret.put("end", end);
         return ret;
     }
 

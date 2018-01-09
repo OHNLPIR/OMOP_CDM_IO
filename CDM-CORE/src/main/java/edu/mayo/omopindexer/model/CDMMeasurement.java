@@ -28,19 +28,29 @@ public class CDMMeasurement implements CDMModel {
      * The string value that this measurement pertains to
      */
     private final String textRef;
+    /**
+     * NLP Positional Information
+     */
+    private final int begin;
+    /**
+     * NLP Positional Information
+     */
+    private final int end;
 
     /**
      * Included for reflection compatibility: do not use, do not remove
      */
     private CDMMeasurement() {
-        this(null, null, null, null);
+        this(0, 0, null, null, null, null);
     }
 
-    public CDMMeasurement(String textRef, Long measurementUID, Long operator_concept_id, Double value) {
+    public CDMMeasurement(int begin, int end, String textRef, Long measurementUID, Long operator_concept_id, Double value) {
         this.textRef = textRef;
         this.measurementUID = measurementUID;
         this.operator_concept_id = operator_concept_id;
         this.value = value;
+        this.begin = begin;
+        this.end = end;
     }
 
     /**
@@ -82,6 +92,8 @@ public class CDMMeasurement implements CDMModel {
         ret.put("operator_concept_id", operator_concept_id);
         if (value != null) ret.put("value", value); else ret.put("value", (Double)null);
         ret.put("model_type", "Measurement");
+        ret.put("begin", begin);
+        ret.put("end", end);
         return ret;
     }
 

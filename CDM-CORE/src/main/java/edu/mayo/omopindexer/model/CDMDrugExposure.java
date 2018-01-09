@@ -30,18 +30,28 @@ public class CDMDrugExposure implements CDMModel {
      * The effective drug dose of this exposure
      */
     private final String effectiveDrugDose;
+    /**
+     * NLP Positional Information
+     */
+    private final int begin;
+    /**
+     * NLP Positional Information
+     */
+    private final int end;
 
     /** Included for reflection compatibility: do not use, do not remove */
     private CDMDrugExposure() {
-        this(null, null, null, null, null);
+        this(0, 0, null, null, null, null, null);
     }
 
-    public CDMDrugExposure(Map<String, String> mention, Double quantity, String unit, String effectiveDrugDose, CDMDate... dates) {
+    public CDMDrugExposure(int begin, int end, Map<String, String> mention, Double quantity, String unit, String effectiveDrugDose, CDMDate... dates) {
         this.mention = mention;
         this.date = dates;
         this.quantity = quantity;
         this.unit = unit;
         this.effectiveDrugDose = effectiveDrugDose;
+        this.begin = begin;
+        this.end = end;
     }
 
     /**
@@ -99,6 +109,8 @@ public class CDMDrugExposure implements CDMModel {
         }
         ret.put("date", dateArray);
         ret.put("model_type", "DrugExposure");
+        ret.put("begin", begin);
+        ret.put("end", end);
         return ret;
     }
 
