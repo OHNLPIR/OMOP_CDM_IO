@@ -109,7 +109,7 @@ public class TopicSearchController {
                         for (SearchHit hit : scrollResp.getHits()) {
                             patientIDs.add(Integer.valueOf(hit.getId()));
                         }
-                        scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
+                        scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(6000000)).execute().actionGet();
                     } while(scrollResp.getHits().getHits().length != 0);
                     // we have these IDs, now run a document level search
                     // - Get topic description TODO do we really need to redo here?
@@ -151,7 +151,7 @@ public class TopicSearchController {
                         root =  new HasParentQueryBuilder("Encounter", QueryBuilders.matchAllQuery(), false);
                     }
                     QueryBuilder actualQuery = QueryBuilders.boolQuery().should(documentQuery).filter(new HasParentQueryBuilder("Encounter", new HasParentQueryBuilder("Person", root, false), false));
-                    SearchResponse resp = client.prepareSearch().setQuery(documentQuery).setSize(1000).execute().actionGet();
+                    SearchResponse resp = client.prepareSearch().setQuery(actualQuery).setSize(1000).execute().actionGet();
                     LinkedList<TopicResultEntry> result = new LinkedList<>();
                     for (SearchHit hit : resp.getHits()) {
                         // DO we really want to add the document text? (no)

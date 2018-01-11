@@ -122,7 +122,6 @@ public class RunTopicPool {
                         out.close();
                     }
                 }
-
             }
             setSimilarity("index", client, Similarity.BM25);
             for (String topicID : names) {
