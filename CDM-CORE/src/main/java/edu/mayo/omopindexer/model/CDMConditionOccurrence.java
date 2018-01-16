@@ -80,6 +80,8 @@ public class CDMConditionOccurrence implements CDMModel {
     public JSONObject getJSONMapping() {
         JSONObject ret = new JSONObject();
         ret.put("condition_occurrence", constructTypeObject("string"));
+        ret.put("begin", constructTypeObject("long"));
+        ret.put("end", constructTypeObject("long"));
         ret.put("date", constructNestedDateTypeObject());
         return ret;
     }

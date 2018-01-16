@@ -121,6 +121,8 @@ public class CDMDrugExposure implements CDMModel {
         ret.put("effectiveDrugDose", constructTypeObject("string"));
         ret.put("unit", constructTypeObject("string"));
         ret.put("date", constructNestedDateTypeObject());
+        ret.put("begin", constructTypeObject("long"));
+        ret.put("end", constructTypeObject("long"));
         return ret;
     }
 

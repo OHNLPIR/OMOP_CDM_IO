@@ -104,6 +104,8 @@ public class CDMMeasurement implements CDMModel {
         ret.put("measurementid", constructTypeObject("long"));
         ret.put("operator_concept_id", constructTypeObject("integer"));
         ret.put("value", constructTypeObject("float"));
+        ret.put("begin", constructTypeObject("long"));
+        ret.put("end", constructTypeObject("long"));
         return ret;
     }
 
