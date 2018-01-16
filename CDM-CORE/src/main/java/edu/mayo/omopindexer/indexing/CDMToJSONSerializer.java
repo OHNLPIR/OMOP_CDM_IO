@@ -57,6 +57,7 @@ public class CDMToJSONSerializer {
         JSONObject document = new JSONObject();
         document.put("DocumentID", documentID);
         document.put("RawText", documentText);
+        document.put("DocLength", documentText.split(" ").length); // Matches MALLET tokenization
         document.put("Header", documentHeader);
         document.put("Section_Name", sectionName);
         document.put("Section_ID", Integer.valueOf(sectionID));
