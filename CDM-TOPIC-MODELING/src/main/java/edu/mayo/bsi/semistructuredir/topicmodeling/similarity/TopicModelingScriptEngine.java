@@ -17,10 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 public class TopicModelingScriptEngine implements ScriptEngineService {
-    private static Map<String, double[]> TOPIC_WEIGHT_MAP; // lower case word -> weight vector by topic
-    private static int NUM_TOPICS = 300;
+    private Map<String, double[]> TOPIC_WEIGHT_MAP; // lower case word -> weight vector by topic
+    private int NUM_TOPICS = 300;
 
-    static {
+    public TopicModelingScriptEngine() {
         TOPIC_WEIGHT_MAP = new ConcurrentHashMap<>();
         File weights = new File("model.tsv");
         try {
@@ -65,7 +65,7 @@ public class TopicModelingScriptEngine implements ScriptEngineService {
     public void close() {
     }
 
-    private static class TopicModelingSearchScript implements SearchScript {
+    private class TopicModelingSearchScript implements SearchScript {
 
         /**
          * The query itself
@@ -119,7 +119,7 @@ public class TopicModelingScriptEngine implements ScriptEngineService {
         return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
     }
 
-    private static class TopicModelingInternalSearchScript extends AbstractDoubleSearchScript {
+    private class TopicModelingInternalSearchScript extends AbstractDoubleSearchScript {
 
         private double[] queryVec;
 
