@@ -15,6 +15,7 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.json.JSONArray;
@@ -58,8 +59,10 @@ public class SearchController {
         QueryBuilder esQuery = query.toESQuery();
         SearchResponse resp = client.prepareSearch(properties.getEs().getIndexName())
                 .setQuery(esQuery)
-                .setSize(1000)
-                .setScroll(new TimeValue(60000))
+                .setSize(1000000)
+//                .setScroll(new TimeValue(60000))
+                .addSort(SortBuilders.scoreSort())
+                .setProfile(true)
                 .execute()
                 .actionGet();
         return processResponse(resp, query);
@@ -80,23 +83,24 @@ public class SearchController {
         }
         if (query.getStructured() != null && query.getStructured().size() > 0) {
             SearchResponse scrollResp = client.prepareSearch(properties.getEs().getIndexName())
-                    .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC)
+                    .addSort(SortBuilders.scoreSort())
                     .setScroll(new TimeValue(60000))
                     .setQuery(query.getPatientIDFilterQuery())
-                    .setSize(100).get();
+                    .setSize(1000).get();
             ArrayList<Integer> patientIDs = new ArrayList<>();
             do {
                 for (SearchHit hit : scrollResp.getHits()) {
                     patientIDs.add(Integer.valueOf(hit.getId()));
                 }
                 scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
-            } while(scrollResp.getHits().getHits().length != 0);
+            } while (scrollResp.getHits().getHits().length != 0);
             query.setPatientIDFilter(patientIDs);
         }
     }
 
     @RequestMapping(value = "/_patient", method = RequestMethod.POST)
-    public @ResponseBody Patient getPatient(@RequestBody String id) {
+    public @ResponseBody
+    Patient getPatient(@RequestBody String id) {
         if (client == null) {
             Settings settings = Settings.builder() // TODO cleanup
                     .put("cluster.name", properties.getEs().getClusterName()).build();
@@ -138,7 +142,8 @@ public class SearchController {
     }
 
     @RequestMapping(value = "/_cdm", method = RequestMethod.POST)
-    public @ResponseBody ArrayList<JsonNode> getCDMObjects(@RequestBody String text) {
+    public @ResponseBody
+    ArrayList<JsonNode> getCDMObjects(@RequestBody String text) {
         // Initialize values from properties if needed
         if (UIMA_REST_URL == null) {
             UIMA_REST_URL = "http://" + properties.getUima().getHost() + ":" + properties.getUima().getPort() + "/";
@@ -167,39 +172,39 @@ public class SearchController {
         result.setQuery(query);
         // Associated Documents
         List<DocumentHit> hits = new LinkedList<>();
-        do {
-        for (SearchHit hit : resp.getHits()) {
-            DocumentHit qHit = new DocumentHit();
-            // Document
-            Document doc = new Document();
-            Map<String, Object> source = hit.getSource();
-            String docIDRaw = source.get("DocumentID").toString(); // TODO this is really specific/infrastructure dependent way of doing things
-            String[] docFields = docIDRaw.split("_");
-            doc.setDocLinkId(docFields[1]);
-            doc.setRevision(docFields[2]);
-            doc.setDocType(docFields[3]); //TODO
-            doc.setIndexDocID(docIDRaw);
-            doc.setText(source.get("RawText").toString());
-            doc.setSectionName(source.get("Section_Name").toString());
-            doc.setSectionID(source.get("Section_ID").toString());
-            qHit.setDoc(doc);
-            // Encounter
-            Encounter encounter = new Encounter();
-            String[] encounterParts = source.get("Encounter_ID").toString().split(":"); //mrn:encounter_tmr:dob
-            encounter.setEncounterDate(new Date(new Long(encounterParts[1])));
-            encounter.setEncounterAge(Long.valueOf(encounterParts[1]) - Long.valueOf(encounterParts[2])); // date - dob
-            qHit.setEncounter(encounter);
-            // Patient
-            String pid = docFields[0].trim();
-            // TODO: parallelize maybe
-            Patient patient = patientMap.computeIfAbsent(pid, k -> getPatient(pid));
-            qHit.setPatient(patient);
-            qHit.setScore(hit.getScore());
-            hits.add(qHit);
-            patientFreqMap.merge(pid, 1, (k, v) -> v + 1);
-        }
-            resp = client.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
-        } while(resp.getHits().getHits().length != 0);
+//        do {
+            for (SearchHit hit : resp.getHits()) {
+                DocumentHit qHit = new DocumentHit();
+                // Document
+                Document doc = new Document();
+                Map<String, Object> source = hit.getSource();
+                String docIDRaw = source.get("DocumentID").toString(); // TODO this is really specific/infrastructure dependent way of doing things
+                String[] docFields = docIDRaw.split("_");
+                doc.setDocLinkId(docFields[1]);
+                doc.setRevision(docFields[2]);
+                doc.setDocType(docFields[3]); //TODO
+                doc.setIndexDocID(docIDRaw);
+                doc.setText(source.get("RawText").toString());
+                doc.setSectionName(source.get("Section_Name").toString());
+                doc.setSectionID(source.get("Section_ID").toString());
+                qHit.setDoc(doc);
+                // Encounter
+                Encounter encounter = new Encounter();
+                String[] encounterParts = source.get("Encounter_ID").toString().split(":"); //mrn:encounter_tmr:dob
+                encounter.setEncounterDate(new Date(new Long(encounterParts[1])));
+                encounter.setEncounterAge(Long.valueOf(encounterParts[1]) - Long.valueOf(encounterParts[2])); // date - dob
+                qHit.setEncounter(encounter);
+                // Patient
+                String pid = docFields[0].trim();
+                // TODO: parallelize maybe
+                Patient patient = patientMap.computeIfAbsent(pid, k -> getPatient(pid));
+                qHit.setPatient(patient);
+                qHit.setScore(hit.getScore());
+                hits.add(qHit);
+                patientFreqMap.merge(pid, 1, (k, v) -> v + 1);
+            }
+//            resp = client.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
+//        } while (resp.getHits().getHits().length != 0);
 
         // Associated Patients
         // - Order them
