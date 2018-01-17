@@ -25,6 +25,11 @@ public class CDMQueryGenerator {
     private boolean encounterAgeLowInclusive;
     private boolean encounterAgeHighInclusive;
     private boolean encounterAgeDirty;
+    private Date encounterDateLow;
+    private Date encounterDateHigh;
+    private boolean encounterDateLowInclusive;
+    private boolean encounterDateHighInclusive;
+    private boolean encounterDateDirty;
 
     public CDMQueryGenerator() {
         this.models = new LinkedList<>();
@@ -35,6 +40,11 @@ public class CDMQueryGenerator {
         this.encounterAgeHighInclusive = false;
         this.encounterAgeLowInclusive = false;
         this.encounterAgeDirty = false;
+        this.encounterDateHigh = null;
+        this.encounterDateLow = null;
+        this.encounterDateHighInclusive = false;
+        this.encounterDateLowInclusive = false;
+        this.encounterDateDirty = false;
     }
 
     public CDMQueryGenerator addCDMObjects(JSONObject... objects) {
@@ -55,14 +65,29 @@ public class CDMQueryGenerator {
     public CDMQueryGenerator setEncounterAgeLow(long age, boolean inclusive) {
         this.encounterAgeLow = age;
         this.encounterAgeLowInclusive = inclusive;
-        this.encounterAgeDirty = this.encounterAgeHigh != -1 && this.encounterAgeLow != -1;
+        this.encounterAgeDirty = this.encounterAgeHigh > 0 && this.encounterAgeLow > 0;
         return this;
     }
 
     public CDMQueryGenerator setEncounterAgeHigh(long age, boolean inclusive) {
         this.encounterAgeHigh = age;
         this.encounterAgeHighInclusive = inclusive;
-        this.encounterAgeDirty = this.encounterAgeHigh != -1 && this.encounterAgeLow != -1;
+        this.encounterAgeDirty = this.encounterAgeHigh > 0 && this.encounterAgeLow > 0;
+        return this;
+    }
+
+
+    public CDMQueryGenerator setEncounterDateLow(Date date, boolean inclusive) {
+        this.encounterDateLow = date;
+        this.encounterDateLowInclusive = inclusive;
+        this.encounterDateDirty = this.encounterDateHigh != null && this.encounterDateLow != null;
+        return this;
+    }
+
+    public CDMQueryGenerator setEncounterDateHigh(Date date, boolean inclusive) {
+        this.encounterDateHigh = date;
+        this.encounterDateHighInclusive = inclusive;
+        this.encounterDateDirty = this.encounterDateHigh != null && this.encounterDateLow != null;
         return this;
     }
 
@@ -114,6 +139,23 @@ public class CDMQueryGenerator {
                     encounterAgeQuery.to(null);
                 }
                 encounterFilterQuery = QueryBuilders.boolQuery().must(encounterFilterQuery).must(encounterAgeQuery);
+            }
+            if (this.encounterDateDirty) {
+                RangeQueryBuilder encounterDateQuery = QueryBuilders.rangeQuery("encounter_date");
+                if (this.encounterDateLow != null) {
+                    encounterDateQuery.from(this.encounterDateLow, this.encounterDateLowInclusive);
+                } else {
+                    encounterDateQuery.from(null);
+                }
+                if (this.encounterDateHigh != null) {
+                    encounterDateQuery.to(this.encounterDateHigh, this.encounterDateHighInclusive);
+                } else {
+                    encounterDateQuery.to(null);
+                }
+                encounterFilterQuery =  // If filter is already bool add clause otherwise construct a new bool query with 2 clauses
+                        encounterFilterQuery instanceof BoolQueryBuilder ?
+                                ((BoolQueryBuilder) encounterFilterQuery).must(encounterDateQuery) :
+                                QueryBuilders.boolQuery().must(encounterFilterQuery).must(encounterDateQuery);
             }
             document.must(new HasParentQueryBuilder("Encounter", encounterFilterQuery, false));
         }
