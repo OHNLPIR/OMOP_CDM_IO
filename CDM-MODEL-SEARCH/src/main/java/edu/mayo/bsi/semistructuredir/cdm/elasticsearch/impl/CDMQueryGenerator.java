@@ -4,6 +4,7 @@ import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.join.query.HasChildQueryBuilder;
 import org.elasticsearch.join.query.HasParentQueryBuilder;
 import org.json.JSONArray;
@@ -19,11 +20,21 @@ public class CDMQueryGenerator {
     private List<JSONObject> models;
     private List<Integer> personIDs;
     private ScoreMode scoreMode;
+    private long encounterAgeLow;
+    private long encounterAgeHigh;
+    private boolean encounterAgeLowInclusive;
+    private boolean encounterAgeHighInclusive;
+    private boolean encounterAgeDirty;
 
     public CDMQueryGenerator() {
         this.models = new LinkedList<>();
         this.personIDs = new LinkedList<>();
         this.scoreMode = ScoreMode.Avg;
+        this.encounterAgeHigh = -1;
+        this.encounterAgeLow = -1;
+        this.encounterAgeHighInclusive = false;
+        this.encounterAgeLowInclusive = false;
+        this.encounterAgeDirty = false;
     }
 
     public CDMQueryGenerator addCDMObjects(JSONObject... objects) {
@@ -38,6 +49,20 @@ public class CDMQueryGenerator {
 
     public CDMQueryGenerator setScoreMode(ScoreMode mode) {
         this.scoreMode = mode;
+        return this;
+    }
+
+    public CDMQueryGenerator setEncounterAgeLow(long age, boolean inclusive) {
+        this.encounterAgeLow = age;
+        this.encounterAgeLowInclusive = inclusive;
+        this.encounterAgeDirty = this.encounterAgeHigh != -1 && this.encounterAgeLow != -1;
+        return this;
+    }
+
+    public CDMQueryGenerator setEncounterAgeHigh(long age, boolean inclusive) {
+        this.encounterAgeHigh = age;
+        this.encounterAgeHighInclusive = inclusive;
+        this.encounterAgeDirty = this.encounterAgeHigh != -1 && this.encounterAgeLow != -1;
         return this;
     }
 
@@ -75,7 +100,22 @@ public class CDMQueryGenerator {
                 }
                 root.must(persons);
             }
-            document.must(new HasParentQueryBuilder("Encounter", new HasParentQueryBuilder("Person", root, false), false));
+            QueryBuilder encounterFilterQuery = new HasParentQueryBuilder("Person", root, false); // Default is to just check for a person that matches criteria
+            if (this.encounterAgeDirty) { // If we do have encounter age limits, we want to add to encounter filter
+                RangeQueryBuilder encounterAgeQuery = QueryBuilders.rangeQuery("encounter_age");
+                if (this.encounterAgeLow > 0) { // Can't have a negative age
+                    encounterAgeQuery.from(this.encounterAgeLow, this.encounterAgeLowInclusive);
+                } else {
+                    encounterAgeQuery.from(null);
+                }
+                if (this.encounterAgeHigh > 0) { // Can't have a negative age
+                    encounterAgeQuery.to(this.encounterAgeHigh, this.encounterAgeHighInclusive);
+                } else {
+                    encounterAgeQuery.to(null);
+                }
+                encounterFilterQuery = QueryBuilders.boolQuery().must(encounterFilterQuery).must(encounterAgeQuery);
+            }
+            document.must(new HasParentQueryBuilder("Encounter", encounterFilterQuery, false));
         }
         return document;
     }
