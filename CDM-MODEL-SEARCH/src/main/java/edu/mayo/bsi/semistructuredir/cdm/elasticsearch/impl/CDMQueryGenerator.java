@@ -91,7 +91,7 @@ public class CDMQueryGenerator {
         return this;
     }
 
-    // TODO: support adding encounter limitations etc
+    // TODO: some of this stuff (mainly revolving around document parents) should probably be moved as separate functionality
 
     public QueryBuilder build() {
         // Build child

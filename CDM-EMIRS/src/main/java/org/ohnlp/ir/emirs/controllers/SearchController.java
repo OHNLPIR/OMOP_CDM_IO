@@ -66,7 +66,7 @@ public class SearchController {
     }
 
     /**
-     * Populates model query fields from unstructured text query,
+     * Populates model query fields from an input query,
      *
      * @param query
      */

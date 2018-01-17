@@ -12,7 +12,11 @@ import org.elasticsearch.join.query.HasParentQueryBuilder;
 import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 @JsonIgnoreProperties({"patientIDFilter", "patientIDFilterQuery"})
@@ -56,6 +60,66 @@ public class Query {
             for (JsonNode node : getCdmQuery()) {
                 cdmQuery.addCDMObjects(new JSONObject(node.toString()));
             }
+            // Special case handling for
+            if (structured != null) { // TODO this shouldn't be dependent on having a CDM Query
+                for (Clause c : structured) {
+                    if (c.getRecordType().equalsIgnoreCase("Encounter")) {
+                        if (c.getField().equalsIgnoreCase("encounter_date")) {
+                            String dateString = c.getContent().replaceAll("\\s", "");
+                            Pattern dateRangePattern = Pattern.compile("R([\\[(])(\\d{4}-\\d{2}-\\d{2})?,(\\d{4}-\\d{2}-\\d{2})?([\\])])", Pattern.CASE_INSENSITIVE);
+                            if (dateString.matches(dateRangePattern.pattern())) {
+                                Matcher m = dateRangePattern.matcher(dateString);
+                                if (!m.find()) {
+                                    throw new AssertionError("Matched range but new matcher did not match!");
+                                }
+                                if (m.group(2) != null) {
+                                    boolean inclusiveLow = m.group(1).equals("[");
+                                    Date date = stringToDate(m.group(2));
+                                    cdmQuery.setEncounterDateLow(date, inclusiveLow);
+                                }
+                                if (m.group(3) != null) {
+                                    boolean inclusiveHigh = m.group(4).equals("]");
+                                    Date date = stringToDate(m.group(3));
+                                    cdmQuery.setEncounterDateHigh(date, inclusiveHigh);
+                                }
+                            } else {
+                                Date date = stringToDate(dateString);
+                                if (date != null) {
+                                    cdmQuery.setEncounterDateLow(date, true);
+                                    cdmQuery.setEncounterDateHigh(date, true);
+                                }
+                            }
+                        } else if (c.getField().equalsIgnoreCase("encounter_age")) {
+                            String ageString = c.getContent().replaceAll("\\s", "");
+                            Pattern ageRangePattern = Pattern.compile("R([\\[(])(\\d+)?,(\\d+)?([\\])])", Pattern.CASE_INSENSITIVE);
+                            if (ageString.matches(ageRangePattern.pattern())) {
+                                Matcher m = ageRangePattern.matcher(ageString);
+                                if (!m.find()) {
+                                    throw new AssertionError("Matched range but new matcher did not match!");
+                                }
+                                if (m.group(2) != null) {
+                                    boolean inclusiveLow = m.group(1).equals("[");
+                                    long age = Long.valueOf(m.group(2));
+                                    cdmQuery.setEncounterAgeLow(age, inclusiveLow);
+                                }
+                                if (m.group(3) != null) {
+                                    boolean inclusiveHigh = m.group(4).equals("]");
+                                    long age = Long.valueOf(m.group(3));
+                                    cdmQuery.setEncounterAgeHigh(age, inclusiveHigh);
+                                }
+                            } else {
+                                try {
+                                    long age = Long.valueOf(ageString);
+                                    cdmQuery.setEncounterAgeHigh(age, true);
+                                    cdmQuery.setEncounterAgeLow(age, true);
+                                } catch (Exception ignored) {
+                                    // Invalid format, fail silently
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             queryBuilder.should(cdmQuery.build());
         }
 
@@ -76,13 +140,23 @@ public class Query {
                     false)
             );
         }
-        if (structured != null && structured.size() > 0) {
-            BoolQueryBuilder temp = QueryBuilders.boolQuery();
-            temp.should(queryBuilder);
-            temp.should(QueryGeneratorFactory.newStructuredQuery().setStructuredQuery(getStructuredAsSSQ(false)).build());
-        }
+//        if (structured != null && structured.size() > 0) { // TODO boost scores for soft-match/non-filtering clauses in structured query
+//            BoolQueryBuilder temp = QueryBuilders.boolQuery();
+//            temp.should(queryBuilder);
+//            temp.should(QueryGeneratorFactory.newStructuredQuery().setStructuredQuery(getStructuredAsSSQ(false)).build());
+//        }
+
         setJsonSrc(queryBuilder.toString());
         return queryBuilder;
+    }
+
+    // Parses YYYY-MM-DD to Date objects
+    private Date stringToDate(String date) {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd").parse(date);
+        } catch (ParseException e) {
+            return null; // Invalid format, return null, but should never be reached due to regex
+        }
     }
 
     public QueryBuilder getPatientIDFilterQuery() {
@@ -102,7 +176,7 @@ public class Query {
         this.cdmQuery = cdmQuery;
     }
 
-    public String getStructuredAsSSQ(boolean filtering) {
+    private String getStructuredAsSSQ(boolean filtering) {
         Map<String, List<Clause>> map = new HashMap<>();
         for (Clause clause : structured) {
             map.computeIfAbsent(clause.getRecordType(), (k) -> new LinkedList<>()).add(clause);
