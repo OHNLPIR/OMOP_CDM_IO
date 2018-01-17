@@ -59,7 +59,7 @@ public class SearchController {
         QueryBuilder esQuery = query.toESQuery();
         SearchResponse resp = client.prepareSearch(properties.getEs().getIndexName())
                 .setQuery(esQuery)
-                .setSize(1000000)
+                .setSize(10000)
 //                .setScroll(new TimeValue(60000))
                 .addSort(SortBuilders.scoreSort())
                 .setProfile(true)
