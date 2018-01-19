@@ -14,9 +14,7 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.sort.FieldSortBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,6 +32,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.logging.Logger;
 
 @Controller
 public class SearchController {
@@ -60,9 +59,8 @@ public class SearchController {
         SearchResponse resp = client.prepareSearch(properties.getEs().getIndexName())
                 .setQuery(esQuery)
                 .setSize(10000)
-//                .setScroll(new TimeValue(60000))
+                .setScroll(new TimeValue(60000))
                 .addSort(SortBuilders.scoreSort())
-                .setProfile(true)
                 .execute()
                 .actionGet();
         return processResponse(resp, query);
@@ -172,7 +170,9 @@ public class SearchController {
         result.setQuery(query);
         // Associated Documents
         List<DocumentHit> hits = new LinkedList<>();
-//        do {
+        int iteration = 0;
+        do {
+            Logger.getLogger("debug-log").info("Current iteration: " + iteration++);
             for (SearchHit hit : resp.getHits()) {
                 DocumentHit qHit = new DocumentHit();
                 // Document
@@ -203,8 +203,8 @@ public class SearchController {
                 hits.add(qHit);
                 patientFreqMap.merge(pid, 1, (k, v) -> v + 1);
             }
-//            resp = client.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
-//        } while (resp.getHits().getHits().length != 0);
+            resp = client.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
+        } while (resp.getHits().getHits().length != 0);
 
         // Associated Patients
         // - Order them
