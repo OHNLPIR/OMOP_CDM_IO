@@ -287,7 +287,9 @@
                 <div class="panel-heading clearfix">
                     <div class="panel-title pull-left h4">
                         <a data-toggle="collapse"
-                           href="\#{{hit.doc.indexDocID}}">{{hit.doc.sectionName}}
+                           href="\#{{hit.doc.indexDocID}}"
+                           ng-click="EMIRS.checkLoaded(hit.doc)">
+                            {{hit.doc.sectionName}}
                             - MRN: {{hit.patient.id}}
                             - Id: {{hit.doc.docLinkId}}v{{hit.doc.revision}}
                             - Type: {{hit.doc.docType}}
@@ -314,7 +316,7 @@
                 </div>
                 <div id="{{hit.doc.indexDocID}}"
                      class="panel-collapse collapse">
-                    <div class="panel-body">{{hit.doc.text}}</div>
+                    <div class="panel-body" style="white-space: pre-wrap;">{{hit.doc.text}}</div>
                 </div>
             </div>
         </div>
@@ -416,7 +418,9 @@
                         <div class="panel-heading">
                             <div class="panel-title pull-left h4">
                                 <a data-toggle="collapse"
-                                   href="#personview-{{hit.doc.docLinkId}}v{{hit.doc.revision}}s{{hit.doc.sectionID}}">{{hit.doc.sectionName}}
+                                   href="#personview-{{hit.doc.docLinkId}}v{{hit.doc.revision}}s{{hit.doc.sectionID}}"
+                                   ng-click="EMIRS.checkLoaded(hit.doc)">
+                                    {{hit.doc.sectionName}}
                                     - MRN: {{hit.patient.id}}
                                     - Id: {{hit.doc.docLinkId}}v{{hit.doc.revision}}
                                     - Type: {{hit.doc.docType}}
@@ -443,7 +447,7 @@
                         </div>
                         <div id="personview-{{hit.doc.docLinkId}}v{{hit.doc.revision}}s{{hit.doc.sectionID}}"
                              class="panel-collapse collapse">
-                            <div class="panel-body">{{hit.doc.text}}</div>
+                            <div class="panel-body" style="white-space: pre-wrap;">{{hit.doc.text}}</div>
                         </div>
                     </div>
                 </div>

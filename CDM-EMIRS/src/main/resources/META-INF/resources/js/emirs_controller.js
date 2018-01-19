@@ -441,6 +441,19 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
             a.dispatchEvent(e);
             // window.URL.revokeObjectURL(url); // clean the url.createObjectURL resource
         }
+    };
+    // checks if we need to load text
+    this.checkLoaded = function (doc) {
+        if (!doc.text) {
+            this.loadText(doc.indexDocID, doc)
+        }
+    };
+    // get document text
+    this.loadText = function (docID, doc) {
+        $http.post('/_text', docID).then(function (resp) {
+                doc.text = resp.data.text;
+            }
+        );
     }
 });
 // Used for pagination

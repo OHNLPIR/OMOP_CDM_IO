@@ -20,10 +20,6 @@ public class Document {
      */
     private String docType;
     /**
-     * The actual text of the document itself
-     */
-    private String text;
-    /**
      * The section name of the document
      */
     private String sectionName;
@@ -62,14 +58,6 @@ public class Document {
 
     public void setDocType(String docType) {
         this.docType = docType;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
     }
 
     public String getSectionName() {

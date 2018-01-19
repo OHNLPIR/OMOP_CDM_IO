@@ -61,6 +61,7 @@ public class SearchController {
                 .setSize(10000)
                 .setScroll(new TimeValue(60000))
                 .addSort(SortBuilders.scoreSort())
+                .setFetchSource(new String[]{"DocumentID", "Section_Name", "Section_ID", "Encounter_ID"}, new String[]{})
                 .execute()
                 .actionGet();
         return processResponse(resp, query);
@@ -162,6 +163,33 @@ public class SearchController {
         return parsedCDMModels;
     }
 
+    @RequestMapping(value = "/_text", method = RequestMethod.POST)
+    public @ResponseBody
+    JsonNode getDocumentText(@RequestBody String docID) throws IOException {
+        if (client == null) {
+            Settings settings = Settings.builder() // TODO cleanup
+                    .put("cluster.name", properties.getEs().getClusterName()).build();
+            client = new PreBuiltTransportClient(settings)
+                    .addTransportAddress(
+                            new InetSocketTransportAddress(
+                                    InetAddress.getByName(properties.getEs().getHost()),
+                                    properties.getEs().getPort()));
+        }
+        QueryBuilder textQuery = QueryBuilders.matchQuery("DocumentID", docID);
+        SearchResponse resp = client.prepareSearch(properties.getEs().getIndexName())
+                .setFetchSource(new String[]{"RawText"}, new String[0])
+                .setQuery(textQuery)
+                .execute()
+                .actionGet();
+        if (resp.getHits().totalHits < 1) {
+            return new ObjectMapper().readValue(new JSONObject().put("text", "No record found for " + docID).toString(), ObjectNode.class);
+        } else if (resp.getHits().totalHits > 1) {
+            Logger.getLogger(SearchController.class.getName()).warning("More than 1 matching record found for " + docID);
+        }
+        SearchHit retHit = resp.getHits().getHits()[0];
+        return new ObjectMapper().readValue(new JSONObject().put("text", retHit.getSource().getOrDefault("RawText", "")).toString(), ObjectNode.class);
+    }
+
     private QueryResult processResponse(SearchResponse resp, Query query) {
         QueryResult result = new QueryResult();
         Map<String, Patient> patientMap = new HashMap<>();
@@ -184,7 +212,6 @@ public class SearchController {
                 doc.setRevision(docFields[2]);
                 doc.setDocType(docFields[3]); //TODO
                 doc.setIndexDocID(docIDRaw);
-                doc.setText(source.get("RawText").toString());
                 doc.setSectionName(source.get("Section_Name").toString());
                 doc.setSectionID(source.get("Section_ID").toString());
                 qHit.setDoc(doc);
