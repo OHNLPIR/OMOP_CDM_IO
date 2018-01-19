@@ -84,6 +84,7 @@ public class SearchController {
             SearchResponse scrollResp = client.prepareSearch(properties.getEs().getIndexName())
                     .addSort(SortBuilders.scoreSort())
                     .setScroll(new TimeValue(60000))
+                    .setFetchSource(false)
                     .setQuery(query.getPatientIDFilterQuery())
                     .setSize(1000).get();
             ArrayList<Integer> patientIDs = new ArrayList<>();
@@ -201,7 +202,7 @@ public class SearchController {
         int iteration = 0;
         do {
             Logger.getLogger("debug-log").info("Current iteration: " + iteration++);
-            if (iteration == 20) { // We already got top 200000 documents
+            if (iteration == 31) { // We already got top 300000 documents TODO cache this maybe? or at least warn the user
                 break;
             }
             for (SearchHit hit : resp.getHits()) {
