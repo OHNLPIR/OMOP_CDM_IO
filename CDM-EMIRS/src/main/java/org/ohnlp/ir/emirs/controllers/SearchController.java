@@ -201,6 +201,9 @@ public class SearchController {
         int iteration = 0;
         do {
             Logger.getLogger("debug-log").info("Current iteration: " + iteration++);
+            if (iteration == 20) { // We already got top 200000 documents
+                break;
+            }
             for (SearchHit hit : resp.getHits()) {
                 DocumentHit qHit = new DocumentHit();
                 // Document
