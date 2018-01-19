@@ -2,6 +2,8 @@ package org.ohnlp.ir.emirs.model;
 
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Component
 public class Clause {
     private String type;
@@ -68,5 +70,22 @@ public class Clause {
         return "    " + filter + " " + field + ": " + ((content.startsWith("[") || content.startsWith("R[") ||
                 (content.startsWith("(") || content.startsWith("R(")))
                 ? content : "\"" + content + "\"");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Clause clause = (Clause) o;
+        return Objects.equals(type, clause.type) &&
+                Objects.equals(recordType, clause.recordType) &&
+                Objects.equals(field, clause.field) &&
+                Objects.equals(content, clause.content);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(type, recordType, field, content);
     }
 }

@@ -10,13 +10,14 @@ public class QueryResult {
      * The query associated with this result
      */
     private Query query;
-    /**
-     * An ordered array of result hits
-     */
-    private List<DocumentHit> hits;
 
     /**
-     * A set of patient to documenthit[] mappings
+     * A pagination view of current document results
+     */
+    private Pagination documentPager;
+
+    /**
+     * A set of patient to document pagination mappings
      */
     private List<PatientHit> patientHits;
 
@@ -33,12 +34,12 @@ public class QueryResult {
         this.query = query;
     }
 
-    public List<DocumentHit> getHits() {
-        return hits;
+    public Pagination getDocPager() {
+        return documentPager;
     }
 
-    public void setHits(List<DocumentHit> hits) {
-        this.hits = hits;
+    public void setDocPager(Pagination hits) {
+        this.documentPager = hits;
     }
 
     public List<Patient> getPatients() {
@@ -54,35 +55,8 @@ public class QueryResult {
         return patientHits;
     }
 
-    public void calculatePatientHits() {
-        Map<Patient, List<DocumentHit>> patientToHitsMap = new HashMap<>();
-        for (DocumentHit doc : hits) {
-            patientToHitsMap.computeIfAbsent(doc.getPatient(), (k) -> new LinkedList<>()).add(doc);
-        }
-        this.patientHits = new ArrayList<>(patientToHitsMap.size());
-        for (Map.Entry<Patient, List<DocumentHit>> e : patientToHitsMap.entrySet()) {
-            PatientHit hit = new PatientHit();
-            List<DocumentHit> unsortedHits = e.getValue();
-            ArrayList<DocumentHit> docHits = new ArrayList<>(unsortedHits.size());
-            double totalScore = 0;
-            for (DocumentHit doc : unsortedHits) {
-                totalScore += doc.getScore();
-                docHits.add(doc);
-            }
-            docHits.sort((d1, d2) -> Double.compare(d2.getScore(),d1.getScore()));
-            hit.setDocs(docHits);
-            hit.setPatient(e.getKey());
-            hit.setScore(totalScore);
-            this.patientHits.add(hit);
-        }
-        this.patientHits.sort((h1, h2) -> {
-            int curr = Double.compare(h2.score, h1.score);
-            if (curr != 0) {
-                return curr;
-            } else {
-                return h2.docs.size() - h1.docs.size();
-            }
-        });
+    public void setPatientHits(List<PatientHit> hits) {
+        this.patientHits = hits;
     }
 }
 

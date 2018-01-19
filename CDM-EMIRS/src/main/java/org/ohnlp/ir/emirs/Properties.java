@@ -11,6 +11,10 @@ public class Properties {
     private ElasticsearchSettings es;
     private Uima uima;
 
+    private int docsPerPageDocView;
+    private int docsPerPagePatientView;
+    private int patientsPerPage;
+
     public ElasticsearchSettings getEs() {
         return es;
     }
@@ -111,5 +115,29 @@ public class Properties {
         public void setQueue(String queue) {
             this.queue = queue;
         }
+    }
+
+    public int getDocsPerPageDocView() {
+        return docsPerPageDocView;
+    }
+
+    public void setDocsPerPageDocView(int docsPerPageDocView) {
+        this.docsPerPageDocView = docsPerPageDocView;
+    }
+
+    public int getDocsPerPagePatientView() {
+        return docsPerPagePatientView;
+    }
+
+    public void setDocsPerPagePatientView(int docsPerPagePatientView) {
+        this.docsPerPagePatientView = docsPerPagePatientView;
+    }
+
+    public int getPatientsPerPage() {
+        return patientsPerPage;
+    }
+
+    public void setPatientsPerPage(int patientsPerPage) {
+        this.patientsPerPage = patientsPerPage;
     }
 }

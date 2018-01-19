@@ -4,6 +4,8 @@ package org.ohnlp.ir.emirs.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import edu.mayo.bsi.uima.server.rest.models.ServerRequest;
 import edu.mayo.bsi.uima.server.rest.models.ServerResponse;
 import org.elasticsearch.action.search.SearchResponse;
@@ -32,6 +34,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 @Controller
@@ -41,10 +45,16 @@ public class SearchController {
     private Properties properties;
     private RestTemplate REST_CLIENT = new RestTemplate();
     private String UIMA_REST_URL = null;
+    public Cache<Query, List<DocumentHit>> queryCache = CacheBuilder.newBuilder().expireAfterAccess(600, TimeUnit.SECONDS).build();
 
     @RequestMapping(value = "/_search", method = RequestMethod.POST)
     public @ResponseBody
-    QueryResult postMapper(@RequestBody Query query) throws IOException {
+    QueryResult search(@RequestBody Query query) throws ExecutionException {
+        List<DocumentHit> hits =  queryCache.get(query, () -> processSearch(query));
+        return getResultFromHits(query, hits);
+    }
+
+    public List<DocumentHit> processSearch(Query query) throws IOException {
         if (client == null) {
             Settings settings = Settings.builder() // TODO cleanup
                     .put("cluster.name", properties.getEs().getClusterName()).build();
@@ -190,12 +200,8 @@ public class SearchController {
         return new ObjectMapper().readValue(new JSONObject().put("text", retHit.getSource().getOrDefault("RawText", "")).toString(), ObjectNode.class);
     }
 
-    private QueryResult processResponse(SearchResponse resp, Query query) {
-        QueryResult result = new QueryResult();
+    private List<DocumentHit> processResponse(SearchResponse resp, Query query) {
         Map<String, Patient> patientMap = new HashMap<>();
-        Map<String, Integer> patientFreqMap = new HashMap<>();
-        // Associated Query
-        result.setQuery(query);
         // Associated Documents
         List<DocumentHit> hits = new LinkedList<>();
         int iteration = 0;
@@ -228,23 +234,81 @@ public class SearchController {
                 qHit.setPatient(patient);
                 qHit.setScore(hit.getScore());
                 hits.add(qHit);
-                patientFreqMap.merge(pid, 1, (k, v) -> v + 1);
             }
             resp = client.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
         } while (resp.getHits().getHits().length != 0);
 
-        // Associated Patients
-        // - Order them
-        List<Map.Entry<String, Integer>> sortable = new ArrayList<>(patientFreqMap.entrySet());
-        sortable.sort((e1, e2) -> e2.getValue() - e1.getValue());
-        List<Patient> retList = new LinkedList<>();
-        for (Map.Entry<String, Integer> e : sortable) {
-            retList.add(patientMap.get(e.getKey()));
+        // Construct a pagination object for documents
+        Pagination pagination = new Pagination();
+        pagination.setNumHits(hits.size());
+        pagination.setCurrPage(0);
+        pagination.setPageSize(properties.getDocsPerPageDocView());
+        pagination.setQuery(query);
+        // We don't need to load results now because angular controller will call page post method
+        return hits;
+    }
+
+    private QueryResult getResultFromHits(Query query, List<DocumentHit> hits) {
+        QueryResult result = new QueryResult();
+        // Associated Query
+        result.setQuery(query);
+        // Construct a pagination object for documents
+        Pagination pagination = new Pagination();
+        pagination.setNumHits(hits.size());
+        pagination.setCurrPage(0);
+        pagination.setPageSize(properties.getDocsPerPageDocView());
+        pagination.setQuery(query);
+        pagination.loadHits(this);
+        result.setDocPager(pagination);
+        // Load patients
+        List<PatientHit> patientHits = new ArrayList<>(calculatePatientHits(hits));
+        patientHits.sort((h1, h2) -> Double.compare(h2.getScore(), h1.getScore()));
+        result.setPatientHits(patientHits);
+        List<Patient> patients = new LinkedList<>();
+        for (PatientHit hit : patientHits) {
+            patients.add(hit.getPatient());
         }
-        result.setPatients(retList);
-        result.setHits(hits);
-        result.calculatePatientHits();
+        result.setPatients(patients);
         return result;
+    }
+
+    private List<PatientHit> calculatePatientHits(List<DocumentHit> hits) {
+        Map<Patient, List<DocumentHit>> patientToHitsMap = new HashMap<>();
+        for (DocumentHit doc : hits) {
+            patientToHitsMap.computeIfAbsent(doc.getPatient(), (k) -> new LinkedList<>()).add(doc);
+        }
+        ArrayList<PatientHit> patientHits = new ArrayList<>(patientToHitsMap.size());
+        for (Map.Entry<Patient, List<DocumentHit>> e : patientToHitsMap.entrySet()) {
+            PatientHit hit = new PatientHit();
+            List<DocumentHit> unsortedHits = e.getValue();
+            ArrayList<DocumentHit> docHits = new ArrayList<>(unsortedHits.size());
+            double totalScore = 0;
+            for (DocumentHit doc : unsortedHits) {
+                totalScore += doc.getScore();
+                docHits.add(doc);
+            }
+            docHits.sort((d1, d2) -> Double.compare(d2.getScore(), d1.getScore()));
+            hit.setDocs(docHits);
+            hit.setPatient(e.getKey());
+            hit.setScore(totalScore);
+            patientHits.add(hit);
+        }
+        patientHits.sort((h1, h2) -> {
+            int curr = Double.compare(h2.getScore(), h1.getScore());
+            if (curr != 0) {
+                return curr;
+            } else {
+                return h2.getDocs().size() - h1.getDocs().size();
+            }
+        });
+        return patientHits;
+    }
+
+    @RequestMapping(value = "/_pager", method = RequestMethod.POST)
+    public @ResponseBody
+    Pagination getPaginationResults(@RequestBody Pagination pagination) {
+        pagination.loadHits(this);
+        return pagination;
     }
 
     public Properties getProperties() {
@@ -254,5 +318,17 @@ public class SearchController {
     @Autowired
     public void setProperties(Properties properties) {
         this.properties = properties;
+    }
+
+    public static class ComplexSearchResponse {
+        List<DocumentHit> docs;
+
+        public ComplexSearchResponse(List<DocumentHit> docs) {
+            this.docs = docs;
+        }
+
+        public List<DocumentHit> getDocs() {
+            return docs;
+        }
     }
 }

@@ -198,4 +198,20 @@ public class Query {
         }
         return out.toString();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Query query = (Query) o;
+        return Objects.equals(structured, query.structured) &&
+                Objects.equals(cdmQuery, query.cdmQuery) &&
+                Objects.equals(unstructured, query.unstructured);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(structured, cdmQuery, unstructured);
+    }
 }
