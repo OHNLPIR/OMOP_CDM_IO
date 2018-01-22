@@ -1,5 +1,6 @@
 package org.ohnlp.ir.emirs.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.mashape.unirest.http.JsonNode;
 import org.springframework.stereotype.Component;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ObjectMapping {
     private String parent;
 

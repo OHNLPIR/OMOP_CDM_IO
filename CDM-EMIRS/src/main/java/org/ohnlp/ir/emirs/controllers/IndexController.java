@@ -41,7 +41,7 @@ public class IndexController {
                     + properties.getEs().getIndexName();
         }
         ObjectNode idxes = REST_CLIENT.getForObject(ES_REST_URL, ObjectNode.class);
-        JsonNode mapping = idxes.path(properties.getEs().getIndexName()); // If not an alias
+        JsonNode mapping = idxes.get(properties.getEs().getIndexName()); // If not an alias
         if (mapping == null) {
             // Possible definition as alias in config
             Iterator<JsonNode> nodes = idxes.elements();

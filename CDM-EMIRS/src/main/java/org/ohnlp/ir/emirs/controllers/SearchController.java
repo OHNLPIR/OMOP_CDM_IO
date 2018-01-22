@@ -202,7 +202,7 @@ public class SearchController {
         int iteration = 0;
         do {
             Logger.getLogger("debug-log").info("Current iteration: " + iteration++);
-            if (iteration == 31) { // We already got top 300000 documents TODO cache this maybe? or at least warn the user
+            if (iteration == 11) { // We already got top 100000 documents, assume the rest not relevant/minimal contribution to patient-level scoring
                 break;
             }
             for (SearchHit hit : resp.getHits()) {

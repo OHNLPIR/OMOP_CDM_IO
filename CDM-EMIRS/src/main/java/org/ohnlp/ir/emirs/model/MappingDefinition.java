@@ -1,5 +1,6 @@
 package org.ohnlp.ir.emirs.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Map;
@@ -15,6 +16,7 @@ public class MappingDefinition {
         this.index = index;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static class IndexDefinition {
         @JsonProperty(value="mappings")
         private Map<String, ObjectMapping> definitions;
