@@ -301,13 +301,21 @@
                         </div>
                         <div class="btn-group pull-right" style="padding-left: 10px" data-toggle="buttons">
                             <div class="btn btn-primary"
-                                 ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID]}"
-                                 ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = true">
+                                 ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID] === 0}"
+                                 ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = 0"
+                                 title="Relevant">
                                 &#10004;
                             </div>
                             <div class="btn btn-primary"
-                                 ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID] === false}"
-                                 ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = false">
+                                 ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID] === 1}"
+                                 ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = 1"
+                                 title="Partially Relevant">
+                                ~
+                            </div>
+                            <div class="btn btn-primary"
+                                 ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID] === 2}"
+                                 ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = 2"
+                                 title="Not Relevant">
                                 &#10006;
                             </div>
                         </div>
@@ -335,13 +343,21 @@
 
                         <div class="btn-group pull-right" style="padding-left: 10px" data-toggle="buttons">
                             <div class="btn btn-primary"
-                                 ng-class="{active: EMIRS.model.patientJudgements[hit.patient.id]}"
-                                 ng-click="EMIRS.model.patientJudgements[hit.patient.id] = true">
+                                 ng-class="{active: EMIRS.model.patientJudgements[hit.patient.id] === 0}"
+                                 ng-click="EMIRS.model.patientJudgements[hit.patient.id] = 0"
+                                 title="Relevant">
                                 &#10004;
                             </div>
                             <div class="btn btn-primary"
-                                 ng-class="{active: EMIRS.model.patientJudgements[hit.patient.id] === false}"
-                                 ng-click="EMIRS.model.patientJudgements[hit.patient.id] = false">
+                                 ng-class="{active: EMIRS.model.patientJudgements[hit.patient.id] === 1}"
+                                 ng-click="EMIRS.model.patientJudgements[hit.patient.id] = 1"
+                                 title="Partially Relevant">
+                                ~
+                            </div>
+                            <div class="btn btn-primary"
+                                 ng-class="{active: EMIRS.model.patientJudgements[hit.patient.id] === 2}"
+                                 ng-click="EMIRS.model.patientJudgements[hit.patient.id] = 2"
+                                 title="Not Relevant">
                                 &#10006;
                             </div>
                         </div>
@@ -432,13 +448,21 @@
                                 </div>
                                 <div class="btn-group pull-right" style="padding-left: 10px" data-toggle="buttons">
                                     <div class="btn btn-primary"
-                                         ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID]}"
-                                         ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = true">
+                                         ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID] === 0}"
+                                         ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = 0"
+                                         title="Relevant">
                                         &#10004;
                                     </div>
                                     <div class="btn btn-primary"
-                                         ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID] === false}"
-                                         ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = false">
+                                         ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID] === 1}"
+                                         ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = 1"
+                                         title="Partially Relevant">
+                                        ~
+                                    </div>
+                                    <div class="btn btn-primary"
+                                         ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID] === 2}"
+                                         ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = 2"
+                                         title="Not Relevant">
                                         &#10006;
                                     </div>
                                 </div>
