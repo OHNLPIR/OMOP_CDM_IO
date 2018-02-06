@@ -86,38 +86,20 @@ public class RunTopicPool {
                         root =  new HasParentQueryBuilder("Encounter", QueryBuilders.matchAllQuery(), false);
                     }
                     System.out.println("Writing to " + topicID + "_" + s.name() + ".pool");
-                    FileWriter out = new FileWriter(new File(topicID + "_" + s.name() + ".pool"));
+                    FileWriter out = new FileWriter(new File(new File("pools"),topicID + "_" + s.name() + ".pool"));
                     QueryBuilder textQuery = QueryGeneratorFactory.newTextQuery().rawTextQuery("RawText", desc).build();
                     System.out.println(textQuery.toString());
                     QueryBuilder actualQuery = QueryBuilders.boolQuery().should(textQuery).filter(new HasParentQueryBuilder("Encounter", new HasParentQueryBuilder("Person", root, false), false));
-                    boolean flag = false;
-                    for (SearchHit e : client.prepareSearch("index").setQuery(actualQuery).setSize(1000).execute().actionGet().getHits()) {
-                        if (!flag) {
-                            flag = true;
-                        } else {
-                            out.write("\r\n");
-                        }
-                        out.write(e.getId());
-                        out.write("\t" + e.getScore());
-                    }
+                    writeQueryResultsToFile(client, out, actualQuery);
                     out.flush();
                     out.close();
                     if (s.equals(Similarity.BM25)) {
                         System.out.println("Writing to " + topicID + "_mrf.pool");
-                        out = new FileWriter(new File(topicID + "_mrf.pool"));
+                        out = new FileWriter(new File(new File("pools"),topicID + "_mrf.pool"));
                         textQuery = QueryGeneratorFactory.newTextQuery().mrfQuery(0.8f, 0.1f, 0.1f,"RawText", desc.split(" ")).build();
                         actualQuery = QueryBuilders.boolQuery().should(textQuery).filter(new HasParentQueryBuilder("Encounter", new HasParentQueryBuilder("Person", root, false), false));
                         System.out.println(textQuery.toString());
-                        flag = false;
-                        for (SearchHit e : client.prepareSearch("index").setQuery(actualQuery).setSize(1000).execute().actionGet().getHits()) {
-                            if (!flag) {
-                                flag = true;
-                            } else {
-                                out.write("\r\n");
-                            }
-                            out.write(e.getId());
-                            out.write("\t" + e.getScore());
-                        }
+                        writeQueryResultsToFile(client, out, actualQuery);
                         out.flush();
                         out.close();
                     }
@@ -128,7 +110,7 @@ public class RunTopicPool {
                 new TopicSearchController().handleTopicRequest(in, topicID);
                 TopicResult result = (TopicResult) in.get(topicID + "_results");
                 System.out.println("Writing to " + topicID + ".pool");
-                FileWriter out = new FileWriter(new File(topicID + ".pool"));
+                FileWriter out = new FileWriter(new File(new File("pools"),topicID + ".pool"));
                 boolean flag = false;
                 for (TopicResultEntry e : result.getResults()) {
                     if (!flag) {
@@ -143,9 +125,23 @@ public class RunTopicPool {
                 out.close();
             }
         }
+        PoolCreator.main();
     }
 
-    public static void setSimilarity(String index, TransportClient client, Similarity similarity) {
+    private static void writeQueryResultsToFile(TransportClient client, FileWriter out, QueryBuilder query) throws IOException {
+        boolean flag = false;
+        for (SearchHit e : client.prepareSearch("index").setQuery(query).setSize(1000).execute().actionGet().getHits()) {
+            if (!flag) {
+                flag = true;
+            } else {
+                out.write("\r\n");
+            }
+            out.write(e.getId());
+            out.write("\t" + e.getScore());
+        }
+    }
+
+    private static void setSimilarity(String index, TransportClient client, Similarity similarity) {
         client.admin().indices().prepareClose(index).get();
         client.admin().indices().prepareUpdateSettings("index").setSettings(Settings.builder().put("similarity.default.type", similarity)).get();
         client.admin().indices().prepareOpen(index).get();

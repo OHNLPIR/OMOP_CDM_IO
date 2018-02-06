@@ -1,17 +1,30 @@
 package edu.mayo.bsi.semistructuredir.cdm;
 
 import joptsimple.internal.Strings;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.transport.client.PreBuiltTransportClient;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class PoolCreator {
     public static void main(String... args) throws IOException {
+        List<String> sections = Files.readAllLines(new File("sections.tsv").toPath());
+        Map<String, String> sectionLookup = new HashMap();
+        sections.forEach(s -> sectionLookup.put(s.split("\t")[0], s.split("\t")[1]));
         File poolFolder = new File("pools");
         File outFolder = new File("pools_out");
         boolean mkdirs = outFolder.exists() || (!outFolder.exists() && outFolder.mkdirs());
@@ -33,32 +46,81 @@ public class PoolCreator {
             ArrayList<String> tfidfPool = new ArrayList<>(Files.readAllLines(tfidfPoolFile.toPath()));
             ArrayList<String> mrfPool = new ArrayList<>(Files.readAllLines(mrfPoolFile.toPath()));
             ArrayList<String> lmDirichletPool = new ArrayList<>(Files.readAllLines(lmDirichletPoolFile.toPath()));
+            HashSet<String> docIDs = new HashSet<>();
+            addAllDocIDs(cdmPool, docIDs);
+            addAllDocIDs(bm25Pool, docIDs);
+            addAllDocIDs(tfidfPool, docIDs);
+            addAllDocIDs(mrfPool, docIDs);
+            addAllDocIDs(lmDirichletPool, docIDs);
+            Settings settings = Settings.builder() // TODO cleanup
+                    .put("cluster.name", "elasticsearch").build();
+            // Identify duplicates
+            Map<String, Set<String>> docTextToDocIDsMap = new HashMap<>();
+            try (TransportClient client = new PreBuiltTransportClient(settings).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9310))) {
+                SearchResponse resp = client.prepareSearch("BioBank").setFetchSource("RawText", null)
+                        .setQuery(QueryBuilders.idsQuery("Document")
+                                .addIds(docIDs.toArray(new String[docIDs.size()])))
+                        .setSize(5000) // Maximum Size assuming no duplicates
+                        .execute()
+                        .get();
+                for (SearchHit hit : resp.getHits()) {
+                    String text = hit.getSource().get("RawText").toString();
+                    docTextToDocIDsMap.computeIfAbsent(text, k -> new HashSet<>()).add(hit.getId());
+                }
+            } catch (UnknownHostException | InterruptedException | ExecutionException e) {
+                e.printStackTrace();
+            }
+            Map<String, String> docIDtoConcatenatedDocStringMap = new HashMap<>(); // Share a common document ID in the case of duplicates
+            Map<String, String> docIDtoDocTextMap = new HashMap<>();
+            for (Map.Entry<String, Set<String>> e : docTextToDocIDsMap.entrySet()) {
+                String concatenatedDocID = String.join("|", e.getValue());
+                for (String docID : e.getValue()) {
+                    docIDtoConcatenatedDocStringMap.put(docID, concatenatedDocID);
+                    docIDtoDocTextMap.put(docID, e.getKey());
+                }
+            }
+            clean(cdmPool, docIDtoConcatenatedDocStringMap);
+            clean(bm25Pool, docIDtoConcatenatedDocStringMap);
+            clean(tfidfPool, docIDtoConcatenatedDocStringMap);
+            clean(mrfPool, docIDtoConcatenatedDocStringMap);
+            clean(lmDirichletPool, docIDtoConcatenatedDocStringMap);
             LinkedHashMap<String, AtomicInteger> out = new LinkedHashMap<>();
             addEntries(out, cdmPool);
             addEntries(out, bm25Pool);
             addEntries(out, tfidfPool);
             addEntries(out, mrfPool);
             addEntries(out, lmDirichletPool);
-            List<String> sorted = new LinkedList<>();
-            sorted.add("Document ID\tMRN\tDocLinkID\tRevision\tEvent\tActivity_DTM\tSection ID\tHits");
-            out.entrySet().stream().sorted(Map.Entry.comparingByValue((a1, a2) -> Integer.compare(a2.get(), a1.get())))
-                    .forEach(e -> {
-                        String docID = e.getKey();
-                        String[] parsed = docID.split("_");
-                        String mrn = parsed[0];
-                        String linkId = parsed[1];
-                        String rev= parsed[2];
-                        String event = parsed[3];
-                        String dtm = parsed[4] + "/" + parsed[5] + "/" + parsed[6];
-                        String secID = parsed[7];
-                        int hits = e.getValue().get();
-                        sorted.add(Strings.join(new String[] {
-                                docID, mrn, linkId, rev, event, dtm, secID, hits + ""
-                        }, "\t"));
-                    }
-            );
+            List<String> result = new LinkedList<>();
+            result.add("Relevance\tDocument ID\tDate\tSection\tComment\tMCN\tDoc Link ID\tRevision\tDocument Type\tMonth\tDay\tYear\tSection ID\tText");
+            Map<String, List<String>> mrnToDocumentsMap = new HashMap<>();
+            // Sort by frequency
+            out.forEach((docID, value) -> {
+                String[] parsed = docID.split("_");
+                String mrn = parsed[0];
+                String linkId = parsed[1];
+                String rev = parsed[2];
+                String event = parsed[3];
+                String dtm = parsed[4] + "/" + parsed[5] + "/" + parsed[6];
+                String secID = parsed[7];
+                String secName = sectionLookup.get(secID);
+                if (secName != null) {
+                    secName = secName.substring(secName.indexOf("_") + 1);
+                } else {
+                    secName = "Not defined in http://mayoweb.mayo.edu/ddqb/NoteSectionEntity.html";
+                }
+                mrnToDocumentsMap.computeIfAbsent(mrn, k -> new LinkedList<>()).add(Strings.join(new String[]{
+                        " ", docID, dtm, secName, "", mrn, linkId, rev, event, parsed[4], parsed[5], parsed[6], secID,
+                        docIDtoDocTextMap.get(docID)
+                }, "\t"));
+            });
+            ArrayList<List<String>> shuffledPatients = new ArrayList<>(mrnToDocumentsMap.values());
+            Collections.shuffle(shuffledPatients);
             FileWriter outFile = new FileWriter(new File(outFolder, tF.format(i) + ".pool"));
-            for (String s : sorted) {
+            for (List<String> docs : shuffledPatients) {
+                Collections.shuffle(docs);
+                result.addAll(docs);
+            }
+            for (String s : result) {
                 outFile.write(s + "\n");
             }
             outFile.flush();
@@ -66,10 +128,43 @@ public class PoolCreator {
         }
     }
 
+    private static void clean(ArrayList<String> pool, Map<String, String> docIDtoConcatenatedDocStringMap) {
+        // Replace all docID+score with docIDs (concatenated if necessary)
+        for (int i = 0; i < pool.size(); i++) {
+            String docID = pool.get(i).split("\t")[0];
+            pool.set(i, docIDtoConcatenatedDocStringMap.getOrDefault(docID, docID));
+        }
+        // Remove duplicate documents by marking null and add frequencies to map
+        Set<String> metDocIDs = new HashSet<>();
+        Map<String, AtomicInteger> docFrequencies = new HashMap<>();
+        for (int i = 0; i < pool.size(); i++) {
+            String docID = pool.get(i);
+            if (!metDocIDs.add(docID)) { // Already met this docID
+                docFrequencies.get(docID).incrementAndGet();
+                pool.set(i, null);
+            } else {
+                docFrequencies.computeIfAbsent(docID, k -> new AtomicInteger(0)).incrementAndGet();
+            }
+        }
+        // Make copy (not at all efficient, revisit later) and re-add to original pool with frequencies
+        List<String> copy = new ArrayList<>(pool);
+        pool.clear();
+        for (String docID : copy) {
+            pool.add(docID + "\t" + docFrequencies.getOrDefault(docID, new AtomicInteger(0)).get());
+        }
+    }
+
+    private static void addAllDocIDs(ArrayList<String> pool, HashSet<String> docIDs) {
+        for (String s : pool) {
+            docIDs.add(s.split("\t")[0]);
+        }
+    }
+
     private static void addEntries(Map<String, AtomicInteger> out, ArrayList<String> pool) {
         // First 15
         for (int i = 0; i < pool.size() && i < 15; i++) {
-            out.computeIfAbsent(pool.get(i).split("\t")[0], k -> new AtomicInteger(0)).incrementAndGet();
+            out.computeIfAbsent(pool.get(i).split("\t")[0], k -> new AtomicInteger(0))
+                    .addAndGet(Integer.valueOf(pool.get(i).split("\t")[1]));
         }
         // 20% of remainder
         if (pool.size() > 15) {
@@ -78,12 +173,12 @@ public class PoolCreator {
             HashSet<Integer> accessedRandoms = new HashSet<>();
             Random rand = new Random();
             for (int i = 0; i < twentyPercent; i++) {
-                int next = rand.nextInt(Math.min(pool.size(), 100));
+                int next = rand.nextInt(Math.min(pool.size(), 85));
                 while (accessedRandoms.contains(next)) {
-                    next = rand.nextInt(Math.min(pool.size(), 100));
+                    next = rand.nextInt(Math.min(pool.size(), 85));
                 }
                 accessedRandoms.add(next);
-                out.computeIfAbsent(pool.get(i + 15).split("\t")[0], k -> new AtomicInteger(0)).incrementAndGet();
+                out.computeIfAbsent(pool.get(next + 15).split("\t")[0], k -> new AtomicInteger(0)).addAndGet(Integer.valueOf(pool.get(next + 15).split("\t")[1]));
             }
         }
 

@@ -6,6 +6,9 @@ src/main/resources/configuration.json
 /UMLS
 /resources/dictionaries/**/*
 /configuration.json
+/CDM-TOPIC-POOL-GENERATOR/src/main/resources/sections.tsv
+/CDM-TOPIC-POOL-GENERATOR/src/main/java/edu/mayo/bsi/semistructuredir/cdm/PoolCreator.java
+
 
 ### Eclipse ###
 
