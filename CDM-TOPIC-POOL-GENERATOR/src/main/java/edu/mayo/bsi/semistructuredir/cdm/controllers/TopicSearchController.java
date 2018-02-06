@@ -154,7 +154,6 @@ public class TopicSearchController {
                     SearchResponse resp = client.prepareSearch().setQuery(actualQuery).setSize(1000).execute().actionGet();
                     LinkedList<TopicResultEntry> result = new LinkedList<>();
                     for (SearchHit hit : resp.getHits()) {
-                        String temp = hit.getSource().getOrDefault("RawText", "").toString();
                         // DO we really want to add the document text? (no)
                         result.add(new TopicResultEntry(hit.getId(), null, hit.getScore()));
                     }
