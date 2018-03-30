@@ -17,67 +17,45 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <minimizeJar>false</minimizeJar>
-                    <finalName>PoolSearch-5.6.2</finalName>
-                    <transformers>
-                        <!-- add Main-Class to manifest file -->
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>edu.mayo.bsi.semistructuredir.cdm.RunTopicPool</mainClass>
-                        </transformer>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                    </transformers>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <!--<plugin>-->
             <!--<groupId>org.apache.maven.plugins</groupId>-->
             <!--<artifactId>maven-shade-plugin</artifactId>-->
             <!--<version>3.1.0</version>-->
             <!--<configuration>-->
-                <!--<minimizeJar>false</minimizeJar>-->
-                <!--<finalName>PoolCreator-5.6.2</finalName>-->
-                <!--<transformers>-->
-                    <!--&lt;!&ndash; add Main-Class to manifest file &ndash;&gt;-->
-                    <!--<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
-                        <!--<mainClass>edu.mayo.bsi.semistructuredir.cdm.PoolCreator</mainClass>-->
-                    <!--</transformer>-->
-                    <!--<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>-->
-                <!--</transformers>-->
+            <!--<minimizeJar>false</minimizeJar>-->
+            <!--<finalName>PoolSearch-5.6.2</finalName>-->
+            <!--<transformers>-->
+            <!--&lt;!&ndash; add Main-Class to manifest file &ndash;&gt;-->
+            <!--<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
+            <!--<mainClass>edu.mayo.bsi.semistructuredir.cdm.RunTopicPool</mainClass>-->
+            <!--</transformer>-->
+            <!--<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>-->
+            <!--</transformers>-->
             <!--</configuration>-->
             <!--<executions>-->
-                <!--<execution>-->
-                    <!--<phase>package</phase>-->
-                    <!--<goals>-->
-                        <!--<goal>shade</goal>-->
-                    <!--</goals>-->
-                <!--</execution>-->
+            <!--<execution>-->
+            <!--<phase>package</phase>-->
+            <!--<goals>-->
+            <!--<goal>shade</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
             <!--</executions>-->
-        <!--</plugin>-->
+            <!--</plugin>-->
             <!--<plugin>-->
                 <!--<groupId>org.apache.maven.plugins</groupId>-->
                 <!--<artifactId>maven-shade-plugin</artifactId>-->
                 <!--<version>3.1.0</version>-->
                 <!--<configuration>-->
                     <!--<minimizeJar>false</minimizeJar>-->
-                    <!--<finalName>PatientLookup-5.6.2</finalName>-->
+                    <!--<finalName>AlzheimerSearch-5.6.2</finalName>-->
                     <!--<transformers>-->
                         <!--&lt;!&ndash; add Main-Class to manifest file &ndash;&gt;-->
-                        <!--<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
-                            <!--<mainClass>edu.mayo.bsi.semistructuredir.cdm.NumPatientsPerStructured</mainClass>-->
+                        <!--<transformer-->
+                                <!--implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
+                            <!--<mainClass>edu.mayo.bsi.semistructuredir.cdm.AlzheimerSearch</mainClass>-->
                         <!--</transformer>-->
-                        <!--<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>-->
+                        <!--<transformer-->
+                                <!--implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>-->
                     <!--</transformers>-->
                 <!--</configuration>-->
                 <!--<executions>-->
@@ -90,28 +68,52 @@
                 <!--</executions>-->
             <!--</plugin>-->
             <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-shade-plugin</artifactId>-->
-                <!--<version>3.1.0</version>-->
-                <!--<configuration>-->
-                    <!--<minimizeJar>false</minimizeJar>-->
-                    <!--<finalName>SocialHX-5.6.2</finalName>-->
-                    <!--<transformers>-->
-                        <!--&lt;!&ndash; add Main-Class to manifest file &ndash;&gt;-->
-                        <!--<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
-                            <!--<mainClass>edu.mayo.bsi.semistructuredir.cdm.GetSocialHx</mainClass>-->
-                        <!--</transformer>-->
-                        <!--<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>-->
-                    <!--</transformers>-->
-                <!--</configuration>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>shade</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-shade-plugin</artifactId>-->
+            <!--<version>3.1.0</version>-->
+            <!--<configuration>-->
+            <!--<minimizeJar>false</minimizeJar>-->
+            <!--<finalName>PatientLookup-5.6.2</finalName>-->
+            <!--<transformers>-->
+            <!--&lt;!&ndash; add Main-Class to manifest file &ndash;&gt;-->
+            <!--<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
+            <!--<mainClass>edu.mayo.bsi.semistructuredir.cdm.NumPatientsPerStructured</mainClass>-->
+            <!--</transformer>-->
+            <!--<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>-->
+            <!--</transformers>-->
+            <!--</configuration>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<phase>package</phase>-->
+            <!--<goals>-->
+            <!--<goal>shade</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
+            <!--</plugin>-->
+            <!--<plugin>-->
+            <!--<groupId>org.apache.maven.plugins</groupId>-->
+            <!--<artifactId>maven-shade-plugin</artifactId>-->
+            <!--<version>3.1.0</version>-->
+            <!--<configuration>-->
+            <!--<minimizeJar>false</minimizeJar>-->
+            <!--<finalName>SocialHX-5.6.2</finalName>-->
+            <!--<transformers>-->
+            <!--&lt;!&ndash; add Main-Class to manifest file &ndash;&gt;-->
+            <!--<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">-->
+            <!--<mainClass>edu.mayo.bsi.semistructuredir.cdm.GetSocialHx</mainClass>-->
+            <!--</transformer>-->
+            <!--<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>-->
+            <!--</transformers>-->
+            <!--</configuration>-->
+            <!--<executions>-->
+            <!--<execution>-->
+            <!--<phase>package</phase>-->
+            <!--<goals>-->
+            <!--<goal>shade</goal>-->
+            <!--</goals>-->
+            <!--</execution>-->
+            <!--</executions>-->
             <!--</plugin>-->
         </plugins>
     </build>
@@ -121,6 +123,11 @@
             <groupId>edu.mayo</groupId>
             <artifactId>CDM-MODEL-SEARCH</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
+            <version>2.8.10</version>
         </dependency>
     </dependencies>
 </project>

@@ -149,3 +149,6 @@ fabric.properties
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+/CDM-TOPIC-POOL-GENERATOR/src/main/java/edu/mayo/bsi/semistructuredir/cdm/XMLTopicDescriptionParser.java
+/CDM-TOPIC-POOL-GENERATOR/src/main/java/edu/mayo/bsi/semistructuredir/cdm/model/TopicDescriptionModel.java
+/topics.xml

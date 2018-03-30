@@ -1,0 +1,1708 @@
+<?xml version="1.0"?>
+<topic_descriptions>
+    <topic>
+        <id>1</id>
+        <source>OHSU</source>
+        <title>Pregnant women w/o psychiatric disorder</title>
+        <A>Women who have had a pregnancy when 18 years old or older, and during which they did not smoke, had an outpatient visit in the 3rd trimester (pregnancy at 27 weeks or more), and didn't have severe intellectual disabilities, bipolar I disorder, manic disorder, major depressive disorder, schizophrenia, autism spectrum disorder, or attention deficit hyperactivity disorder.
+        </A>
+        <B>Women who had a pregnancy during which they had a 3rd trimester outpatient visit, didn't smoke, and didn't have intellectual disability, mood disorder, schizophrenia, autism, or ADHD.
+            <case>A 32-year-old woman was seen for a prenatal visit with her nurse midwife in 2012. At that visit, her pregnancy was at 34 weeks, and she had no pregnancy complications, and no past medical or surgical history. She is a former smoker, but had quit 6 months prior to this pregnancy.</case>
+        </B>
+        <C>Women who had a pregnancy during which they had a 3rd trimester outpatient visit, didn't smoke, and didn't have intellectual disability, mood disorder, schizophrenia, autism, or ADHD.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age at time of pregnancy: &#8805; 18 years
+                    Sex: Female
+                </demographics>
+                <encounter kind="inclusion">
+                    Outpatient encounter date: during 3rd trimester of pregnancy
+                </encounter>
+                <diagnosis kind="inclusion">
+                    Pregnancy
+                </diagnosis>
+                <diagnosis kind="exclusion">
+                    Severe learning disability (ICD-9): 318.1, 319
+                    Bipolar I disorder (ICD-9): 296.0, 296.00, 296.01, 296.02, 296.03, 296.04, 296.05, 296.06, 296.4, 296.40, 296.41, 296.42, 296.43, 296.44, 296.45, 296.46, 296.5, 296.50, 296.51, 296.52, 296.53, 296.54, 296.55, 296.56, 296.6, 296.60, 296.61, 296.62, 296.63, 296.64, 296.65, 296.66, 296.6, 296.7, 296.8, 296.80, 296.89
+                    Manic disorder (ICD-9): 296.1, 296.10, 296.11, 296.12, 296.13, 296.14, 296.15, 296.16, 296.81
+                    Major depressive disorder (ICD-9): 296.2, 296.20, 296.21, 296.22, 296.23, 296.24, 296.25, 296.26, 296.3, 296.30, 296.31, 296.32, 296.33, 296.34, 296.35, 296.36, 296.82
+                    Schizophrenia (ICD-9): 295, 295.0, 295.00, 295.01, 295.02, 295.03, 295.04, 295.05, 295.1, 295.10, 295.11, 295.12, 295.13, 295.14, 295.15, 295.2, 295.20, 295.21, 295.22, 295.23, 295.24, 295.25, 295.3, 295.30, 295.31, 295.32, 295.33, 295.34, 295.35, 295.4, 295.40, 295.41, 295.42, 295.43, 295.44, 295.45, 295.4, 295.5, 295.50, 295.51, 295.52, 295.53, 295.54, 295.55, 295.5, 295.6, 295.60, 295.61, 295.62, 295.63, 295.64, 295.65, 295.7, 295.70, 295.71, 295.72, 295.73, 295.74, 295.75, 295.8, 295.80, 295.81, 295.82, 295.83, 295.84, 295.85, 295.9, 295.90, 295.91, 295.92, 295.93, 295.94, 295.95
+                    Autism spectrum disorder (ICD-9): 299.0, 299.00, 299.01
+                    Attention deficit hyperactivity disorder (ICD-9): 314.0, 314.00, 314.01, 799.51
+                </diagnosis>
+                <tobacco_use kind="exclusion">
+                    Tobacco use during pregnancy
+                    Tobacco use disorder (ICD-9): 305.1
+                    Tobacco use disorder complicating pregnancy (ICD-9): 649.0, 649.00, 649.01, 649.02, 649.03, 649.04
+                </tobacco_use>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>2</id>
+        <source>OHSU</source>
+        <title>Adults with IBD who haven't had GI surgery</title>
+        <A>Adults with inflammatory bowel disease (ulcerative colitis or Crohn's disease), who have not had surgery of the intestines, rectum, or anus entailing excision, ostomy creation, repair of rectal prolapse or anal fistula, or stricturoplasty.
+        </A>
+        <B>Adults with inflammatory bowel disease who haven't had surgery involving the small intestine, colon, rectum, or anus.
+            <case>A 22-year-old woman with Crohn's disease is seen for follow up. She began maintenance therapy 6 weeks ago and has no new signs or symptoms of relapse. Her Crohn's disease involves both the distal ileus and colon, and she has never undergone gastrointestinal surgery.</case>
+        </B>
+        <C>Adults with inflammatory bowel disease who haven't had surgery involving the small intestine, colon, rectum, or anus.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Inflammatory bowel disease
+                    Ulcerative colitis (ICD-9): 556, 556.0, 556.1, 556.2, 556.3, 556.4, 556.5, 556.6, 556.7, 556.8, 556.9
+                    Crohn's disease (regional enteritis) (ICD-9): 555, 555.0, 555.1, 555.2, 555.9
+                    Other noninfectious gastroenteritis and colitis (ICD-9): 558.9
+                </diagnosis>
+                <surgery kind="exclusion">
+                    Colectomy (CPT): 44140, 44141, 44143, 44144, 44145, 44146, 44147, 44160, 44204, 44205, 44206, 44207, 44208, 44150, 44151, 44155, 44156, 44157, 44158, 44210, 44212, 44211
+                    Enterectomy (CPT): 44120, 44121, 44125, 44202, 44203
+                    Intestinal ostomy creation (CPT): 44310, 44316, 44187, 44320, 44322, 44188
+                    Proctoplasty or proctopexy (CPT): 45500, 45505, 45540, 45541, 45550, 45400, 45402
+                    Stricturoplasty (CPT): 44615, 45150, 46700
+                    Anal fistula surgery (CPT): 46270, 46275, 46280, 46285, 46288
+                </surgery>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>3</id>
+        <source>OHSU</source>
+        <title>Adults with a Vitamin D lab result</title>
+        <A>Adults who have a resulted lab for serum Vitamin D measured as the 25-hydroxy form, and which was drawn between May 15 and October 15 of any year.
+        </A>
+        <B>Adults with a lab result for 25-hydroxy Vitamin D collected between May 15 and October 15.
+            <case>A 47-year-old male presents following a Roux-en-Y gastric bypass surgery performed 3 months ago. He is following the post-surgery recommended diet, but admits he isn't taking a multivitamin or other supplements as advised. Due to his high risk of deficiency, the physician checks his Vitamin D level through a serum 25(OH)D lab test, which measures the 25-hydroxy form of Vitamin D. The lab result shows a level of 18 ng/mL, confirming deficiency.</case>
+        </B>
+        <C>Adults with a lab result for 25-hydroxy Vitamin D collected between May 15 and October 15.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                </demographics>
+                <lab kind="inclusion">
+                    25-hydroxy Vitamin D (CPT): 82306
+                    Date collected: May 15 through October 15
+                </lab>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>4</id>
+        <source>OHSU</source>
+        <title>Postherpetic neuralgia treated with topical and systemic medication</title>
+        <A>Patients 18-90 years old with postherpetic neuralgia who have been treated with concurrent use of both topical medication, lidocaine or capsaicin, and non-opioid systemic medication, gabapentin, pregabalin, amitriptyline, or nortriptyline.
+        </A>
+        <B>Adults with postherpetic neuralgia ever treated by concurrent use of topical and non-opioid systemic medications.
+            <case>An adult male presents with neuropathic pain after a recent herpes zoster outbreak, limited to the area previously affected by zoster rash. The physician prescribes both oral amitriptyline and topical capsaicin cream for treatment of postherpetic neuralgia.</case>
+        </B>
+        <C>Adults with postherpetic neuralgia ever treated by concurrent use of topical and non-opioid systemic medications.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: 18-90 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Postherpetic neuralgia (ICD-9): 053.10, 053.13, 053.19
+                </diagnosis>
+                <medication kind="inclusion">
+                    Concurrent use of a topical medication and a non-opioid systemic medication
+                    Topical medication
+                    Lidocaine patch (Lidoderm)
+                    Capsaicin cream or patch (Trixaicin, Zostrix, Qutenza)
+                    Systemic medication (non-opioid)
+                    Amitriptyline
+                    Nortriptyline (Pamelor)
+                    Gabapentin (Neurontin, Gralise)
+                    Pregabalin (Lyrica)
+                </medication>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>5</id>
+        <source>OHSU</source>
+        <title>Children seen in ED with oral pain</title>
+        <A>Children who have been seen in the emergency department for oropharyngeal pain due to herpetic gingivostomatitis, herpangina, hand, foot, and mouth disease, tonsillitis, gingivitis, or oral ulcers (oral aphthae, stomatitis, or mucositis) that isn't due to chemotherapy or radiation, and who were 1 month to 8 years old as of that visit date.
+        </A>
+        <B>Children who were seen in the emergency department with herpetic gingivostomatitis, herpangina or hand, foot, and mouth disease, tonsillitis, gingivitis, or ulceration (aphthae, stomatitis, or mucositis) not due to chemotherapy or radiation.
+            <case>A 5-year-old boy is brought to the emergency department complaining of sore throat and headache for 2 days. His parents report he has severe pain with eating, but is drinking fluids, and deny any recent rashes. He has no other medical problems. On exam, he is febrile and several small vesicles and ulcers with an erythematous base are present on the tonsils and soft palate. He is diagnosed with herpangina and discharged home with instructions for supportive care.</case>
+        </B>
+        <C>Children who were seen in the emergency department with herpetic gingivostomatitis, coxsackie infection, tonsillitis, gingivitis, or ulceration (aphthae, stomatitis, or mucositis) not due to chemotherapy or radiation.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age on date of visit: 1 month to 8 years
+                </demographics>
+                <encounter kind="inclusion">
+                    Visit type: emergency department
+                </encounter>
+                <diagnosis kind="inclusion">
+                    Herpetic gingivostomatitis (ICD-9): 054.2
+                    Hand, foot, and mouth disease (ICD-9): 074.3
+                    Herpangina (ICD-9): 074.0
+                    Acute tonsillitis (ICD-9): 463
+                    Acute gingivitis (ICD-9): 523.0, 523.00, 523.01
+                    Stomatitis or mucositis, not due to chemotherapy or radiation (ICD-9): 528.00, 528.02
+                    Oral aphthae (ICD-9): 528.2
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>6</id>
+        <source>OHSU</source>
+        <title>3rd trimester prenatal visit with midwife or Ob/Gyn</title>
+        <A>Adult women who have had a pregnancy during which they had an outpatient prenatal visit with an obstetrician and gynecologist or nurse midwife during their 3rd trimester (pregnancy at 27 weeks or greater).
+        </A>
+        <B>Women who had a pregnancy with a 3rd trimester outpatient prenatal visit with an obstetrician and gynecologist or midwife.
+            <case>A 29-year-old female G2P2 is 2 weeks post-partum following NSVD. Her last clinic visit was for prenatal care at 37w6d of pregnancy with a certified nurse midwife.</case>
+        </B>
+        <C>Women who had a pregnancy with a 3rd trimester outpatient prenatal visit with an obstetrician and gynecologist or midwife.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Sex: Female
+                    Age: &#8805; 18 years
+                </demographics>
+                <encounter kind="inclusion">
+                    Outpatient
+                    Visit type: prenatal
+                    Visit date: during patient's 3rd trimester of pregnancy
+                    Visit provider
+                    Nurse midwife
+                    Obstetrician and gynecologist
+                </encounter>
+                <diagnosis kind="inclusion">
+                    Pregnancy in 3rd trimester (week 27 or greater)
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>7</id>
+        <source>OHSU</source>
+        <title>Hereditary hemorrhagic telangiectasia</title>
+        <A>Adults 18-100 years old who have a diagnosis of hereditary hemorrhagic telangiectasia (HHT), which is also called Osler-Weber-Rendu syndrome.
+        </A>
+        <B>Adults 18-100 years old with hereditary hemorrhagic telangiectasia (HHT).
+            <case>A 23-year-old male presents with fatigue and frequent nosebleeds, which began in childhood. Exam shows pale skin and conjunctiva, and scattered telangiectasias on his trunk, extremities, and buccal mucosa. He has a family history of recurrent epistaxis and deaths due to stroke. Further tests show iron-deficient anemia and pulmonary arteriovenous malformations, confirming a diagnosis of hereditary hemorrhagic telangiectasia.</case>
+        </B>
+        <C>Adults 18-100 years old with hereditary hemorrhagic telangiectasia (HHT).
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: 18-100 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Hereditary hemorrhagic telangiectasia (ICD-9): 448.0
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>8</id>
+        <source>OHSU</source>
+        <title>Breast cancer and high risk of BRCA mutation</title>
+        <A>Women who were ever considered at high risk of having a BRCA gene mutation based on diagnosis of any breast cancer before age 50, or triple-negative (estrogen receptor negative, progesterone receptor negative, HER2/neu negative) breast cancer before age 60.
+        </A>
+        <B>Women who have been diagnosed with breast cancer before age 50 or with triple-negative breast cancer before age 60.
+            <case>A 55-year-old female with breast cancer presents to discuss her pathology results. The report identifies the tumor as ER-, PR-, and HER2 normal. Based on her age and triple-negative biomarkers, she has a high risk of harboring a BRCA mutation and decides to proceed with genetic counseling.</case>
+        </B>
+        <C>Women who have been diagnosed with breast cancer before age 50 or with triple-negative breast cancer before age 60.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Sex: Female
+                    Age: &#8805; 18 years
+                    Age at time of breast cancer diagnosis: &lt; 50 years
+                    Age at time of triple-negative breast cancer diagnosis: &lt; 60 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Breast cancer (ICD-9): 174, 174.0, 174.1, 174.2, 174.3, 174.4, 174.5, 174.6, 174.8, 174.9
+                    Early-onset breast cancer
+                    Triple-negative breast cancer (estrogen receptor negative, progesterone receptor negative, HER2/neu negative)
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>9</id>
+        <source>OHSU</source>
+        <title>Children with focal epilepsy with partial seizures</title>
+        <A>Children with localization-related (focal) epilepsy with simple or complex partial seizures diagnosed before 4 years old who have had an outpatient neurology visit.
+        </A>
+        <B>Children seen by outpatient neurology who had focal epilepsy with partial seizures diagnosed before age 4.
+            <case>A 3-year-old girl presents to neurology clinic for evaluation of seizures. She had her 2nd seizure 5 days ago, which resolved spontaneously. Her previous seizure was 6 months ago. The episodes involved loss of consciousness and lip smacking, followed by period of confusion, indicating complex partial seizures. She had no provoking factors such as fever, illness, or trauma. An interictal EEG was consistent with localization-related epilepsy and she is started on antiepileptic treatment.</case>
+        </B>
+        <C>Children seen by outpatient neurology who had focal epilepsy with partial seizures diagnosed before age 4.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &lt; 18 years
+                    Age at epilepsy diagnosis: &lt; 4 years
+                </demographics>
+                <encounter kind="inclusion">
+                    Outpatient
+                    Specialty: neurology
+                </encounter>
+                <diagnosis kind="inclusion">
+                    Localization-related (focal) epilepsy with partial seizures (ICD9): 345.40, 345.41, 345.50, 345.51, 780.39
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>10</id>
+        <source>OHSU</source>
+        <title>Non-smokers with CAD and no DM</title>
+        <A>Patients 50-70 years old with coronary artery disease (CAD), who don't have Diabetes Mellitus Type 1 or Type 2, are not current smokers, and have had an outpatient cardiology visit.
+        </A>
+        <B>Patients ages 50-70 with coronary artery disease who don't have diabetes or currently smoke, and have had an outpatient cardiology visit.
+            <case>A 59-year-old obese male is seen in cardiology clinic due to a recent diagnosis of stable angina. He confirms diagnoses of hypertension and hyperlipidemia, but denies diabetes. He quit smoking 5 years ago. Initial presentation to primary care doctor was for chest pain provoked with exertion and relieved with rest, and he underwent an exercise EKG stress test. Review of those results confirms myocardial ischemia and coronary artery disease.</case>
+        </B>
+        <C>Patients ages 50-70 with coronary artery disease who don't have diabetes or currently smoke, and have had an outpatient cardiology visit.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: 50-70 years
+                </demographics>
+                <encounter kind="inclusion">
+                    Outpatient
+                    Specialty: cardiology
+                </encounter>
+                <diagnosis kind="inclusion">
+                    Coronary artery disease
+                    Acute myocardial infarction (ICD-9): 410, 410.0, 410.00, 410.01, 410.02, 410.2, 410.20, 410.21, 410.22, 410.3, 410.30, 410.31, 410.32, 410.4, 410.40, 410.41, 410.42, 410.5, 410.50, 410.51, 410.52, 410.6, 410.60, 410.61, 410.62, 410.7, 410.70, 410.71, 410.72, 410.8, 410.80, 410.81, 410.82, 410.9, 410.90, 410.91, 410.92
+                    Other acute ischemic heart disease (ICD-9): 411, 411.0, 411.1, 411.8, 411.81, 411.89
+                    Old myocardial infarction (ICD-9): 412
+                    Angina pectoris (ICD-9): 413, 413.0, 413.1, 413.9
+                    Coronary atherosclerosis (ICD-9): 414.0, 414.00, 414.01, 414.02, 414.03, 414.04, 414.05, 414.06, 414.07, 414.3, 414.4
+                    Coronary aneurysm or dissection (ICD-9): 414.1, 414.10, 414.11, 414.12, 414.19
+                    Other chronic ischemic heart disease (ICD-9): 414.2, 414.8, 414.9
+                </diagnosis>
+                <tobacco_use kind="exclusion">
+                    Current smoker
+                </tobacco_use>
+                <diagnosis kind="exclusion">
+                    Diabetes mellitus, type I or type II (ICD-9): 250, 250.0, 250.00, 250.01, 250.02, 250.03, 250.1, 250.10, 250.11, 250.12, 250.13, 250.2, 250.20, 250.21, 250.22, 250.23, 250.3, 250.30, 250.31, 250.32, 250.33, 250.4, 250.40, 250.41, 250.42, 250.43, 250.5, 250.50, 250.51, 250.52, 250.53, 250.6, 250.60, 250.61, 250.62, 250.63, 250.7, 250.70, 250.71, 250.72, 250.73, 250.8, 250.80, 250.81, 250.82, 250.83, 250.9, 250.90, 250.91, 250.92, 250.93
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>11</id>
+        <source>OHSU</source>
+        <title>Pregnancy with preterm delivery</title>
+        <A>Women 18-55 years old who have had a singleton pregnancy with preterm delivery (delivery before 37 weeks gestational age), and in which there were no major fetal anomalies.
+        </A>
+        <B>Women who had a singleton pregnancy without major fetal anomalies ending in preterm delivery.
+            <case>A 33-year-old G1P1 female is discharged from labor and delivery following preterm delivery at 36w3d of a healthy baby girl. Her pregnancy had been an uncomplicated singleton pregnancy without any suspected fetal anomalies.</case>
+        </B>
+        <C>Women who had a singleton pregnancy without major fetal anomalies ending in preterm delivery.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Sex: Female
+                    Age: 18-55 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Pregnancy (ICD-9): V22, V22.0, V22.1, V22.2, V23, V23.0, V23.1, V23.2, V23.3, V23.4, V23.41, V23.42, V23.49, V23.5, V23.7, V23.8, V23.81, V23.82, V23.83, V23.84, V23.85, V23.86, V23.87, V23.89, V23.9
+                    Preterm delivery (GA &lt; 37 weeks) (ICD-9): 644.2, 644.20, 644.21
+                </diagnosis>
+                <diagnosis kind="exclusion">
+                    Multiples pregnancy
+                    Twin (ICD-9): V91.0, V91.00, V91.01, V91.02, V91.03, V91.09, 651.0, 651.00, 651.01, 651.03, 651.3, 651.30, 651.31, 651.33
+                    Triplet (ICD-9): V91.1, V91.10, V91.11, V91.12, V91.19, 651.1, 651.10, 651.11, 651.13, 651.4, 651.40, 651.41, 651.43
+                    Quadruplet (ICD-9): V91.2, V91.20, V91.21, V91.22, V91.29, 651.2, 651.20, 651.21, 651.23, 651.5, 651.50, 651.51, 651.53
+                    Other (ICD-9): V91.9, V91.90, V91.91, V91.92, V91.99, 651.6, 651.60, 651.61, 651.63, 651.7, 651.70, 651.71, 651.73, 651.8, 651.80, 651.81, 651.83, 651.9, 651.90, 651.91, 651.93
+                    Major fetal anomaly
+                    CNS malformation (ICD-9): 655.0, 655.00, 655.01, 655.03
+                    Chromosomal (ICD-9): 655.1, 655.10, 655.11, 655.13
+                    Suspected damage due to disease in mother (ICD-9): 655.3, 655.30, 655.31, 655.33, 655.4, 655.40, 655.41, 655.43
+                    Suspected damage from drugs or radiation (ICD-9): 655.5, 655.50, 655.51, 655.53, 655.6, 655.60, 655.61, 655.63
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>12</id>
+        <source>OHSU</source>
+        <title>Children with autism</title>
+        <A>Children 6-11 years old with autism who don't have any of these neurodevelopmental disorders: cerebral palsy, Down's syndrome, Smith-Lemli-Opitz syndrome, Neurofibromatosis, Tuberous sclerosis, or Rett syndrome.
+        </A>
+        <B>Children 6-11 years old with autism and not cerebral palsy, Down's syndrome, Smith-Lemli-Opitz syndrome, Neurofibromatosis, Tuberous sclerosis, or Rett syndrome.
+            <case>A 7-year-old female with autism presents for continuing care at an autism clinic. She continues to have difficulty understanding social cues, doesn't display emotion, and avoids loud music, and experiences difficulty with any changes in her environment or schedule. Therapy at the autism clinic incorporates behavioral interventions and includes the involvement of her parents.</case>
+        </B>
+        <C>Children 6-11 years old with autism and not cerebral palsy, Down's syndrome, Smith-Lemli-Opitz syndrome, Neurofibromatosis, Tuberous sclerosis, or Rett syndrome.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: 6-11 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Autism (ICD-9): 299.0, 299.00, 299.01, 299.8, 299.80, 299.81, 299.9, 299.90, 299.91
+                </diagnosis>
+                <diagnosis kind="exclusion">
+                    Cerebral palsy (ICD-9): 343, 343.0, 343.1, 343.2, 343.3, 343.4, 343.8, 343.9
+                    Down's syndrome (ICD-9): 758.0
+                    Smith-Lemli-Opitz syndrome (ICD-9): 758.89
+                    Neurofibromatosis (ICD-9): 237.7, 237.70, 237.71, 237.72, 237.73, 237.79
+                    Tuberous sclerosis (ICD-9): 759.5
+                    Rett syndrome (ICD-9): 330.8
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>13</id>
+        <source>OHSU</source>
+        <title>Renal impairment and daptomycin</title>
+        <A>Adults who have had a hospitalization during which they were treated with daptomycin for at least 3 days and had renal impairment with a serum creatinine of &#8805; 1.7 mg/dL.
+        </A>
+        <B>Adults who had a creatinine &#8805; 1.7 mg/dL and at least 3 days of daptomycin treatment during the same hospitalization.
+            <case>A 62-year-old woman admitted 9 days ago for endocarditis due to MRSA is on day 7 of IV daptomycin treatment. Review of an a.m. CMP shows a creatinine of 2.6 mg/dL, up from 1.4 mg/dL on admission labs.</case>
+        </B>
+        <C>Adults who had a creatinine &#8805; 1.7 mg/dL and at least 3 days of daptomycin treatment during the same hospitalization.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                </demographics>
+                <encounter kind="inclusion">
+                    Inpatient
+                    Daptomycin use and elevated creatinine in same hospitalization
+                </encounter>
+                <medication kind="inclusion">
+                    Daptomycin (Cubicin)
+                    Duration of use: &#8805; 3 days
+                </medication>
+                <lab kind="inclusion">
+                    Serum creatinine &#8805; 1.7 mg/dL
+                </lab>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>14</id>
+        <source>OHSU</source>
+        <title>Adults with cardiac arrest and CPR who died in ICU</title>
+        <A>Deceased adults who expired while in the intensive care unit and had cardiac arrest with cardiopulmonary resuscitation during the same hospitalization.
+        </A>
+        <B>Adults who expired in the ICU and had cardiac arrest and CPR during that hospitalization.
+            <case>A 79-year-old woman is being treated in the intensive care unit for pulmonary embolism. She becomes hemodynamically unstable and goes into cardiac arrest. After prolonged cardiopulmonary resuscitation following the ACLS protocol, there is still no return of spontaneous circulation. Resuscitative attempts are stopped and the patient is pronounced dead.</case>
+        </B>
+        <C>Adults who expired in the ICU and had cardiac arrest and CPR during that hospitalization.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age at death: &#8805; 18 years
+                    Vital status: Deceased
+                </demographics>
+                <encounter kind="inclusion">
+                    Death, cardiac arrest, and CPR during the same hospitalization
+                    Discharged from intensive care unit (ICU)
+                    Discharge disposition: Expired
+                </encounter>
+                <diagnosis kind="inclusion">
+                    Cardiac arrest (ICD-9): 427.5
+                </diagnosis>
+                <procedure kind="inclusion">
+                    Cardiopulmonary resuscitation (CPR)
+                </procedure>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>15</id>
+        <source>OHSU</source>
+        <title>Rheumatoid arthritis and positive anti-CCP</title>
+        <A>Adults 18-64 years old with rheumatoid arthritis who have had a lab test for cyclic citrullinated peptide IgG antibody with a result greater than 40 units.
+        </A>
+        <B>Adults 18-64 years old with rheumatoid arthritis and lab result for positive anti-CCP IgG &gt; 40 units.
+            <case>A 58-year-old female presents with morning stiffness and joint pain in her hands, especially her fingers, which improves after about 30 minutes, but doesn't remit fully. On examination she is found to have ulnar deviation, decreased grip strength, and joint tenderness over the MCP and PIP joints. She has a positive rheumatoid factor and is positive for anti-CCP Ab at 45 units.</case>
+        </B>
+        <C>Adults 18-64 years old with rheumatoid arthritis and lab result for positive anti-CCP IgG &gt; 40 units.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: 18-64 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Rheumatoid arthritis (ICD-9): 714.0
+                </diagnosis>
+                <lab kind="inclusion">
+                    Cyclic citrullinated peptide IgG antibody (anti-CCP IgG): &gt; 40 units
+                </lab>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>16</id>
+        <source>OHSU</source>
+        <title>Gestational anemia and postpartum hemorrhage</title>
+        <A>Women who have had a pregnancy complicated by gestational anemia and immediate or delayed postpartum hemorrhage.
+        </A>
+        <B>Women who have had a pregnancy with gestational anemia and postpartum hemorrhage.
+            <case>A 26-year-old G2P1 female at 38w1d with pregnancy complicated by gestational anemia presents in labor. After a prolonged labor, she delivers a baby girl vaginally but continues to bleed despite uterine massage. Additional uterotonics and brief tamponade of the uterus stops the hemorrhage, with an estimated blood loss of 850 mL.</case>
+        </B>
+        <C>Women who have had a pregnancy with gestational anemia and postpartum hemorrhage.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Sex: Female
+                    Age: &#8805; 18 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Pregnancy
+                    Gestational anemia (ICD-9): 648.2, 648.20, 648.21, 648.22, 648.23, 648.24
+                    Postpartum hemorrhage, immediate or delayed (ICD-9): 666.0, 666.00, 666.02, 666.04, 666.1, 666.10, 666.12, 666.14, 666.2, 666.20, 666.22, 666.24
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>17</id>
+        <source>OHSU</source>
+        <title>RA on MTX w/o biologic DMARD</title>
+        <A>Adults 18-70 years old with rheumatoid arthritis currently treated with methotrexate who have never used a biologic disease-modifying antirheumatic drug (DMARD).
+        </A>
+        <B>Adults ages 18-70 with rheumatoid arthritis taking methotrexate who have never been on a biologic DMARD.
+            <case>A 65-year-old male with rheumatoid arthritis is followed at the rheumatology clinic. He was diagnosed with RA 2 years ago, and is responding to ongoing treatment with methotrexate without requiring any biologic DMARD therapy.</case>
+        </B>
+        <C>Adults ages 18-70 with rheumatoid arthritis taking methotrexate who have never been on a biologic DMARD.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: 18-70 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Rheumatoid arthritis (ICD-9): 714.0
+                </diagnosis>
+                <medication kind="inclusion">
+                    Methotrexate (Rheumatrex, Otrexup, Rasuvo, Trexall)
+                </medication>
+                <medication kind="exclusion">
+                    Biologic disease-modifying antirheumatic drug
+                    TNFi biologic DMARD
+                    Adalimumab (Humira)
+                    Certolizumab (Cimzia)
+                    Etanercept (Enbrel)
+                    Golimumab (Simponi)
+                    Infliximab (Remicade)
+                    Non-TNF biologic DMARD
+                    Abatacept (Orencia)
+                    Rituximab (Rituxan)
+                    Anakinra (Kineret)
+                </medication>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>18</id>
+        <source>OHSU</source>
+        <title>RA on conventional DMARD w/o hepatitis</title>
+        <A>Adults 18-80 years old with rheumatoid arthritis diagnosed at least 6 months ago, who have never had hepatitis B or C, and are currently on conventional disease-modifying antirheumatic drug monotherapy with methotrexate, sulfasalazine, hydroxychloroquine, or leflunomide.
+        </A>
+        <B>Adults ages 18-80 with rheumatoid arthritis, who have never had hepatitis B or C, and are on monotherapy with a conventional DMARD.
+            <case>A 72-year-old male with a 3-year history of rheumatoid arthritis is currently on monotherapy with methotrexate. Prior to DMARD treatment he was tested for HBV and HCV, which were negative.</case>
+        </B>
+        <C>Adults ages 18-80 with rheumatoid arthritis, who have never had hepatitis B or C, and are on monotherapy with a conventional DMARD.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: 18-80 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Rheumatoid arthritis (ICD-9): 714.0
+                    Diagnosis date: &#8805; 6 months ago
+                </diagnosis>
+                <medication kind="inclusion">
+                    Current treatment with one conventional DMARD:
+                    Methotrexate (Rheumatrex, Otrexup, Rasuvo, Trexall)
+                    Sulfasalazine (Azulfidine)
+                    Hydroxychloroquine (Plaquenil)
+                    Leflunomide (Arava)
+                </medication>
+                <diagnosis kind="exclusion">
+                    Hepatitis B (HBV)
+                    Hepatitis C (HCV)
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>19</id>
+        <source>OHSU</source>
+        <title>Children taking an understudied drug</title>
+        <A>Patients younger than 20 years old taking at least one of these understudied drugs: clonidine, doxycycline, granisetron, griseofulvin, hydrochlorothiazide, metoclopramide, ondansetron, pravastatin, or simvastatin; which was ordered as outpatient treatment in an oral form.
+        </A>
+        <B>Patients under age 20 on outpatient treatment with clonidine, doxycycline, granisetron, griseofulvin, hydrochlorothiazide, metoclopramide, ondansetron, pravastatin, or simvastatin, taken orally.
+            <case>A 16-year-old male with nephrogenic diabetes insipidus is seen for routine follow-up in nephrology. He has no new problems, and is continued on his current regimen with 25mg hydrochlorothiazide daily by mouth, frequent voiding, and a low-sodium diet.</case>
+        </B>
+        <C>Patients under 20 on outpatient treatment with clonidine, doxycycline, granisetron, griseofulvin, hydrochlorothiazide, metoclopramide, ondansetron, pravastatin, or simvastatin, taken orally.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &lt; 20 years
+                </demographics>
+                <medication kind="inclusion">
+                    Route of administration: oral, buccal, sublingual
+                    Outpatient medication
+                    Current use of medication
+                    Understudied drugs
+                    Clonidine (Catapres, Duraclon, Jenloga, Kapvay)
+                    Doxycycline (Acticlate, Doryx, Doxteric, Doxychel, Monodox, Oracea, Vibramycin)
+                    Granisetron (Granisol, Kytril, Sancuso)
+                    Griseofulvin (Grifulvin, Gris-PEG)
+                    Hydrochlorothiazide (Esidrex, Microzide, Oretic)
+                    Metoclopramide (Metozolv, Reglan)
+                    Ondansetron (Zofran, Zuplenz)
+                    Pravastatin (Pravachol)
+                    Simvastatin (Zocor)
+                </medication>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>20</id>
+        <source>OHSU</source>
+        <title>Osteoarthritis w/o rheumatoid or psoriatic arthritis</title>
+        <A>Adults 18-99 years old with osteoarthritis who do not have rheumatoid arthritis or psoriatic arthritis.
+        </A>
+        <B>Adults with osteoarthritis who do not have rheumatoid or psoriatic arthritis.
+            <case>A 55-year-old female with osteoarthritis of bilateral knees presents for follow-up. She continues to have pain in her knees. Examination reveals crepitus and decreased range of motion of both knees. Prior knee radiographs have shown joint space narrowing and osteophytes. Prior synovial fluid analysis was non-inflammatory, and ESR was 20.</case>
+        </B>
+        <C>Adults with osteoarthritis who do not have rheumatoid or psoriatic arthritis.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: 18-99 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Osteoarthritis (ICD-9): 715, 715.0, 715.00, 715.04, 715.09, 715.1, 715.10, 715.11, 715.12, 715.13, 715.14, 715.15, 715.16, 715.17, 715.18, 715.2, 715.20, 715.21, 715.22, 715.23, 715.24, 715.25, 715.26, 715.27, 715.28, 715.3, 715.30, 715.31, 715.32, 715.33, 715.34, 715.35, 715.36, 715.37, 715.38, 715.8, 715.80, 715.89, 715.9, 715.90, 715.91, 715.92, 715.93, 715.94, 715.95, 715.96, 715.97, 715.98
+                </diagnosis>
+                <diagnosis kind="exclusion">
+                    Psoriatic arthritis (ICD-9): 696.0
+                    Rheumatoid arthritis (ICD-9): 714, 714.0
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>21</id>
+        <source>OHSU</source>
+        <title>Premature infants with ALT or AST lab</title>
+        <A>Children 5 years old or younger who were born prematurely (less than 37 weeks completed gestation) and had an ALT (alanine transaminase) or AST (aspartate transaminase) lab result within 6 months after birth.
+        </A>
+        <B>Children born prematurely who had ALT or AST lab within 6 months after birth.
+            <case>A 5-day-old boy born at 35 weeks gestational age is in the NICU. A CMP lab test taken this morning show an elevated ALT and AST.</case>
+        </B>
+        <C>Children born prematurely who had ALT or AST lab within 6 months after birth.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8804; 5 years
+                    Age at time of lab test: &#8804; 6 months
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Premature infant
+                </diagnosis>
+                <lab kind="inclusion">
+                    Alanine transaminase (ALT)
+                    Aspartate transaminase (AST)
+                </lab>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>22</id>
+        <source>OHSU</source>
+        <title>Pediatric stroke with endovascular procedure</title>
+        <A>Pediatric patients under 18 years old who have had a stroke and underwent an endovascular procedure involving blood vessels of the head and neck.
+        </A>
+        <B>Pediatric patients who have had a stroke with an endovascular procedure of the head and neck.
+            <case>A 16-year-old boy presents with acute onset of focal neurologic deficits. Brain MRI reveals cerebral ischemia with occlusion of the internal carotid artery. After initiation of r-tPA, treatment proceeds with endovascular mechanical thrombectomy.</case>
+        </B>
+        <C>Pediatric patients who have had a stroke with an endovascular procedure of the head and neck.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &lt; 18 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Cerebrovascular stroke (ICD-9): V17.1, 436
+                </diagnosis>
+                <procedure kind="inclusion">
+                    Endovascular procedure of the head and neck vessels (ICD-9 procedure): 39.72, 39.74
+                </procedure>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>23</id>
+        <source>OHSU</source>
+        <title>Adults with quadriplegia</title>
+        <A>Adults 18-65 years old who have quadriplegia.
+        </A>
+        <B>Adults ages 18-65 with quadriplegia.
+            <case>A 31-year-old female has quadriplegia at C1-C2 due to traumatic atlantoaxial dislocation sustained in a motor vehicle accident.</case>
+        </B>
+        <C>Adults ages 18-65 with quadriplegia.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: 18-65 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Quadriplegia (ICD-9): 344.0, 344.00, 344.01, 344.02, 344.03, 344.04, 344.09
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>24</id>
+        <source>OHSU</source>
+        <title>Children w/anemia and height and weight measurements.</title>
+        <A>Pediatric patients under 18 years old who have had anemia and who, on or after the date of diagnosis, had height and weight measurements at an outpatient visit.
+        </A>
+        <B>Pediatric patients who have had anemia and had height and weight measured at an outpatient visit.
+            <case>An 11-month-old girl is seen in the pediatric outpatient clinic for a well-child visit. Her height is 73 cm (approximately 50th percentile) and she weighs 9.0 kg (approximately 35th percentile). Routine screening reveals iron-deficiency anemia.</case>
+        </B>
+        <C>Pediatric patients who have had anemia and had height and weight measured at an outpatient visit.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &lt; 18 years
+                </demographics>
+                <encounter kind="inclusion">
+                    Outpatient
+                    Date of visit: on or after date of anemia diagnosis
+                </encounter>
+                <diagnosis kind="inclusion">
+                    Anemia
+                </diagnosis>
+                <vitals kind="inclusion">
+                    Height measurement
+                    Weight measurement
+                </vitals>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>25</id>
+        <source>OHSU</source>
+        <title>LASIK w/acuity and corneal sensitivity measured pre- and post-op</title>
+        <A>Adults who have undergone laser-assisted in situ keratomileusis (LASIK) or photorefractive keratectomy (PRK) eye surgery in which visual acuity and corneal sensitivity measurements were recorded both pre-operatively and post-operatively.
+        </A>
+        <B>Adults who have had LASIK or PRK eye surgery with pre-op and post-op visual acuity and corneal sensitivity measurements.
+            <case>A 44-year-old female presents for a 6-month post-operative examination after undergoing LASIK surgery to correct her myopia. At each visit, visual acuity has been measured and a slit-lamp exam performed with measurement of corneal sensitivity with an esthesiometer, including at the pre-operative evaluation.</case>
+        </B>
+        <C>Adults who have had LASIK or PRK eye surgery with pre-op and post-op visual acuity and corneal sensitivity measurements.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                </demographics>
+                <procedure kind="inclusion">
+                    Laser-assisted in situ keratomileusis (LASIK) or photorefractive keratectomy (PRK)
+                    CPT: 66999
+                    HCPCS: S0800
+                </procedure>
+                <encounter kind="inclusion">
+                    Pre-op visit
+                    Post-op visit
+                </encounter>
+                <documentation kind="inclusion">
+                    Measurements recorded at pre-op and post-op visits
+                    Visual acuity
+                    Corneal sensitivity
+                </documentation>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>26</id>
+        <source>OHSU</source>
+        <title>Adults with lab result for anti-tTG Ab or antigliadin Ab</title>
+        <A>Adults who have a lab test resulted for IgA or IgG tissue transglutaminase antibody (IgA tTG or IgG tTG), or antigliadin antibody IgA or IgG (AGA).
+        </A>
+        <B>Adults who have had a lab test for anti-tTG IgA or IgG, or anti-gliadin antibody IgA or IgG.
+            <case>A 24-year-old male of Swedish descent presents with chronic foul-smelling bulky loose stools, fatigue, and pruritic rash over the elbows, knees, and back, which seem worse after consuming wheat products. Physical examination is significant for dermatitis herpetiformis. Lab testing is positive for anti-tTG IgA.</case>
+        </B>
+        <C>Adults who have had a lab test for anti-tTG IgA or IgG, or anti-gliadin antibody IgA or IgG.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                </demographics>
+                <lab kind="inclusion">
+                    Anti-tissue transglutaminase antibody IgA (IgA tTG)
+                    Anti-tissue transglutaminase antibody IgG (IgG tTG)
+                    IgA anti-gliadin antibody (AGA)
+                    IgG anti-gliadin antibody (AGA)
+                </lab>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>27</id>
+        <source>OHSU</source>
+        <title>Young adults with high A1c</title>
+        <A>Patients 16-26 years old who have had at least two lab results for glycated hemoglobin (hemoglobin A1c) at 7.5% or higher.
+        </A>
+        <B>Patients ages 16-26 with at least 2 labs with HbA1c of  &#8805;  7.5%.
+            <case>A 21-year-old with DM Type 1, first diagnosed by pediatrician 7 years ago, is seen by endocrinology for ongoing treatment. Chart review reveals his most recent hemoglobin A1c values are 8.2% and 7.7%.</case>
+        </B>
+        <C>Patients ages 16-26 with at least 2 labs with HbA1c of &#8805; 7.5%.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: 16-26 years
+                </demographics>
+                <lab kind="inclusion">
+                    High HbA1c on &#8805; 2 lab tests
+                    Hemoglobin A1c (HbA1c) &#8805; 7.5%
+                </lab>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>28</id>
+        <source>OHSU</source>
+        <title>Pregnancy complication with lab results and no HIV or hepatitis</title>
+        <A>Women 16-45 years old who have had a pregnancy during which they had a complication of hypertension, pre-eclampsia, eclampsia, renal disease, edema, excessive weight gain, cardiovascular disorder, or fetal growth retardation, and also had a lab test for aspartate transaminase (AST) (SGOT), alanine transaminase (ALT) (SGPT), blood urea nitrogen (BUN), creatinine (Cr), uric acid, or urine protein, and did not have viral hepatitis or human immunodeficiency virus.
+        </A>
+        <B>Women ages 16-45 who have had a pregnancy with complication, during which they did not have viral hepatitis or HIV, and had a lab test for AST, ALT, BUN, creatinine, uric acid, or urine protein.
+            <case>A 36-year-old G1P1 female presents for a postpartum outpatient visit. Her pregnancy was complicated by pre-eclampsia, evidenced by elevated creatinine, urine protein, and high blood pressure. This has resolved since giving birth. She is otherwise healthy and has no history of hepatitis or HIV.</case>
+        </B>
+        <C>Women ages 16-45 who have had a pregnancy with complication, during which they did not have viral hepatitis or HIV, and had a lab test for AST, ALT, BUN, creatinine, uric acid, or urine protein.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Sex: Female
+                    Age: 16-45 years
+                </demographics>
+                <lab kind="inclusion">
+                    Aspartate transaminase (AST, SGOT)
+                    Alanine transaminase (ALT, SGPT)
+                    Blood urea nitrogen (BUN)
+                    Creatinine (Cr)
+                    Uric acid
+                    Urine protein
+                </lab>
+                <diagnosis kind="inclusion">
+                    Pregnancy complication
+                    Hypertension (ICD-9): 642, 642.0, 642.00, 642.01, 642.02, 642.03, 642.04, 642.1, 642.10, 642.11, 642.12, 642.13, 642.14, 642.2, 642.20, 642.21, 642.22, 642.23, 642.24, 642.3, 642.30, 642.31, 642.32, 642.33, 642.34, 760.0
+                    Pre-eclampsia or eclampsia (ICD-9): 642.4, 642.40, 642.41, 642.42, 642.43, 642.44, 642.5, 642.50, 642.51, 642.52, 642.53, 642.54, 642.6, 642.60, 642.61, 642.62, 642.63, 642.64, 642.7, 642.70, 642.71, 642.72, 642.73, 642.74, 642.9, 642.90, 642.91, 642.92, 642.93, 642.94
+                    Edema or excessive weight gain (ICD-9): 646.1, 646.10, 646.11, 646.12, 646.13, 646.14
+                    Renal disease (ICD-9) 646.2, 646.20, 646.21, 646.22, 646.23, 646.24
+                    Antepartum drug dependence (ICD-9): 648.33
+                    Cardiovascular disorder (ICD-9): 648.5, 648.50, 648.51, 648.52, 648.53, 648.54, 648.6, 648.60, 648.61, 648.62, 648.63, 648.64
+                    Fetal growth retardation (ICD-9): 764.9, 764.90, 764.91, 764.92, 764.93, 764.94, 764.95, 764.96, 764.97, 764.98, 764.99
+                </diagnosis>
+                <diagnosis kind="exclusion">
+                    Human immunodeficiency virus (HIV) (ICD-9): 042, 647.6, 647.60, 647.61, 647.62, 647.63, 647.64
+                    Viral hepatitis (ICD-9): 070, 070.0, 070.1, 070.2, 070.20, 070.21, 070.22, 070.23, 070.3, 070.30, 070.31, 070.32, 070.33, 070.4, 070.41, 070.42, 070.43, 070.44, 070.49, 070.5, 070.51, 070.52, 070.53, 070.54, 070.59, 070.6, 070.7, 070.70, 070.71, 070.9
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>29</id>
+        <source>OHSU</source>
+        <title>Adults with thyroid surgery or ablation w/o CVD or ischemic heart disease</title>
+        <A>Adults 20-73 years old who have had radioiodine thyroid ablation, thyroid lobectomy, or thyroidectomy, and who have never had ischemic heart disease, including myocardial infarction or coronary atherosclerosis, and have never had cerebrovascular disease, including stroke or transient ischemic attack.
+        </A>
+        <B>Adults ages 20-73 who have had thyroid excision or ablation, and have never had ischemic heart disease or cerebrovascular disease.
+            <case>A 35-year-old female presents for management of secondary hypothyroidism following radioiodine ablation for treatment of Grave's disease. She is otherwise healthy, and has no history of cerebrovascular disease or cardiovascular disease.</case>
+        </B>
+        <C>Adults ages 20-73 who have had thyroid excision or ablation, and have never had ischemic heart disease or cerebrovascular disease.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: 20-73 years
+                </demographics>
+                <procedure kind="inclusion">
+                    Radioiodine (131-I) thyroid ablation (CPT): 79005, 79999
+                </procedure>
+                <surgery kind="inclusion">
+                    Thyroid lobectomy, total or partial (CPT): 60210, 60212, 60220, 60225
+                    Thyroidectomy, total or subtotal (CPT): 60240, 60252, 60254, 60260, 60270, 60271
+                </surgery>
+                <diagnosis kind="exclusion">
+                    Ischemic heart disease
+                    Acute myocardial infarction (ICD-9): 410, 410.0, 410.00, 410.01, 410.02, 410.1, 410.10, 410.11, 410.12, 410.2, 410.20, 410.21, 410.22, 410.3, 410.30, 410.31, 410.32, 410.4, 410.40, 410.41, 410.42, 410.5, 410.50, 410.51, 410.52, 410.6, 410.60, 410.61, 410.62, 410.7, 410.70, 410.71, 410.72, 410.8, 410.80, 410.81, 410.82, 410.9, 410.90, 410.91, 410.92
+                    Other acute or subacute, non-MI (ICD-9): 411, 411.0, 411.1, 411.8, 411.81, 411.89
+                    Old MI (ICD-9): 412
+                    Angina (ICD-9): 413, 413.0, 413.1, 413.9
+                    Coronary atherosclerosis (ICD-9): 414, 414.0, 414.00, 414.01, 414.02, 414.03, 414.04, 414.05, 414.06, 414.07, 414.3, 414.4
+                    Aneurysm or dissection of heart (ICD-9): 414.1, 414.10, 414.11, 414.12, 414.19
+                    Other chronic ischemic heart disease (ICD-9): 414.2, 414.8, 414.9
+                    History of aortocoronary bypass (ICD-9): V45.81
+                    History of percutaneous coronary intervention (PCI) (ICD-9): V45.82
+                    Cerebrovascular disease
+                    Hemorrhage (ICD-9): 430, 431, 432, 432.0, 432.1, 432.9
+                    Occlusion, stenosis, thrombosis, or embolism, w/ or w/o infarction (ICD-9): 433, 433.0, 433.00, 433.01, 433.1, 433.10, 433.11, 433.2, 433.20, 433.21, 433.3, 433.30, 433.31, 433.8, 433.80, 433.81, 433.9, 433.90, 433.91, 434, 434.0, 434.00, 434.01, 434.1, 434.10, 434.11, 434.9, 434.90, 434.91
+                    Transient ischemic attack (TIA) or posterior circulation ischemia (ICD-9): 435, 435.0, 435.1, 435.2, 435.3, 435.8, 435.9, V12.54
+                    Acute or other ill-defined CVD (ICD-9): 436, 437, 437.0, 437.1, 437.2, 437.3, 437.4, 437.5, 437.6, 437.7, 437.8, 437.9
+                    Late effects of CVD (ICD-9): 438, 438.0, 438.1, 438.10, 438.11, 438.12, 438.13, 438.14, 438.19, 438.2, 438.20, 438.21, 438.22, 438.3, 438.30, 438.31, 438.32, 438.4, 438.40, 438.41, 438.42, 438.5, 438.50, 438.51, 438.52, 438.53, 438.6, 438.7, 438.8, 438.81, 438.82, 438.83, 438.84, 438.85, 438.89, 438.9
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>30</id>
+        <source>PheKB</source>
+        <title>Possible acute drug-induced liver injury</title>
+        <A>Adults who may have had acute drug-induced liver injury in the past 3 years; defined as those who have no history of chronic liver disease or viral hepatitis, who had acute liver injury in the past 3 years, and who had also taken amoxicillin, amoxicillin/clavulanate, nitrofurantoin, trimethoprim, trimethoprim/sulfamethoxazole, isoniazid, or rifampin at any time during the past 3 years.
+        </A>
+        <B>Adults who may have had acute liver injury in the past 3 years, defined as acute liver injury with an elevated ALP, AST, or bilirubin, and use of amoxicillin, nitrofurantoin, TMP or TMP-SMZ, INH, or rifampin, in those without a history of viral hepatitis or chronic liver disease.
+            <case>A 45-year-old male is hospitalized with acute liver injury after developing malaise, severe nausea and vomiting, jaundice, and dark urine. He is currently on day 3 of a 7-day course of amoxicillin for treatment of sinusitis. Labs reveal elevated ALT of 520 U/L and ALP 142 U/L. He has no chronic disease, and previous routine lab tests have been normal. He has no underlying liver disease and has never had these symptoms before. Physicians suspect drug-induced liver injury secondary to amoxicillin.</case>
+        </B>
+        <C>Adults who may have had acute liver injury in the past 3 years, defined as acute liver injury with an elevated ALP, AST, or bilirubin, and use of amoxicillin, nitrofurantoin, TMP or TMP-SMZ, INH, or rifampin, in those without a history of viral hepatitis or chronic liver disease.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Date of diagnosis: within past 3 years
+                    Acute liver injury
+                    Acute or subacute liver necrosis (ICD-9): 570
+                    Hepatic encephalopathy (ICD-9): 572.2
+                    Hepatorenal syndrome (ICD-9): 572.4
+                    Hepatic infarction (ICD-9): 573.4
+                    Hepatopulmonary syndrome (ICD-9); 573.5
+                    Other disorders of liver (ICD-9): 573, 573.0, 573.3, 573.8, 573.9
+                    Unspecified jaundice (ICD-9): 782.4
+                    Abnormal liver labs (ICD-9): 790.4, 794.8
+                </diagnosis>
+                <medication kind="inclusion">
+                    Date of medication use: within past 3 years
+                    Amoxicillin (Amoxil, Larotid, Moxatag)
+                    Amoxicillin/clavulanate (Augmentin, amoxicillin/clavulanic acid)
+                    Nitrofurantoin (Furadantin, Macrobid, Macrodantin)
+                    Trimethoprim (Primsol, TMP)
+                    Trimethoprim/Sulfamethoxazole (Bactrim, Septra, TMP-SMX)
+                    Isoniazid (INH, Laniazid)
+                    Rifampin (Rifadin, Rimactane)
+                    Isoniazid/Rifampin (Rifamate, Rifater)
+                </medication>
+                <lab kind="inclusion">
+                    Date of lab result: within past 3 years
+                    Alkaline phosphatase (ALP) &#8805; 90 U/L
+                    Alanine transaminase (ALT) &#8805; 600 U/L
+                    Bilirubin (Bili) &#8805; 4.68 mg/dL
+                </lab>
+                <diagnosis kind="exclusion">
+                    Chronic liver disease
+                    Alcoholic liver damage (ICD-9): 571.0, 571.1, 571.2, 571.3
+                    Chronic hepatitis (ICD-9): 571.4, 571.40 571.41, 571.42, 571.49
+                    Liver or biliary cirrhosis (ICD-9): 571.5, 571.6
+                    Other chronic liver disease (ICD-9): 571, 571.8, 571.9
+                    Viral hepatitis
+                    Hepatitis A (ICD-9): 070.0, 070.1
+                    Hepatitis B, w/ or w/o delta (ICD-9): 070.2, 070.20, 070.21, 070.22, 070.23, 070.3, 070.30, 070.31, 070.32, 070.33
+                    Hepatitis C (ICD-9): 070.41, 070.44, 070.51, 070.54, 070.7, 070.70, 070.71
+                    Hepatitis E or delta w/o B (ICD-9): 070.42, 070.43, 070.52, 070.53
+                    Other/unspecified viral hepatitis (ICD-9): 070, 070.4, 070.49, 070.5, 070.59, 070.6, 070.9, 573.1
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>31</id>
+        <source>PheKB</source>
+        <title>Peripheral arterial disease (PAD)</title>
+        <A>Adults diagnosed with lower extremity peripheral arterial disease (PAD), or who meet diagnostic criteria of PAD with an ankle-brachial index (ABI) &lt; 0.9 or &gt; 1.4 or vascular imaging showing lower extremity artery occlusion or severe stenosis (&#8805;50%), and who don't have vasculitis, thrombotic microangiopathy, neurofibromatosis, or systemic sclerosis.
+        </A>
+        <B>Adults with peripheral arterial disease, or who have a diagnostic ABI or lower extremity artery stenosis on imaging, and don't have neurofibromatosis, vasculitis, thrombotic microangiopathy, or systemic sclerosis.
+            <case>A 65-year-old male presents for evaluation of bilateral leg pain. His other medical problems include hypertension and GERD. Further evaluation of his symptoms and exam are consistent with lower extremity claudication. An ankle-brachial index is measured at 0.76, confirming a diagnosis of peripheral arterial disease.</case>
+        </B>
+        <C>Adults with peripheral arterial disease, or who have a diagnostic ABI or lower extremity artery stenosis on imaging, and don't have neurofibromatosis, vasculitis, thrombotic microangiopathy, or systemic sclerosis.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Peripheral arterial disease (ICD-9): 440.2, 440.20, 440.21, 440.22, 440.23, 440.24, 440.29, 440.3, 440.30, 440.31, 440.32, 440.8, 443.9
+                </diagnosis>
+                <procedure kind="inclusion">
+                    Ankle-brachial index (ABI) of &lt; 0.9 or &gt; 1.4
+                </procedure>
+                <imaging kind="inclusion">
+                    Radiologic finding of lower extremity artery occlusion or severe stenosis (&#8805; 50%) on vascular imaging
+                    Duplex ultrasound
+                    Computed tomography angiography (CTA)
+                    Magnetic resonance angiography (MRA)
+                    Contrast arteriogram (conventional angiogram)
+                </imaging>
+                <diagnosis kind="exclusion">
+                    Vasculitis (ICD-9): 443.1, 446.0, 446.4, 446.5, 446.7, 447.6
+                    Thrombotic microangiopathy (ICD-9): 446.6
+                    Neurofibromatosis (ICD-9): 237.7, 237.70, 237.71, 237.72, 237.73, 237.79
+                    Systemic sclerosis (ICD-9): 710.1
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>32</id>
+        <source>PheKB</source>
+        <title>ACE inhibitor-induced cough</title>
+        <A>Adults who have been treated with an angiotensin-converting-enzyme (ACE) inhibitor and developed an associated cough, consistent with ACE inhibitor-induced cough as an adverse effect of the medication.
+        </A>
+        <B>Adults who have used an ACE inhibitor and experienced ACE inhibitor-induced cough.
+            <case>A 48-year-old woman with hypertension begins treatment with Lisinopril. One month later she complains of persistent dry cough, but has no other respiratory or infectious symptoms. Suspecting ACE inhibitor-induced cough, she is switched from Lisinopril to Valsartan and reports resolution of her cough on follow up.</case>
+        </B>
+        <C>Adults who have used an ACE inhibitor and experienced ACE inhibitor-induced cough as an adverse effect.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                </demographics>
+                <medication kind="inclusion">
+                    Angiotensin-converting-enzyme (ACE) inhibitor
+                    Quinapril (Accupril)
+                    Benazepril (Lotensin)
+                    Lisinopril (Prinivil, Zestril)
+                    Captopril (Capoten)
+                    Enalapril (Vasotec)
+                    Fosinopril (Monopril)
+                    Ramipril (Altace)
+                    Perindopril (Aceon)
+                    Trandolapril (Mavik)
+                    Moexipril (Univasc)
+                    Medication adverse effect: ACE inhibitor-induced cough
+                </medication>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>33</id>
+        <source>PheKB</source>
+        <title>Children with ADHD on CNS stimulant</title>
+        <A>Children 4-18 years old who have attention deficit hyperactivity disorder or hyperkinetic syndrome treated with a central nervous system stimulant of methylphenidate, dexmethylphenidate, amphetamine, or lisdexamfetamine, and who don't have comorbid somatoform disorder, stereotypic movement disorder, mental retardation, central nervous system malignancy, or neurofibromatosis.
+        </A>
+        <B>Children ages 4-18 with ADHD treated with a CNS stimulant, and who don't have somatoform disorder, stereotypic movement disorder, mental retardation, CNS malignancy, or neurofibromatosis.
+            <case>A 6-year-old girl is brought for evaluation for symptoms of inattention, forgetfulness, difficulty with organizing tasks and following long conversations. She has no marked hyperactivity symptoms, and is otherwise healthy and has no signs of other CNS disorders. After further discussion, exam, and follow up, she is diagnosed with attention deficit disorder without hyperactivity.</case>
+        </B>
+        <C>Children ages 4-18 with ADHD treated with a CNS stimulant, and who don't have somatoform disorder, stereotypic movement disorder, mental retardation, CNS malignancy, or neurofibromatosis.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: 4-18 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Attention deficit disorder or hyperkinetic syndrome (ICD-9): 314, 314.0, 314.00, 314.01, 314.1, 314.2, 314.8, 314.9
+                </diagnosis>
+                <medication kind="inclusion">
+                    Central nervous system stimulant
+                    Methylphenidate (Concerta, Daytrana, Dexosyn, Metadate, Methylin, Ritalin, Quillichew, Quillivant)
+                    Dexmethylphenidate (Focalin)
+                    Amphetamine (Adderall, Dexedrine, DextroStat)
+                    Lisdexamfetamine (Vyvanse)
+                </medication>
+                <diagnosis kind="exclusion">
+                    Somatoform disorder (ICD-9): 300.81, 300.82, 300.89
+                    Stereotypic movement disorder (ICD-9): 307.3
+                    Mental retardation (ICD-9): 317, 318, 318.0, 318.1, 318.2, 319
+                    Malignancy of central nervous system (ICD-9): 191, 191.0, 191.1, 191.2, 191.3, 191.4, 191.5, 191.6, 191.7, 191.8, 191.9, 192, 192.0, 192.1, 192.2, 192.3, 192.8, 192.9
+                    Neurofibromatosis (ICD-9): 237.7, 237.70, 237.71, 237.72, 237.73, 237.79
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>34</id>
+        <source>PheKB</source>
+        <title>WBC differential and no h/o splenectomy, dialysis, or HIV</title>
+        <A>Adults who have never had a splenectomy, undergone dialysis, or been diagnosed with human immunodeficiency virus (HIV), and who have lab results for at least 2 components of a differential white blood cell count (neutrophils, band cells, lymphocytes, monocytes, eosinophils, basophils) which was not drawn during an inpatient, emergency department, or urgent care encounter.
+        </A>
+        <B>Adults who don't have HIV, splenectomy, or a history of dialysis, and have results for &#8805; 2 cell types of a WBC differential which wasn't drawn in an inpatient, ED, or urgent care visit.
+            <case>A 39-year-old male presents to the family medicine clinic for evaluation of fatigue. His past medical history and surgical history are negative. The physician orders a complete blood count with differential. The results include normal hemoglobin, hematocrit, and platelets, but an elevated WBC count, with lymphocytosis present on the differential count.</case>
+        </B>
+        <C>Adults who don't have HIV, splenectomy, or a history of dialysis, and have results for &#8805; 2 cell types of a WBC differential which wasn't drawn in an inpatient, ED, or urgent care visit.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                </demographics>
+                <lab kind="inclusion">
+                    &#8805; 2 leukocyte cell types, differential %
+                    Neutrophils
+                    Bands
+                    Lymphocytes
+                    Monocytes
+                    Eosinophils
+                    Basophils
+                </lab>
+                <encounter kind="exclusion">
+                    Lab specimen collected during an inpatient, ED, or urgent care encounter
+                    Inpatient
+                    Emergency department
+                    Urgent care
+                </encounter>
+                <diagnosis kind="exclusion">
+                    Human immunodeficiency (HIV) (ICD-9): 042, V08
+                </diagnosis>
+                <procedure kind="exclusion">
+                    Peritoneal dialysis or hemodialysis
+                    CPT: 90921, 90924, 90925, 90935, 90937, 90940, 90941, 90942, 90945, 90947, 90953, 90976, 90980, 90988, 90989, 90990, 90991, 90992, 90993, 90999
+                    ICD-9 procedure code: 39.95, 54.98
+                </procedure>
+                <surgery kind="exclusion">
+                    Partial or total splenectomy
+                    CPT: 38120, 38100, 38101, 38102
+                    ICD-9 procedure code: 41.43, 41.5
+                </surgery>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>35</id>
+        <source>NQF</source>
+        <title>Breast cancer screening mammogram</title>
+        <A>Women who were 50-74 years old and had a mammogram to screen for breast cancer between October 1, 2010 and December 31, 2012, and at that time had not had a mastectomy involving both breasts.
+        </A>
+        <B>Women who had a screening mammogram at ages 50-74 between 10/1/2010 and 12/31/2012, and hadn't undergone mastectomy of both breasts.
+            <case>A 63-year-old woman presents for a routine health maintenance visit on February 4, 2012. She has never had breast cancer or any previous surgeries. Her last mammogram was in 2009, and she is due for another bilateral screening mammogram, which is performed two weeks later.</case>
+        </B>
+        <C>Women who had a screening mammogram at ages 50-74 between 10/1/2010 and 12/31/2012, and hadn't undergone mastectomy of both breasts.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Sex: Female
+                    Age on 12/31/2012: 52-74 years
+                </demographics>
+                <encounter kind="inclusion">
+                    Imaging date: 10/1/2010 - 12/31/2012
+                </encounter>
+                <imaging kind="inclusion">
+                    Screening mammogram
+                    CPT: 77055, 77056, 77057
+                    ICD-9 procedure codes: 87.37, 87.36
+                    HCPCS code: G0202
+                </imaging>
+                <surgery kind="exclusion">
+                    Mastectomy of both breasts
+                    Bilateral mastectomy (ICD-9 procedure codes): 85.42, 85.44, 85.46, 85.48
+                    Unilateral mastectomy
+                    CPT:  19307, 19306, 19305, 19304, 19303
+                    ICD-9 procedure codes: 85.41, 85.43, 85.45, 85.47
+                </surgery>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>36</id>
+        <source>NQF</source>
+        <title>Children with dental decay</title>
+        <A>Children 1-17 years old who have had an outpatient office visit in which they were diagnosed with dental caries.
+        </A>
+        <B>Children 1-17 years old who were diagnosed with dental caries during an office visit.
+            <case>A 4-year-old girl is seen in outpatient pediatrician office complaining of toothache. She is afebrile, and physical exam reveals dental decay, but no surrounding erythema, induration, or lymphadenopathy. She is referred to a dentist for further evaluation and treatment.</case>
+        </B>
+        <C>Children 1-17 years old who were diagnosed with dental caries during an office visit.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: 1-17 years
+                </demographics>
+                <encounter kind="inclusion">
+                    Outpatient office visit (CPT): 99391, 99392, 99393, 99394, 99381, 99382, 99383, 99384, 99201, 99202, 99203, 99204, 99205, 99212, 99213, 99214, 99215
+                </encounter>
+                <diagnosis kind="inclusion">
+                    Dental caries (ICD-9): 521.0, 521.00, 521.01, 521.02, 521.03, 521.04, 521.05, 521.06, 521.07, 521.08, 521.09
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>37</id>
+        <source>NQF</source>
+        <title>Inpatient falls with injury</title>
+        <A>Adults who have had a fall with injury while hospitalized, who were not pregnant or admitted for psychiatric illness at that time, and had an injury level of minor, moderate, major, or resulting in death.
+        </A>
+        <B>Adults who have had an injury fall during an inpatient encounter in which they were not pregnant or admitted for psychiatric illness.
+            <case>A 76-year-old female who was admitted for inpatient treatment of complicated UTI, suffers a fall and sustains lacerations to bilateral elbows requiring steri-strips for wound management, which is reported as a fall with moderate injury level.</case>
+        </B>
+        <C>Adults who have had an injury fall during an inpatient encounter in which they were not pregnant or admitted for psychiatric illness.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                </demographics>
+                <encounter kind="inclusion">
+                    Inpatient
+                </encounter>
+                <adverse_event kind="inclusion">
+                    Fall with injury
+                    Injury level: minor, moderate, major, or resulting in death
+                </adverse_event>
+                <diagnosis kind="exclusion">
+                    Admitting diagnosis: psychiatric disorder
+                    Pregnancy
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>38</id>
+        <source>NQF</source>
+        <title>Adolescent immunization w/ meningococcal and Tdap/Td</title>
+        <A>Children 11-13 years old who have had one dose of meningococcal conjugate or polysaccharide vaccine at ages 11-13, and either the Tdap (tetanus and diphtheria toxoids, and acellular pertussis) vaccine or the Td (tetanus and diphtheria toxoids) vaccine at ages 10-13.
+        </A>
+        <B>Children 11-13 years old who had meningococcal vaccination at ages 11-13 and Tdap or Td at ages 10-13.
+            <case>A 13-year-old male presents for his school sports physical. He was last seen 2 months ago, at which time he had meningococcal vaccination (MCV4). Records indicate that he received the Tdap (tetanus, diphtheria, pertussis) vaccine 14 months ago.</case>
+        </B>
+        <C>Children 11-13 years old who had meningococcal vaccination at ages 11-13 and Tdap or Td at ages 10-13.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age:  11-13 years
+                </demographics>
+                <procedure kind="inclusion">
+                    Meningococcal vaccination (one dose) at 11-13 years old
+                    Quadrivalent meningococcal conjugate vaccine (MCV4) (Menactra, Menveo) (CPT): 90734
+                    Meningococcal polysaccharide vaccine (MPSV4) (Menomune) (CPT): 90733
+                    Tetanus and diphtheria toxoids vaccination at 10-13 years old
+                    Tetanus and diphtheria toxoids, and acellular pertussis vaccine (Tdap) (Adacel, Boostrix)
+                    CPT: 90715
+                    ICD-9 procedure code: 99.39
+                    Tetanus and diphtheria toxoids vaccine (Td) (Tenivac, Decavac) (CPT): 90714, 90718
+                    Tetanus toxoid
+                    CPT: 90703
+                    ICD-9 procedure code: 99.38
+                    Diphtheria toxoid
+                    CPT: 90719
+                    ICD-9 procedure code: 99.36
+                </procedure>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>39</id>
+        <source>NQF</source>
+        <title>ED admission for appendix perforation or abscess</title>
+        <A>Adults who have ever had an admission from the emergency department for inpatient treatment of appendicitis with abscess or perforation of the appendix, and who were not pregnant or postpartum at that time.
+        </A>
+        <B>Adults who have ever been admitted from the ED with appendiceal perforation or abscess, and weren't pregnant or postpartum.
+            <case>A 21-year-old female presents to the emergency department with fever, chills, right lower quadrant pain, nausea, and vomiting. She has peritoneal signs on physical exam and a negative pregnancy test. Imaging reveals a perforated appendix and she is admitted for further treatment.</case>
+        </B>
+        <C>Adults who have ever been admitted from the ED with appendiceal perforation or abscess, and weren't pregnant or postpartum.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                </demographics>
+                <encounter kind="inclusion">
+                    Emergency department visit
+                    Admission to inpatient from emergency department
+                </encounter>
+                <diagnosis kind="inclusion">
+                    Appendicitis with appendiceal perforation or abscess (ICD-9): 540.0, 540.1
+                </diagnosis>
+                <diagnosis kind="exclusion">
+                    Pregnancy
+                    Labor and delivery
+                    Postpartum
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>40</id>
+        <source>NQF</source>
+        <title>Death from acute MI while inpatient</title>
+        <A>Adults who suffered death as an inpatient and had a principal diagnosis of acute myocardial infarction (MI) at discharge.
+        </A>
+        <B>Adults who expired while hospitalized and have a discharge diagnosis of acute MI.
+            <case>A 75-year-old male is hospitalized for treatment of a severe diabetic foot infection. On day 2 of treatment, he suffers a massive acute myocardial infarction and expires.</case>
+        </B>
+        <C>Adults who expired while hospitalized and have a discharge diagnosis of acute MI.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                    Vital status: Deceased
+                </demographics>
+                <encounter kind="inclusion">
+                    Inpatient
+                    Discharge status: Expired
+                </encounter>
+                <diagnosis kind="inclusion">
+                    Principal discharge diagnosis: acute myocardial infarction
+                    Acute myocardial infarction (ICD-9): 410, 410.0, 410.00, 410.01, 410.02, 410.1, 410.10, 410.11, 410.12, 410.2, 410.20, 410.21, 410.22, 410.3, 410.30, 410.31, 410.32, 410.4, 410.40, 410.41, 410.42, 410.5, 410.50, 410.51, 410.52, 410.6, 410.60, 410.61, 410.62, 410.7, 410.70, 410.71, 410.72, 410.8, 410.80, 410.81, 410.82, 410.9, 410.90, 410.91, 410.92
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>41</id>
+        <source>NQF</source>
+        <title>Prostate cancer and external beam radiation tx w/adjuvant GnRH agonist/antagonist</title>
+        <A>Males with prostate cancer with high or very high risk of recurrence, who are undergoing external beam radiation therapy and receiving adjuvant hormonal therapy with a gonadotropin-releasing hormone (GnRH) agonist (leuprolide, triptorelin, goserelin, histrelin) or antagonist (degarelix).
+        </A>
+        <B>Males with prostate cancer with high risk of recurrence receiving external beam radiotherapy and adjuvant hormonal therapy with a GnRH agonist or antagonist.
+            <case>A 76-year-old male with prostate cancer is found to be at high risk of recurrence. He is currently receiving external beam radiotherapy using proton beam therapy, and is prescribed leuprolide as adjuvant androgen deprivation therapy.</case>
+        </B>
+        <C>Males with prostate cancer with high risk of recurrence receiving external beam radiotherapy and adjuvant hormonal therapy with a GnRH agonist or antagonist.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Sex: Male
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Prostate cancer with high or very high risk of recurrence
+                    Prostate cancer (ICD-9): 185
+                    High or very high risk of recurrence diagnosis
+                    HCPCS: G8465
+                    CPT: 3274F
+                    High or very high risk of recurrence definition, one or more of:
+                    Lab: prostate specific antigen (PSA) &gt; 20 ng/mL
+                    Gleason score: 8-10
+                    Clinical stage: T3a, T3b, or T4
+                </diagnosis>
+                <procedure kind="inclusion">
+                    External beam radiation therapy (CPT): 77427, 77435
+                    3D conformal radiation therapy
+                    Intensity modulated radiation therapy
+                    Stereotactic body radiotherapy
+                    Proton beam therapy
+                </procedure>
+                <medication kind="inclusion">
+                    Adjuvant gonadotropin-releasing hormone (GnRH) agonist or antagonist prescribed (CPT): 4164F
+                    GnRH agonist
+                    Leuprolide (Eligard, Lupron)
+                    Triptorelin (Trelstar)
+                    Goserelin (Zoladex)
+                    Histrelin (Vantas, Supprelin)
+                    GnRH antagonist
+                    Degarelix (Firmagon)
+                </medication>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>42</id>
+        <source>NQF</source>
+        <title>Elderly patients with dementia on antipsychotic medication</title>
+        <A>Patients ages 65 or older with dementia who are taking an antipsychotic medication, and don't have schizophrenia, bipolar disorder, Huntington's disease, or Tourette's Syndrome.
+        </A>
+        <B>Elderly patients with dementia taking an antipsychotic and don't have schizophrenia, bipolar disorder, Huntington's disease, or Tourette's Syndrome.
+            <case>An 81-year-old female with Alzheimer's dementia develops agitation and behavioral disturbances. She is subsequently prescribed Haldol for these symptoms. The patient and caretakers deny any hallucinations or other evidence of psychosis, and the patient has no history of schizophrenia or other neurological disease.</case>
+        </B>
+        <C>Elderly patients with dementia taking an antipsychotic and don't have schizophrenia, bipolar disorder, Huntington's disease, or Tourette's Syndrome.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 65 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Senile or presenile dementia (ICD-9): 290.0, 290.1, 290.10, 290.11, 290.12, 290.13, 290.2, 290.20, 290.21, 290.3
+                    Vascular dementia (ICD-9): 290.4, 290.40, 290.41, 290.42, 290.43
+                    Other/unspecified dementia (ICD-9): 294.10, 294.20
+                    Alzheimer's disease (ICD-9): 331.0
+                    Dementia with Lewy bodies (ICD-9): 331.82
+                </diagnosis>
+                <medication kind="inclusion">
+                    Atypical antipsychotic
+                    Aripiprazole (Abilify, Aristada)
+                    Asenapine (Saphris)
+                    Clozapine (Clozaril, Fazaclo, Versacloz)
+                    Iloperidone (Fanapt)
+                    Lurasidone (Latuda)
+                    Olanzapine (Zyprexa)
+                    Olanzapine/Fluoxetine (Symbyax)
+                    Paliperidone (Invega)
+                    Quetiapine (Seroquel)
+                    Risperidone (Risperdal)
+                    Ziprasidone (Geodon)
+                    Typical antipsychotic
+                    Chlorpromazine (Thorazine)
+                    Fluphenazine
+                    Haloperidol (Haldol)
+                    Loxapine (Adasuve)
+                    Perphenazine
+                    Pimozide (Orap)
+                    Thioridazine
+                    Thiothixene (Navane)
+                    Trifluoperazine
+                </medication>
+                <diagnosis kind="exclusion">
+                    Schizophrenia (ICD-9): 295, 295.0, 295.00, 295.01, 295.02, 295.03, 295.04, 295.05, 295.1, 295.10, 295.11, 295.12, 295.13, 295.14, 295.15, 295.2, 295.20, 295.21, 295.22, 295.23, 295.24, 295.25, 295.3, 295.30, 295.31, 295.32, 295.33, 295.34, 295.35, 294.4, 295.40, 295.41, 295.42, 295.43, 295.44, 295.45, 295.5, 295.50, 295.51, 295.52, 295.53, 295.54, 295.55, 295.6, 295.60, 295.61, 295.62, 295.63, 295.64, 295.65, 295.7, 295.70, 295.71, 295.72, 295.73, 295.74, 295.75, 295.8, 295.80, 295.81, 295.82, 295.83, 295.84, 295.85, 295.9, 295.90, 295.91, 295.92, 295.93, 295.94, 295.95
+                    Bipolar disorder (ICD-9): 296.0, 296.00, 296.01, 296.02, 296.03, 296.04, 296.05, 296.06, 296.1, 296.10, 296.11, 296.12, 296.13, 296.14, 296.15, 296.16, 296.4, 296.40, 296.41, 296.42, 296.43, 296.44, 296.45, 296.46, 296.5, 296.50, 296.51, 296.52, 296.53, 296.54, 296.55, 296.56, 296.6, 296.60, 296.61, 296.62, 296.63, 296.64, 296.65, 296.66, 296.7, 296.8, 296.80, 296.81, 296.82, 296.89, 296.9, 296.90, 296.99
+                    Huntington's disease (ICD-9): 333.4
+                    Tourette's disorder (ICD-9): 307.23
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>43</id>
+        <source>NQF</source>
+        <title>Chronic steroid therapy and osteoporosis prevention</title>
+        <A>Women ages 55 or older, or men ages 50 or older, who are on chronic glucocorticoid treatment of at least 3 months, and who are also taking a bisphosphonate for the prevention of glucocorticoid-induced osteoporosis.
+        </A>
+        <B>Women ages 55 or older or men ages 50 or older who are on chronic glucocorticoid therapy and taking a bisphosphonate for osteoporosis prevention.
+            <case>A 54-year-old male with rheumatoid arthritis treated with methotrexate and sulfasalazine started adjunctive therapy 6 months ago with daily prednisone. His physician prescribes alendronate in order to mitigate the risk of developing glucocorticoid-induced osteoporosis.</case>
+        </B>
+        <C>Women ages 55 or older or men ages 50 or older who are on chronic glucocorticoid therapy and taking a bisphosphonate for osteoporosis prevention.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age if female: &#8805; 55 years
+                    Age if male: &#8805; 50 years
+                </demographics>
+                <medication kind="inclusion">
+                    Bisphosphonate
+                    Alendronate (Binosto, Fosamax)
+                    Risendronate (Actanel, Atelvia)
+                    Zoledronic acid (Reclast, Zometa)
+                    Pamidronate (Aredia)
+                    Ibandronate (Boniva)
+                    Chronic glucocorticoid therapy
+                    Duration of use: &#8805; 3 months
+                    Betamethasone (Celestone soluspan)
+                    Dexamethasone (DoubleDex, DexPak)
+                    Methylprednisolone (A-Methapred, Depo-medrol, Solu-medrol, Medrol)
+                    Triamcinolone (Kenalog, Pro-C-Dure)
+                    Prednisone (Deltasone, Rayos)
+                    Prednisolone (Flo-Pred, Millipred, Orapred, Pediapred, Prelone, Veripred)
+                    Hydrocortisone (A-Hydrocort, Cortef, Solu-Cortef)
+                    Cortisone
+                </medication>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>44</id>
+        <source>NQF</source>
+        <title>COPD with potentially avoidable complication</title>
+        <A>Adults ages 18-65 with chronic obstructive pulmonary disease (COPD), who have had a hospitalization for a potentially avoidable complication with an acute exacerbation, respiratory failure or insufficiency, or requiring intubation, mechanical ventilation, or tracheostomy.
+        </A>
+        <B>Adults with COPD who have been hospitalized with an acute exacerbation or respiratory failure, or required a tracheostomy, intubation or mechanical ventilation.
+            <case>A 58-year-old woman with chronic bronchitis is treated with albuterol as needed. She has had 2 ED visits in the last 10 months for acute exacerbation, each treated with a course of prednisone. Her past medical history is negative for malignancy, renal disease, or organ transplantation. She presents for symptoms of a mild increase in frequency of cough and sputum production. She is started on daily tiotropium and continued on prn albuterol.</case>
+        </B>
+        <C>Adults with COPD who have been hospitalized with an acute exacerbation or respiratory failure, or required a tracheostomy, intubation or mechanical ventilation.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: 18-65 years
+                </demographics>
+                <encounter kind="inclusion">
+                    Inpatient
+                </encounter>
+                <diagnosis kind="inclusion">
+                    Chronic obstructive pulmonary disease (COPD) (ICD-9): 490, 491.0, 491.1, 491.20, 491.8, 491.9, 492, 492.0, 492.8, 493.20, 496
+                    Potentially avoidable complication
+                    Respiratory failure or insufficiency (ICD-9): 518.8, 518.81, 518.82, 518.83, 518.84, 518.5, 518.51, 518.52, 518.53, 799.1
+                    Acute exacerbation of COPD (ICD-9): 491.21, 491.22, 493.21, 493.22
+                </diagnosis>
+                <procedure kind="inclusion">
+                    Potentially avoidable complication
+                    Tracheostomy placement
+                    CPT: 31600, 31601, 31603, 31605, 31610, 31613, 31614
+                    ICD-9 procedure code: 31.1, 31.2, 31.21, 31.29
+                    Intubation, Mechanical ventilation
+                    CPT: 31500, 64660, 64662
+                    ICD-9 procedure code: 96.01, 96.02, 96.03, 96.04, 96.05
+                </procedure>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>45</id>
+        <source>NQF</source>
+        <title>Patients w/coronary stent and 12 mo. antiplatelet tx</title>
+        <A>Patients with a coronary artery stent (bare-metal or drug-eluting) who were on antiplatelet therapy with clopidogrel, prasugrel, or ticagrelor for the 12 months following stenting, or taking currently if the stent was placed less than 12 months ago.
+        </A>
+        <B>Patients with a coronary artery stent and were treated with clopidogrel, prasugel, or tricagrelor for 12 months.
+            <case>A 76-year-old male presents for follow up of his heart disease. He has had coronary artery disease (CAD) for 7 years, and underwent coronary artery stenting of the left anterior descending artery (LAD) using a drug-eluting stent (DES) 5 months ago. He has no known contraindication to antiplatelet therapy. He is doing well and continued on dual antiplatelet therapy with aspirin and clopidogrel.</case>
+        </B>
+        <C>Patients with a coronary artery stent and were treated with clopidogrel, prasugel, or tricagrelor for 12 months.
+            <criteria_list>
+                <procedure kind="inclusion">
+                    Coronary artery stent placement
+                    ICD-9 procedure code: 36.06, 36.07
+                    HCPCS: C1874, C1875, C1876, C1877, C9600, C9603, C9604, C9605, C9606, C9607, C9608, G0290, G0291
+                </procedure>
+                <diagnosis kind="inclusion">
+                    History of percutaneous coronary intervention (ICD-9): V45.82
+                </diagnosis>
+                <medication kind="inclusion">
+                    Clopidogrel (Plavix)
+                    Crasugrel (Effient)
+                    Ticagrelor (Brilinta)
+                    Duration of use:
+                    12 months after stent placement
+                    Current use if stent placed &lt; 12 months ago
+                </medication>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>46</id>
+        <source>NQF</source>
+        <title>Children with sickle cell anemia and transcranial doppler U/S</title>
+        <A>Children 2-15 years old with sickle cell anemia (hemoglobin SS) who have had at least 3 sickle cell anemia-related healthcare encounters and have had a transcranial doppler ultrasound to screen for increased ischemic stroke risk.
+        </A>
+        <B>Children ages 2-15 with sickle cell anemia, at least 3 related visits, and stroke risk screening with transcranial doppler ultrasound.
+            <case>A 5-year-old boy with sickle cell anemia presents for continuing care. His growth chart and vital signs are reviewed, and routine blood count ordered. His last transcranial doppler ultrasound, performed 6 months ago was normal, with a flow velocity &lt; 170 cm/s, which is unchanged from previous screenings at ages 2 and 3.</case>
+        </B>
+        <C>Children ages 2-15 with sickle cell anemia, at least 3 related visits, and stroke risk screening with transcranial doppler ultrasound.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: 2-15 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Sickle cell anemia (Hb-SS) (ICD-9): 282.61, 282.62
+                </diagnosis>
+                <encounter kind="inclusion">
+                    &#8805; 3 healthcare visits for sickle cell anemia
+                </encounter>
+                <imaging kind="inclusion">
+                    Transcranial doppler ultrasound study of intracranial arteries (CPT): 93886, 93888, 93890, 93892, 93893
+                </imaging>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>47</id>
+        <source>REP</source>
+        <title>Prostate cancer on biopsy with Gleason score</title>
+        <A>Men who have prostate cancer which was confirmed or diagnosed by prostate biopsy in which the Gleason score was documented in the pathology report.
+        </A>
+        <B>Men with prostate cancer who had a biopsy in which the Gleason score was reported.
+            <case>A 61-year-old male undergoes radical prostatectomy with pelvic lymph node dissection following prostate biopsy diagnosing prostate cancer, which is characterized as stage T2b, Gleason score of 7, and last PSA of 17 mg/dL.</case>
+        </B>
+        <C>Men with prostate cancer who had a biopsy in which the Gleason score was reported.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Sex: Male
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Malignant neoplasm of the prostate (ICD-9): 185
+                </diagnosis>
+                <procedure kind="inclusion">
+                    Prostate biopsy (CPT): 55700, 55705, 55706
+                </procedure>
+                <documentation kind="inclusion">
+                    Pathology report for prostate biopsy includes Gleason score
+                </documentation>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>48</id>
+        <source>REP</source>
+        <title>Stroke after first MI</title>
+        <A>Adults who have had an incident acute myocardial infarction within the last 3 years and who subsequently suffered hemorrhagic or ischemic stroke.
+        </A>
+        <B>Adults with an incident myocardial infarction in the last 3 years who have a subsequent stroke.
+            <case>A 59-year-old male presents with acute onset of confusion, headache, vomiting, with focal neurologic deficits on exam. He is hypertensive to an SBP of 220 mmHg, and medical history is significant for an MI 2 years ago. CT scan shows intracerebral hemorrhage, and he's admitted to the ICU.</case>
+        </B>
+        <C>Adults with an incident myocardial infarction in the last 3 years who have a subsequent stroke.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Date of first diagnosis of AMI: &#8804; 3 years ago
+                    Acute myocardial infarction (ICD-9): 410, 410.0, 410.00, 410.01, 410.02, 410.1, 410.10, 410.11, 410.12, 410.2, 410.20, 410.21, 410.22, 410.3, 410.30, 410.31, 410.32, 410.4, 410.40, 410.41, 410.42, 410.5, 410.50, 410.51, 410.52, 410.6, 410.60, 410.61, 410.62, 410.7, 410.70, 410.71, 410.72, 410.8, 410.80, 410.81, 410.82, 410.9, 410.90, 410.91, 410.92
+                    Date of stroke diagnosis: after the date of incident AMI diagnosis
+                    Stroke:
+                    Hemorrhagic stroke (ICD-9): 430, 431, 432, 432.0, 432.1, 432.9
+                    Ischemic stroke (ICD-9): 433, 433.0, 433.00, 433.01, 433.1, 433.10, 433.11, 433.2, 433.20, 433.21, 433.3, 433.30, 433.31, 433.8, 433.80, 433.81, 433.9, 433.90, 433.91, 434, 434.0, 434.00, 434.01, 434.1, 434.10, 434.11, 434.9, 434.90, 434.91
+                    Other acute cerebrovascular disease (ICD-9): 436
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>49</id>
+        <source>REP</source>
+        <title>Nephrolithiasis prophylaxis with thiazide diuretic</title>
+        <A>Patients who had a first episode of nephrolithiasis in the past 5 years not due to uric acid stones, who didn't have diabetes mellitus at that time, and who are taking a thiazide or thiazide-like diuretic of hydrochlorothiazide, chlorthalidone, or indapamide, initiated subsequent to nephrolithiasis diagnosis for prophylaxis.
+        </A>
+        <B>Patients with onset of kidney stones in the past 5 years, taking a thiazide diuretic prescribed subsequently, and who didn't have DM at the time of nephrolithiasis diagnosis.
+            <case>A 46-year-old female presents with cramping flank pain and dysuria. She doesn't have a history of nephrolithiasis or DM. Imaging shows a left kidney stone, subsequently passed and analyzed as calcium oxalate type. After recurrent episodes and hypercalciuria on 24-hour urine testing, she is started on prophylactic hydrochlorothiazide.</case>
+        </B>
+        <C>Patients with onset of kidney stones in the past 5 years, taking a thiazide diuretic prescribed subsequently, and who didn't have DM at the time of nephrolithiasis diagnosis.
+            <criteria_list>
+                <diagnosis kind="inclusion">
+                    Nephrolithiasis (ICD-9): 592, 592.0, 592.1, 592.9, 594, 594.0, 594.1, 594.2, 594.8, 594.9
+                    First diagnosis date: &#8804; 5 years ago
+                </diagnosis>
+                <medication kind="inclusion">
+                    Thiazide or thiazide-like diuretic
+                    Hydrochlorothiazide (HCTZ, Microzide)
+                    Chlorthalidone
+                    Indapamide
+                    Current use of thiazide or thiazide-like diuretic
+                    Thiazide start date: after date of nephrolithiasis diagnosis
+                </medication>
+                <diagnosis kind="exclusion">
+                    Uric acid nephrolithiasis (ICD-9): 274.11
+                    Diabetes mellitus diagnosis date: prior to date of nephrolithiasis diagnosis
+                    Diabetes mellitus (ICD-9): 250, 250.0, 250.00, 250.01, 250.02, 250.03, 250.1, 250.10, 250.11, 250.12, 250.13, 250.2, 250.20, 250.21, 250.22, 250.23, 250.3, 250.30, 250.31, 250.32, 250.33, 250.4, 250.40, 250.41, 250.42, 250.43, 250.5, 250.50, 250.51, 250.52, 250.53, 250.6, 250.60, 250.61, 250.62, 250.63, 250.7, 250.70, 250.71, 250.72, 250.73, 250.8, 250.80, 250.81, 250.82, 250.83, 250.9, 250.90, 250.91, 250.92, 250.93
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>50</id>
+        <source>REP</source>
+        <title>Bicuspid aortic valve on echocardiography</title>
+        <A>Patients with bicuspid aortic valve confirmed with transthoracic or transesophageal echocardiography with finding documented in radiology report.
+        </A>
+        <B>Patients with bicuspid aortic valve confirmed on echocardiography.
+            <case>A 30-year-old woman is found to have a systolic murmur and ejection click on cardiac auscultation. Further evaluation with a transthoracic echocardiogram reveals a bicuspid aortic valve.</case>
+        </B>
+        <C>Patients with bicuspid aortic valve confirmed on echocardiography.
+            <criteria_list>
+                <diagnosis kind="inclusion">
+                    Bicuspid aortic valve (ICD-9): 746.4
+                </diagnosis>
+                <imaging kind="inclusion">
+                    Echocardiography
+                    Transthoracic echocardiography (TTE)
+                    Transesophageal echocardiography (TEE)
+                    Radiologic finding of bicuspid aortic valve
+                </imaging>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>51</id>
+        <source>REP</source>
+        <title>Adults with HCV on lab testing</title>
+        <A>Adults who have had lab tests showing a current hepatitis C infection with a reactive Hepatitis C antibody test and detection of Hepatitis C RNA.
+        </A>
+        <B>Adults who have had lab tests showing current HCV infection, with HCV Ab reactive and HCV RNA detected.
+            <case>A 44-year-old male presents after labs revealed elevated liver transaminases. Testing for viral hepatitis infection came back as HCV Ab reactive and qualitative HCV RNA detected, confirming a current infection with hepatitis C.</case>
+        </B>
+        <C>Adults who have had lab tests showing current HCV infection, with HCV Ab reactive and HCV RNA detected.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Viral hepatitis C (ICD-9): 070.41, 070.44, 070.51, 070.54, V02.62
+                </diagnosis>
+                <lab kind="inclusion">
+                    Hepatitis C antibody: positive
+                    Hepatitis C virus RNA: detected
+                </lab>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>52</id>
+        <source>REP</source>
+        <title>Cataract surgery and prior SSRI use</title>
+        <A>Adults 50 years old or more who underwent cataract surgery and had taken a selective serotonin reuptake inhibitor (SSRI) in the 12 months prior to surgery.
+        </A>
+        <B>Adults at least 50 years old who had cataract surgery and had used an SSRI in the preceding 12 months.
+            <case>A 72-year-old female is seen for a post-op evaluation following cataract surgery on the left eye. She initially presented with decreasing visual acuity with clouding, and was found to have bilateral senile cataracts. Her medical and surgical history reviewed at a pre-op visit is significant for depression and anxiety, treated with escitalopram.</case>
+        </B>
+        <C>Adults at least 50 years old who had cataract surgery and had used an SSRI in the preceding 12 months.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 50 years
+                </demographics>
+                <surgery kind="inclusion">
+                    Cataract removal
+                    ICD-9 procedure code: 13.1, 13.11, 13.2, 13.3, 13.4, 13.41, 13.42, 13.43, 13.5, 13.51, 13.59, 13.69, 13.71
+                    CPT: 66982, 66983, 66984
+                </surgery>
+                <medication kind="inclusion">
+                    Date of SSRI use: &#8804; 12 months before cataract surgery
+                    Selective serotonin reuptake inhibitor (SSRI)
+                    Citalopram (Celexa)
+                    Escitalopram (Lexapro)
+                    Fluoxetine (Prozac, Sarafem, Selfemra)
+                    Fluvoxamine (Luvox)
+                    Paroxetine (Paxil, Brisdelle, Pexeva)
+                    Sertraline (Zoloft)
+                </medication>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>53</id>
+        <source>REP</source>
+        <title>Vitamin D-deficiency rickets</title>
+        <A>Children who have had Vitamin D-deficiency rickets diagnosed by characteristic findings on x-ray, an elevated parathyroid hormone (PTH), normal or low serum phosphorus concentration (Pi), and 25-hydroxyvitamin D (25-OHD) less than 30 ng/mL.
+        </A>
+        <B>Children who have had Vitamin D-deficiency rickets diagnosed by x-ray findings, elevated PTH, normal or low phosphorus, and 25-OHD &lt; 30 ng/mL.
+            <case>A 2-year-old male is seen for difficulty walking and bow legs. On exam, he displays genu varum and craniotabes. Work-up is significant for frayed metaphyses on x-ray, low phosphate, high PTH, and 25-OHD of 12 ng/mL, and he is diagnosed with rickets due to Vitamin D deficiency.</case>
+        </B>
+        <C>Children who have had Vitamin D-deficiency rickets diagnosed by x-ray findings, elevated PTH, normal or low phosphorus, and 25-OHD &lt; 30 ng/mL.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &lt; 18 years
+                </demographics>
+                <imaging kind="inclusion">
+                    X-ray
+                    Radiologic report of x-ray with findings consistent with rickets
+                </imaging>
+                <lab kind="inclusion">
+                    Parathyroid hormone (PTH): elevated
+                    Serum phosphorus concentration (Pi): low
+                    25-hydroxyvitamin D (25-OHD): &lt; 30 ng/mL
+                </lab>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>54</id>
+        <source>REP</source>
+        <title>Colonic diverticular disease w/o IBD or colon cancer</title>
+        <A>Adults with diverticular disease of the colon evident on colonoscopy, flexible sigmoidoscopy, abdomen computed tomography (CT), CT colonography, or barium enema, and who don't have ulcerative colitis, Crohn's disease, or malignancy of the colon.
+        </A>
+        <B>Adults with diverticula of the colon on endoscopy, CT imaging, or barium enema radiography, and who don't have colon cancer, Crohn's disease, or ulcerative colitis.
+            <case>A 63-year-old male underwent screening colonoscopy 1 week ago. Results were significant for diverticulosis of the colon, without evidence of inflammation or infection. Findings were otherwise unremarkable.</case>
+        </B>
+        <C>Adults with diverticula of the colon on endoscopy, CT imaging, or barium enema radiography, and who don't have colon cancer, Crohn's disease, or ulcerative colitis.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                </demographics>
+                <diagnosis kind="inclusion">
+                    Diverticular disease of the colon (ICD-9): 562.1, 562.10, 562.11, 562.12, 562.13
+                </diagnosis>
+                <imaging kind="inclusion">
+                    Colonoscopy
+                    Flexible sigmoidoscopy
+                    CT of abdomen
+                    CT colonography
+                    Barium enema
+                </imaging>
+                <diagnosis kind="exclusion">
+                    Colon cancer
+                    Ulcerative colitis
+                    Crohn's disease
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>55</id>
+        <source>Mayo</source>
+        <title>Functional status in knee-related PT</title>
+        <A>Adults who have had a knee injury, deformity, or inflammation for which they were seen by physical therapy, and who had at least one physical therapy visit with a documented assessment of functional status or outcome.
+        </A>
+        <B>Adults with knee inflammation, injury, or deformity, who had a physical therapy visit with documented functional status or outcome assessment.
+            <case>A 62-year-old female with right knee medial meniscal tear limiting her activities was referred for evaluation and treatment with a physical therapist. At her initial PT visit, the functional status related to knee impairment is documented, such as range of motion and ability to perform various activities of daily living.</case>
+        </B>
+        <C>Adults with knee inflammation, injury, or deformity, who had a physical therapy visit with documented functional status or outcome assessment.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 18 years
+                </demographics>
+                <encounter kind="inclusion">
+                    Visit provider: physical therapist
+                </encounter>
+                <documentation kind="inclusion">
+                    Physical therapist documentation of functional status or outcome assessment
+                </documentation>
+                <diagnosis kind="inclusion">
+                    Meniscal injury, knee ligament injury (ICD-9): 717.0, 717.1, 717.2, 717.3, 717.4, 717.40, 717.41, 717.42, 717.43, 717.49, 717.5, 717.6, 717.7, 717.8, 717.81, 717.82, 717.83, 717.84, 717.85, 717.89, 717.9, 836.0, 836.1, 836.2, 844, 844.0, 844.1, 844.2, 844.3, 844.8, 844.9
+                    Dislocation, contracture, ankyloses, or other derangement of knee (ICD-9): 718.26, 718.36, 718.46, 718.56, 718.76, 718.86, 836.3, 836.4, 836.5, 836.51, 836.52, 836.53, 836.54, 836.59, 836.6, 836.60, 836.61, 836.62, 836.63, 836.64, 836.69
+                    Enthesopathy, tendinitis or bursitis, of knee (ICD-9): 726.6, 726.60, 726.61, 726.62, 726.63, 726.64, 726.65, 726.69
+                    Tendon rupture of quadriceps or patellar (ICD-9): 727.65, 727.66
+                    Genu varum, genu valgum, genu recurvatum, knee deformity (ICD-9): 736.41, 736.42, 736.5, 736.6, 755.64, 822, 822.0, 822.1
+                </diagnosis>
+            </criteria_list>
+        </C>
+    </topic>
+    <topic>
+        <id>56</id>
+        <source>Mayo</source>
+        <title>Fall risk screening in elderly patients</title>
+        <A>Patients 65 years old or older who have had an outpatient visit with future fall risk screening, in which they were asked about the number of falls, with and without injury, occurring in the past 12 months.
+        </A>
+        <B>Elderly patients who have had an outpatient visit with screening for future fall risk.
+            <case>An 89-year-old male presents for review of his blood pressure and medications for hypertension. In addition, his caregiver reports that he has fallen 3 times in the past year, none of which resulted in injury.</case>
+        </B>
+        <C>Elderly patients who have had an outpatient visit with screening for future fall risk.
+            <criteria_list>
+                <demographics kind="inclusion">
+                    Age: &#8805; 65 years
+                </demographics>
+                <encounter kind="inclusion">
+                    Outpatient visit
+                </encounter>
+                <documentation kind="inclusion">
+                    Patient screened for future fall risk (CPT): 1100F, 1101F
+                </documentation>
+            </criteria_list>
+        </C>
+    </topic>
+</topic_descriptions>

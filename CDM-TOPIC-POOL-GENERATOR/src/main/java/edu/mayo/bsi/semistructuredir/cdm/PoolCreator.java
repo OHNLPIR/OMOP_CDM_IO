@@ -37,6 +37,7 @@ public class PoolCreator {
             if (!cdmPoolFile.exists()) {
                 continue;
             }
+            System.out.println("Creating pool for topic " + i);
             File bm25PoolFile = new File(poolFolder, tF.format(i) + "_BM25.pool");
             File tfidfPoolFile = new File(poolFolder, tF.format(i) + "_classic.pool");
             File mrfPoolFile = new File(poolFolder, tF.format(i) + "_mrf.pool");
@@ -93,9 +94,19 @@ public class PoolCreator {
             List<String> result = new LinkedList<>();
             result.add("Relevance\tDocument ID\tDate\tSection\tComment\tMCN\tDoc Link ID\tRevision\tDocument Type\tMonth\tDay\tYear\tSection ID\tText");
             Map<String, List<String>> mrnToDocumentsMap = new HashMap<>();
-            // Sort by frequency
             out.forEach((docID, value) -> {
-                String[] parsed = docID.split("_");
+                String[] parsed;
+                String lookupDocID;
+                if (docID.contains("|")) {
+                    parsed = docID.split("\\|")[0].split("_");
+                    lookupDocID = docID.split("\\|")[0];
+                } else {
+                    lookupDocID = docID;
+                    parsed = docID.split("_");
+                }
+                if (parsed.length < 8) {
+                    System.out.println(docID);
+                }
                 String mrn = parsed[0];
                 String linkId = parsed[1];
                 String rev = parsed[2];
@@ -110,7 +121,7 @@ public class PoolCreator {
                 }
                 mrnToDocumentsMap.computeIfAbsent(mrn, k -> new LinkedList<>()).add(Strings.join(new String[]{
                         " ", docID, dtm, secName, "", mrn, linkId, rev, event, parsed[4], parsed[5], parsed[6], secID,
-                        docIDtoDocTextMap.get(docID)
+                        docIDtoDocTextMap.get(lookupDocID).replace("\t", "\\t").replace("\n", "\\n")
                 }, "\t"));
             });
             ArrayList<List<String>> shuffledPatients = new ArrayList<>(mrnToDocumentsMap.values());
@@ -150,7 +161,9 @@ public class PoolCreator {
         List<String> copy = new ArrayList<>(pool);
         pool.clear();
         for (String docID : copy) {
-            pool.add(docID + "\t" + docFrequencies.getOrDefault(docID, new AtomicInteger(0)).get());
+            if (docID != null) {
+                pool.add(docID + "\t" + docFrequencies.getOrDefault(docID, new AtomicInteger(0)).get());
+            }
         }
     }
 
