@@ -302,6 +302,7 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
     this.TASK_TYPES = ["Cohort Discovery", "Document Search", "Continue Previous Saved Task"];
     // Model and functions
     this.currView = "Patient";
+    this.displayFilters = true;
     // Patient view pagination TODO really messy...
     this.currPatientDocHits = [];
     this.currentPage = 0;
