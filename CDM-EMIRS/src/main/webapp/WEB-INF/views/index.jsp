@@ -25,21 +25,54 @@
     <link href="css/search.css" rel="stylesheet">
 
 </head>
-<body ng-app="EMIRSApp" ng-controller="EMIRSCtrl as EMIRS" class="mt-0" style="background-color: #bebebe; height:100%">
-<div class="row" id="header" style="background-color:#003DA5;height: 100px; margin:0; padding:0;">
+<body ng-app="EMIRSApp" ng-controller="EMIRSCtrl as EMIRS" class="mt-0"
+      style="background-color: rgb(226,226,226); height:100%">
+<div class="row" id="page-header">
     <div class="col-xs-1 " id="logo">
         <a href="<c:url value="/"/>">
-            <img src="<c:url value="img/MC_stack_wht.png"/>" height="75px" alt="MC Logo"
-                 style="float: left; padding-left: 15px; padding-top: 15px; margin-top:0"/>
+            <img src="<c:url value="img/MC_stack_wht.png"/>" height="100px" alt="MC Logo"
+                 style="float: left; padding: 15px; margin-top:0"/>
         </a>
     </div>
-    <div class="col-sm-11" id="header-text">
-        <h2 class="text-center" style="padding-bottom: 30px;color: #ffffff; padding-top: 30px; margin:0 auto">Electronic
+    <div class="col-sm-12" id="header-text">
+        <h2 class="text-center"
+            style="line-height:40px; height: 100px; padding-bottom: 30px;color: #ffffff; padding-top: 30px; margin:0 auto">
+            Electronic
             Medical Information Retrieval
             System</h2>
     </div>
 </div>
-<div class="row" id="search">
+<!-- Navbar -->
+<div class="navbar navbar-default">
+    <div class="container-fluid">
+        <ul class="nav navbar-nav" ng-if="EMIRS.model.completed === true ">
+            <li><a href="#" data-toggle="modal" data-target="#search_modal"><span
+                    class="glyphicon glyphicon-pencil"></span>&nbsp;Edit Current Query</a></li>
+            <li ng-if="!EMIRS.model.isJudging"><a href="#" ng-click="EMIRS.model.isJudging = true"><span
+                    class="glyphicon glyphicon-check"></span>&nbsp;Enter Relevance Judgement Mode</a></li>
+            <li ng-if="EMIRS.model.isJudging"><a href="#" ng-click="EMIRS.model.isJudging = false"><span
+                    class="glyphicon glyphicon-list-alt"></span>&nbsp;Exit Relevance Judgement Mode</a></li>
+            <li><a href="#"><span class="glyphicon glyphicon-floppy-save"></span>&nbsp;Save Current Query</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+            <li ng-if="!EMIRS.model.loggedIn"><span class="glyphicon glyphicon-user"></span>&nbsp;<a href="#">Login</a>
+            </li>
+            <li class="dropdown" ng-if="EMIRS.model.loggedIn">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span
+                        class="glyphicon glyphicon-user"></span>&nbsp;{{EMIRS.model.loggedIn}}<span
+                        class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="#"><span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;New Search</a></li>
+                    <li><a href="#"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;Load Saved
+                        Search</a></li>
+                    <li><a href="#"><span class="glyphicon glyphicon-log-out"></span>&nbsp;&nbsp;Logout</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+<div class="row" id="search" ng-if="EMIRS.model.loggedIn">
+    <!-- TODO: need server side validation of this instead -->
     <div class="col-xs-12 text-center"
          style="padding-top: 20px; padding-bottom: 20px; border-bottom: 1px solid #808080">
         <!-- Search -->
@@ -169,7 +202,7 @@
                             </div>
                         </div>
                     </div>
-                    <!-- CDM Query Editing -->
+                    <!-- CDM Query Editing Modal-->
                     <div class="modal fade" id="cdm_query_editor" role="dialog">
                         <div class="modal-dialog modal-lg" style="width:1200px">
                             <div class="modal-content">
@@ -237,10 +270,12 @@
 <div class="row" id="searching-for-results" ng-if="EMIRS.model.submitted === true && EMIRS.model.completed === false">
     <p class="col-xs-12 text-center">Searching...</p>
 </div>
-<div class="row" id="empty-results" ng-if="EMIRS.model.completed === true && EMIRS.model.hits.length === 0">
+<div class="row" id="empty-results"
+     ng-if="EMIRS.model.completed === true && EMIRS.model.loggedIn && EMIRS.model.hits.length === 0">
     <p class="col-xs-12 text-center">No Results Found</p>
 </div>
-<div class="row" id="results" ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true">
+<div class="row" id="results"
+     ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true && EMIRS.model.loggedIn">
     <div id="sidebar" class="col-sm-2"
          style="float:left;">
         <label style="padding-top: 10px; padding-left: 10px; width:90%">
@@ -296,10 +331,11 @@
                         </a>
                     </div>
                     <div class="panel-title pull-right">
-                        <div class="pull-left">
+                        <div class="pull-left" ng-if="EMIRS.model.isJudging == false">
                             Score: {{hit.score}}
                         </div>
-                        <div class="btn-group pull-right" style="padding-left: 10px" data-toggle="buttons">
+                        <div class="btn-group pull-right" style="padding-left: 10px" data-toggle="buttons"
+                             ng-if="EMIRS.model.isJudging == true">
                             <div class="btn btn-primary"
                                  ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID] === 0}"
                                  ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = 0"
@@ -337,11 +373,12 @@
                         MRN: {{hit.patient.id}}
                     </div>
                     <div class="panel-title pull-right">
-                        <div class="pull-left">
+                        <div class="pull-left" ng-if="EMIRS.model.isJudging == false">
                             Documents: {{EMIRS.getHitsFor(hit.docs).length}} | Score:{{hit.score}}
                         </div>
 
-                        <div class="btn-group pull-right" style="padding-left: 10px" data-toggle="buttons">
+                        <div class="btn-group pull-right" style="padding-left: 10px" data-toggle="buttons"
+                             ng-if="EMIRS.model.isJudging == true">
                             <div class="btn btn-primary"
                                  ng-class="{active: EMIRS.model.patientJudgements[hit.patient.id] === 0}"
                                  ng-click="EMIRS.model.patientJudgements[hit.patient.id] = 0"
@@ -406,7 +443,8 @@
         </ul>
     </div>
 </div>
-<div class="row" id="footer" style="border-top: 1px solid #808080; padding-top: 10px;">
+<div class="row" id="footer" style="border-top: 1px solid #808080; padding-top: 10px;"
+     ng-if="EMIRS.model.loggedIn">
     <div class="col-xs-10 text-center" ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true">
         Search Statistics | {{EMIRS.model.hits.length}} Documents | {{EMIRS.model.docFilter.patientOptions.length}}
         Patients
@@ -443,10 +481,11 @@
                                 </a>
                             </div>
                             <div class="panel-title pull-right">
-                                <div class="pull-left">
+                                <div class="pull-left" ng-if="EMIRS.model.isJudging == false">
                                     Score: {{hit.score}}
                                 </div>
-                                <div class="btn-group pull-right" style="padding-left: 10px" data-toggle="buttons">
+                                <div class="btn-group pull-right" style="padding-left: 10px" data-toggle="buttons"
+                                     ng-if="EMIRS.model.isJudging == true">
                                     <div class="btn btn-primary"
                                          ng-class="{active: EMIRS.model.docJudgements[hit.doc.indexDocID] === 0}"
                                          ng-click="EMIRS.model.docJudgements[hit.doc.indexDocID] = 0"
@@ -523,6 +562,24 @@
             <div class="modal-footer">
                 <button type="submit" data-dismiss="modal" ng-click="EMIRS.loadUploaded()">Submit</button>
             </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="search_modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Query Editor</h4>
+            </div>
+            <form name="search" ng-submit="EMIRS.submitQuery()">
+                <div class="modal-body">
+                <jsp:include page="search.jsp"/>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" data-dismiss="modal">Submit</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

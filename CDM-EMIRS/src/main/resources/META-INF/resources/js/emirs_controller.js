@@ -202,6 +202,8 @@ function Model(query, hits, patientHits) {
     // -- Status
     this.completed = false;
     this.submitted = false;
+    this.loggedIn = "m184187"; // TODO
+    this.isJudging = false;
     // -- Pagination
     this.currentPage = 0;
     this.pageSize = 50;
@@ -297,6 +299,7 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
     // Global Constants
     this.CLAUSE_TYPES = ["Must", "Should", "Should Not", "Must Not"];
     this.VIEW_TYPES = ["Patient", "Document"];
+    this.TASK_TYPES = ["Cohort Discovery", "Document Search", "Continue Previous Saved Task"];
     // Model and functions
     this.currView = "Patient";
     // Patient view pagination TODO really messy...
@@ -463,6 +466,7 @@ app.filter('startFrom', function () {
         return input.slice(start);
     }
 });
+
 // TODO from stack overflow, understand this code and cleanup/modify
 app.filter('range', function () {
     return function (val, limit, current) {

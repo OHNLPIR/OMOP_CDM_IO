@@ -1,3 +1,26 @@
+#page-header {
+    background: linear-gradient(#003DA5, #384e67);
+    height: 100px;
+    margin: 0;
+    padding: 0;
+    z-index: 0;
+    box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.15), 0 1px 18px 0 rgba(0, 0, 0, 0.1);
+}
+
+#logo {
+    position: absolute;
+}
+
+#options-bar {
+    height: 50px;
+    padding-right: 5px;
+}
+
+.options_nav_item2 {
+    padding-top:10px;
+    padding-bottom: 10px;
+}
+
 .cdm_object_editable_container {
     margin: 2px;
     padding: 0 5px;
@@ -16,3 +39,4 @@
 .cdm_field_content_editable:hover {
     background: #acacac 50%;
 }
+
