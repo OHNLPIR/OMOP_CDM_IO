@@ -44,13 +44,18 @@ function Query(unstructured, cdmQuery) {
     this.removeStructuredItem = function ($index) {
         this.structured.splice($index, 1);
     };
+
+    this.submit = function ($http, model, filter) {
+        this.submit($http, model, filter, null);
+    };
     /**
      *
      * @param $http
      * @param {Model} model
      * @param {Filter} filter
+     * @param  callback
      */
-    this.submit = function ($http, model, filter) {
+    this.submit = function ($http, model, filter, callback) {
         $http.post('/_search', {
             unstructured: model.query.unstructured,
             structured: model.query.structured,
@@ -84,6 +89,9 @@ function Query(unstructured, cdmQuery) {
                             name: resp.data.hits[j].doc.sectionName
                         });
                     }
+                }
+                if (callback) {
+                    callback();
                 }
             }
         });
@@ -303,6 +311,7 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
     // Model and functions
     this.currView = "Patient";
     this.displayFilters = true;
+    this.saves = {};
     // Patient view pagination TODO really messy...
     this.currPatientDocHits = [];
     this.currentPage = 0;
@@ -446,6 +455,77 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
             // window.URL.revokeObjectURL(url); // clean the url.createObjectURL resource
         }
     };
+
+    this.save = function() {
+        var saveName = prompt("Please input a name for this query", "Query Name");
+        var unstructured = this.model.query.unstructured;
+        var structured = this.model.query.structured;
+        var cdm = this.model.query.cdmQuery;
+        var docjudgements = this.model.docJudgements;
+        var patientJudgements = this.model.patientJudgements;
+        var request = {
+            "username": this.model.loggedIn,
+            "queryName": saveName,
+            "unstructured": unstructured,
+            "structured": structured,
+            "cdm": cdm,
+            "docJudgements": docjudgements,
+            "patientJudgements": patientJudgements
+        };
+        $http.post("/_save", request).then(function (resp) {});
+    };
+
+    this.loadSaveList = function() {
+        var currscope = this;
+        $http.post("/_savelist").then(function (resp) {
+            currscope.saves = resp.data;
+        });
+
+    };
+
+    this.loadSave = function (name) {
+        var object = {
+            "username": this.model.loggedIn,
+            "queryName": name
+        };
+        var scope = this;
+        this.model.submitted = true;
+        this.model.completed = false;
+        $http.post("/_load", object).then(function (resp) {
+            if (resp.data != null) {
+                scope.model.query.unstructured = resp.data.unstructured;
+                scope.model.query.structured = resp.data.structured;
+                scope.model.query.cdmQuery = resp.data.cdm;
+                var docJudgements = {};
+                var patientJudgements = {};
+                var judgements = resp.data.hits;
+                var len = judgements.length;
+                for (var i = 0; i < len; i++) {
+                    var judgement = judgements[i];
+                    var isDocType = judgement.docJudgement;
+                    if (isDocType) {
+                        docJudgements[judgement.document] = judgement.relevance;
+                    } else {
+                        patientJudgements[judgement.document] = judgement.relevance;
+                    }
+                }
+                var upd_callback = function () {
+                    scope.model.docJudgements = docJudgements;
+                    scope.model.patientJudgements = patientJudgements;
+                };
+                scope.model.query.submit($http, scope.model, scope.model.docFilter, upd_callback);
+
+            }
+        });
+    };
+
+    this.deleteSave = function (name) {
+        var currscope = this;
+        $http.post("/_delete", name).then(function (resp) {
+            currscope.saves = resp.data;
+        });
+    };
+
     // checks if we need to load text
     this.checkLoaded = function (doc) {
         if (!doc.text) {

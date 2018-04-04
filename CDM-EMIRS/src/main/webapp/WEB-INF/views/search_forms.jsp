@@ -112,6 +112,7 @@
         <div class="row">
             <div class="col-xs-12">
                 <div class="form-group">
+                    <p ng-if="EMIRS.model.query.cdmQuery.length == 0">No currently used CDM objects: add a text query or add a CDM object to get started</p>
                     <!-- Render the output objects-->
                     <ul style="padding-left: 20px;">
                         <li class="cdm_object_editable_container"

@@ -56,7 +56,8 @@
                     class="glyphicon glyphicon-check"></span>&nbsp;Enter Relevance Judgement Mode</a></li>
             <li ng-if="EMIRS.model.isJudging"><a href="#" ng-click="EMIRS.model.isJudging = false"><span
                     class="glyphicon glyphicon-list-alt"></span>&nbsp;Exit Relevance Judgement Mode</a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-floppy-save"></span>&nbsp;Save Current Query</a></li>
+            <li><a href="#" ng-click="EMIRS.save()"><span class="glyphicon glyphicon-floppy-save"></span>&nbsp;Save
+                Current Query</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
             <li ng-if="!EMIRS.model.loggedIn"><span class="glyphicon glyphicon-user"></span>&nbsp;<a href="#">Login</a>
@@ -66,8 +67,11 @@
                         class="glyphicon glyphicon-user"></span>&nbsp;{{EMIRS.model.loggedIn}}<span
                         class="caret"></span></a>
                 <ul class="dropdown-menu">
-                    <li><a href="<c:url value="/"/>"><span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;New Search</a></li>
-                    <li><a href="#"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;Load Saved
+                    <li><a href="<c:url value="/"/>"><span class="glyphicon glyphicon-search"></span>&nbsp;&nbsp;New
+                        Search</a></li>
+                    <li><a href="#" data-toggle="modal" data-target="#load_save_modal"
+                           ng-click="EMIRS.loadSaveList()"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;Load
+                        Saved
                         Search</a></li>
                     <li><a href="#"><span class="glyphicon glyphicon-log-out"></span>&nbsp;&nbsp;Logout</a></li>
                 </ul>
@@ -79,7 +83,7 @@
     <!-- TODO: need server side validation of this instead -->
     <h2 class="text-center" style="padding-top:10px">Start a New Search</h2>
     <div
-         style="padding-top: 5px; padding-bottom: 20px; border-bottom: 1px solid #808080">
+            style="padding-top: 5px; padding-bottom: 20px; border-bottom: 1px solid #808080">
         <!-- Search -->
         <div style="padding-left: 15px; padding-right: 15px;">
             <form name="search" ng-submit="EMIRS.submitQuery()">
@@ -99,7 +103,8 @@
     <p class="col-xs-12 text-center">No Results Found</p>
 </div>
 <div class="row" id="results"
-     ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true && EMIRS.model.loggedIn" style="padding-left: 15px; padding-right: 15px">
+     ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true && EMIRS.model.loggedIn"
+     style="padding-left: 15px; padding-right: 15px">
     <div id="sidebar" class="col-sm-2 pull-left"
          ng-if="EMIRS.displayFilters">
         <label style="padding-top: 10px; padding-left: 10px; width:90%">
@@ -269,16 +274,9 @@
 </div>
 <div class="row" id="footer" style="border-top: 1px solid #808080; padding-top: 10px;"
      ng-if="EMIRS.model.loggedIn">
-    <div class="col-xs-10 text-center" ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true">
+    <div class="col-xs-12 text-center" ng-if="EMIRS.model.hits.length > 0 && EMIRS.model.completed === true">
         Search Statistics | {{EMIRS.model.hits.length}} Documents | {{EMIRS.model.docFilter.patientOptions.length}}
         Patients
-    </div>
-    <div class="col-xs-2 pull-right">
-        <ul class="list-inline">
-            <li><a href="#" data-toggle="modal" data-target="#query_load_modal">Load Saved Query</a></li>
-            <li><a href="#" ng-click="EMIRS.exportToFile()">Save Current Query</a></li>
-        </ul>
-
     </div>
 </div>
 <!-- Patient Document Results Modal -->
@@ -294,7 +292,7 @@
                     <div class="panel panel-default"
                          ng-repeat="hit in EMIRS.currPatientDocHits | startFrom:EMIRS.currentPage*EMIRS.pageSize | limitTo:EMIRS.pageSize">
                         <div class="panel-heading">
-                            <div class="panel-title pull-left h4">
+                            <div class="panel-title pull-left h4">,
                                 <a data-toggle="collapse"
                                    href="#personview-{{hit.doc.docLinkId}}v{{hit.doc.revision}}s{{hit.doc.sectionID}}"
                                    ng-click="EMIRS.checkLoaded(hit.doc)">
@@ -368,27 +366,7 @@
         </div>
     </div>
 </div>
-<!-- File Upload Modal -->
 <!-- Patient Document Results Modal -->
-<div class="modal fade" id="query_load_modal" role="dialog">
-    <div class="modal-dialog" style="width:1200px">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Upload Query</h4>
-            </div>
-            <div class="modal-body">
-                <label>
-                    Saved query file:
-                    <input type="file" file-upload>
-                </label>
-            </div>
-            <div class="modal-footer">
-                <button type="submit" data-dismiss="modal" ng-click="EMIRS.loadUploaded()">Submit</button>
-            </div>
-        </div>
-    </div>
-</div>
 <div class="modal fade" id="search_modal" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -404,6 +382,35 @@
                     <button type="submit" class="btn btn-default" data-dismiss="modal">Submit</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="load_save_modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Load Saved Queries and Judgements</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <table class="table table-striped">
+                            <tr>
+                                <th>Query Name</th>
+                                <th>Query Text</th>
+                                <th>Actions</th>
+                            </tr>
+                            <tr ng-repeat="(name,text) in EMIRS.saves">
+                                <td>{{name}}</td>
+                                <td>{{text}}</td>
+                                <td><button class="btun btn-default" type="button" ng-click="EMIRS.loadSave(name)" data-dismiss="modal">Load</button><button class="btun btn-default" type="button" ng-click="EMIRS.deleteSave(name)">Delete</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer"></div>
         </div>
     </div>
 </div>
