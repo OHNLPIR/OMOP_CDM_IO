@@ -58,7 +58,7 @@ public class SearchController {
         QueryBuilder esQuery = query.toESQuery();
         SearchResponse resp = client.prepareSearch(properties.getEs().getIndexName())
                 .setQuery(esQuery)
-                .setSize(10000)
+                .setSize(1000)
                 .setScroll(new TimeValue(60000))
                 .addSort(SortBuilders.scoreSort())
                 .setFetchSource(new String[]{"DocumentID", "Section_Name", "Section_ID", "Encounter_ID"}, new String[]{})
@@ -202,7 +202,7 @@ public class SearchController {
         int iteration = 0;
         do {
             Logger.getLogger("debug-log").info("Current iteration: " + iteration++);
-            if (iteration == 11) { // We already got top 100000 documents, assume the rest not relevant/minimal contribution to patient-level scoring
+            if (iteration == 11) { // We already got top 10000 documents, assume the rest not relevant/minimal contribution to patient-level scoring
                 break;
             }
             for (SearchHit hit : resp.getHits()) {
