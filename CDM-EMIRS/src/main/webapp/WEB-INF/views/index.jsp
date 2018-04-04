@@ -292,7 +292,7 @@
                     <div class="panel panel-default"
                          ng-repeat="hit in EMIRS.currPatientDocHits | startFrom:EMIRS.currentPage*EMIRS.pageSize | limitTo:EMIRS.pageSize">
                         <div class="panel-heading">
-                            <div class="panel-title pull-left h4">,
+                            <div class="panel-title pull-left h4">
                                 <a data-toggle="collapse"
                                    href="#personview-{{hit.doc.docLinkId}}v{{hit.doc.revision}}s{{hit.doc.sectionID}}"
                                    ng-click="EMIRS.checkLoaded(hit.doc)">
@@ -374,12 +374,12 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Query Editor</h4>
             </div>
-            <form name="search" ng-submit="EMIRS.submitQuery()">
+            <form name="search-editor" ng-submit="EMIRS.submitQuery()">
                 <div class="modal-body">
                     <jsp:include page="search_modal.jsp"/>
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-default" data-dismiss="modal">Submit</button>
+                    <button type="submit" class="btn btn-default" ng-click="EMIRS.submitQuery()" data-dismiss="modal">Submit</button>
                 </div>
             </form>
         </div>
@@ -404,7 +404,7 @@
                             <tr ng-repeat="(name,text) in EMIRS.saves">
                                 <td>{{name}}</td>
                                 <td>{{text}}</td>
-                                <td><button class="btun btn-default" type="button" ng-click="EMIRS.loadSave(name)" data-dismiss="modal">Load</button><button class="btun btn-default" type="button" ng-click="EMIRS.deleteSave(name)">Delete</button></td>
+                                <td><button class="btn btn-default" type="button" ng-click="EMIRS.loadSave(name)" data-dismiss="modal">Load</button><button class="btn btn-default" type="button" ng-click="EMIRS.deleteSave(name)">Delete</button></td>
                             </tr>
                         </table>
                     </div>

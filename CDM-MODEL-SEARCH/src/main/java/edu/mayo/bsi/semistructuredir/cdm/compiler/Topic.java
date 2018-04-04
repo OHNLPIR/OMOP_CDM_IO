@@ -35,7 +35,7 @@ public class Topic {
 
     public QueryBuilder toQuery() {
         BoolQueryBuilder pos = QueryBuilders.boolQuery();
-        pos.must(QueryBuilders.typeQuery("Person"));
+        pos.filter(QueryBuilders.typeQuery("Person"));
         LinkedList<QueryBuilder> shouldNotQueries = new LinkedList<>();
         for (Map.Entry<String, QueryCollator> e : docTypeToQuery.entrySet()) {
             if (e.getKey().equalsIgnoreCase("Person")) {
