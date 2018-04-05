@@ -9,6 +9,7 @@ import org.ohnlp.ir.emirs.model.MappingDefinition;
 import org.ohnlp.ir.emirs.model.ObjectMapping;
 import org.ohnlp.ir.emirs.model.Query;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +32,11 @@ public class IndexController {
         ModelMap model = new ModelMap();
         model.addAttribute("query", new Query());
         return new ModelAndView("index", model);
+    }
+
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    public String getLoginPage() {
+        return "login";
     }
 
     @RequestMapping(value = "/_mappings", method = RequestMethod.GET)
@@ -70,6 +76,12 @@ public class IndexController {
         }
         return ret;
     }
+
+    @RequestMapping(value = "/_user", method = RequestMethod.POST)
+    public @ResponseBody Collection<String> getLoggedInUser() {
+        return Collections.singleton(SecurityContextHolder.getContext().getAuthentication().getName());
+    }
+
     public Properties getProperties() {
         return properties;
     }

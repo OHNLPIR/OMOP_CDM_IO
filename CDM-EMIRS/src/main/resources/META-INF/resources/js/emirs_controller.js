@@ -210,7 +210,7 @@ function Model(query, hits, patientHits) {
     // -- Status
     this.completed = false;
     this.submitted = false;
-    this.loggedIn = "m184187"; // TODO
+    this.loggedIn = null;
     this.isJudging = false;
     // -- Pagination
     this.currentPage = 0;
@@ -231,6 +231,8 @@ function Model(query, hits, patientHits) {
         }
         return ret;
     };
+
+
 
     /**
      * @returns {Array<PatientHit>|*}
@@ -436,25 +438,16 @@ app.controller("EMIRSCtrl", function ($scope, $http) {
         fr.readAsText(this.currFile);
     };
 
-
-    // export state to json file
-    this.exportToFile = function () {
-        var exportName = prompt("Please input a name for this query", "Query Name");
-        var filename = exportName + ".json";
-        var blob = new Blob([angular.toJson(this, true)], {type: 'text/plain'});
-        if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-            window.navigator.msSaveOrOpenBlob(blob, filename);
-        } else {
-            var e = document.createEvent('MouseEvents'),
-                a = document.createElement('a');
-            a.download = filename;
-            a.href = window.URL.createObjectURL(blob);
-            a.dataset.downloadurl = ['text/json', a.download, a.href].join(':');
-            e.initEvent('click', true, false);
-            a.dispatchEvent(e);
-            // window.URL.revokeObjectURL(url); // clean the url.createObjectURL resource
-        }
+    this.getUser = function() {
+        var scope = this;
+        $http.post("/_user").then(function (resp) {
+            if (resp.data && resp.data.length > 0) {
+                scope.model.loggedIn = resp.data[0];
+            }
+        })
     };
+
+    this.getUser();
 
     this.save = function() {
         var saveName = prompt("Please input a name for this query", "Query Name");

@@ -23,10 +23,10 @@
     <link rel="shortcut icon" href="<c:url value="img/favicon.ico"/>"/>
     <script src="js/emirs_controller.js"></script>
     <link href="css/search.css" rel="stylesheet">
-
 </head>
 <body ng-app="EMIRSApp" ng-controller="EMIRSCtrl as EMIRS" class="mt-0"
-      style="background-color: rgb(226,226,226); height:100%">
+      style="background-color: rgb(226,226,226); height:100%" >
+
 <div class="row" id="page-header">
     <div class="col-xs-1 " id="logo" style="z-index: 100">
         <a href="<c:url value="/"/>">
@@ -60,9 +60,7 @@
                 Current Query</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-            <li ng-if="!EMIRS.model.loggedIn"><span class="glyphicon glyphicon-user"></span>&nbsp;<a href="#">Login</a>
-            </li>
-            <li class="dropdown" ng-if="EMIRS.model.loggedIn">
+            <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#"><span
                         class="glyphicon glyphicon-user"></span>&nbsp;{{EMIRS.model.loggedIn}}<span
                         class="caret"></span></a>
@@ -73,7 +71,7 @@
                            ng-click="EMIRS.loadSaveList()"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;&nbsp;Load
                         Saved
                         Search</a></li>
-                    <li><a href="#"><span class="glyphicon glyphicon-log-out"></span>&nbsp;&nbsp;Logout</a></li>
+                    <li><a href="<c:url value="/logout"/>"><span class="glyphicon glyphicon-log-out"></span>&nbsp;&nbsp;Logout</a></li>
                 </ul>
             </li>
         </ul>

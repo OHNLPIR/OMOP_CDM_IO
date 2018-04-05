@@ -5,6 +5,7 @@ import org.ohnlp.ir.emirs.Connections;
 import org.ohnlp.ir.emirs.model.serialization.Judgement;
 import org.ohnlp.ir.emirs.model.serialization.SerializationModel;
 import org.ohnlp.ir.emirs.model.serialization.SerializationRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -63,7 +64,7 @@ public class SerializationController {
     @RequestMapping(value = "/_load", method = RequestMethod.POST)
     public @ResponseBody
     SerializationModel loadQuery(@RequestBody SerializationRequest req) {
-        return retrieveModel(req.getUsername(), req.getQueryName());
+        return retrieveModel(SecurityContextHolder.getContext().getAuthentication().getName(), req.getQueryName());
     }
 
     @RequestMapping(value = "/_delete", method = RequestMethod.POST)

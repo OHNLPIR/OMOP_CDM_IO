@@ -152,3 +152,4 @@ hs_err_pid*
 /CDM-TOPIC-POOL-GENERATOR/src/main/java/edu/mayo/bsi/semistructuredir/cdm/XMLTopicDescriptionParser.java
 /CDM-TOPIC-POOL-GENERATOR/src/main/java/edu/mayo/bsi/semistructuredir/cdm/model/TopicDescriptionModel.java
 /topics.xml
+/CDM-EMIRS/src/main/java/org/ohnlp/ir/emirs/WebSecurityConfig.java
