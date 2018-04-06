@@ -72,7 +72,7 @@ public class QueryResult {
             docHits.sort((d1, d2) -> Double.compare(d2.getScore(),d1.getScore()));
             hit.setDocs(docHits);
             hit.setPatient(e.getKey());
-            hit.setScore(totalScore);
+            hit.setScore(totalScore/docHits.size());
             this.patientHits.add(hit);
         }
         this.patientHits.sort((h1, h2) -> {
