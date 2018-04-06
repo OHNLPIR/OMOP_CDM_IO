@@ -46,21 +46,15 @@ public class QueryCollator {
     public QueryBuilder toQuery(String childType) {
         BoolQueryBuilder base = QueryBuilders.boolQuery();
         for (QueryBuilder context : optional) {
-            HasChildQueryBuilder childQuery = new HasChildQueryBuilder(childType, context, ScoreMode.Avg).innerHit(new InnerHitBuilder());
-            childQuery.innerHit().setExplain(true);
-            childQuery.innerHit().setName(childType + "_optional_" + UUID.randomUUID());
+            HasChildQueryBuilder childQuery = new HasChildQueryBuilder(childType, context, ScoreMode.Avg);
             base.should(childQuery);
         }
         for (QueryBuilder context : required) {
-            HasChildQueryBuilder childQuery = new HasChildQueryBuilder(childType, context, ScoreMode.Avg).innerHit(new InnerHitBuilder());
-            childQuery.innerHit().setExplain(true);
-            childQuery.innerHit().setName(childType + "_required_" + UUID.randomUUID());
+            HasChildQueryBuilder childQuery = new HasChildQueryBuilder(childType, context, ScoreMode.Avg);
             base.must(childQuery);
         }
         for (QueryBuilder context : prohibited) {
-            HasChildQueryBuilder childQuery = new HasChildQueryBuilder(childType, context, ScoreMode.Avg).innerHit(new InnerHitBuilder());
-            childQuery.innerHit().setExplain(true);
-            childQuery.innerHit().setName(childType + "_prohibited_" + UUID.randomUUID());
+            HasChildQueryBuilder childQuery = new HasChildQueryBuilder(childType, context, ScoreMode.Avg);
             base.mustNot(childQuery);
         }
         return base;
@@ -88,9 +82,7 @@ public class QueryCollator {
         if (negated.isEmpty()) return null;
         BoolQueryBuilder neg = QueryBuilders.boolQuery();
         for (QueryBuilder context : negated) {
-            HasChildQueryBuilder childQuery = new HasChildQueryBuilder(childType, context, ScoreMode.Avg).innerHit(new InnerHitBuilder());
-            childQuery.innerHit().setExplain(true);
-            childQuery.innerHit().setName(childType + "_should_not_" + UUID.randomUUID());
+            HasChildQueryBuilder childQuery = new HasChildQueryBuilder(childType, context, ScoreMode.Avg);
             neg.should(childQuery);
         }
         return neg;
