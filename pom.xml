@@ -15,6 +15,6 @@
         <module>CDM-MODEL-SEARCH</module>
         <module>CDM-TOPIC-POOL-GENERATOR</module>
         <module>CDM-TOPIC-MODELING</module>
-        <module>CDM-EMIRS</module>
+        <module>CDM-CREATE</module>
     </modules>
 </project>
