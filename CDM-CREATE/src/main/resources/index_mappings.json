@@ -1,0 +1,797 @@
+{
+  "nlp_create_demo": {
+    "mappings": {
+      "Encounter": {
+        "_parent": {
+          "type": "Person"
+        },
+        "_routing": {
+          "required": true
+        },
+        "properties": {
+          "encounter_age": {
+            "type": "long"
+          },
+          "encounter_date": {
+            "type": "date"
+          },
+          "encounter_id": {
+            "type": "text"
+          },
+          "encounter_location": {
+            "type": "text"
+          },
+          "person_id": {
+            "type": "text"
+          }
+        }
+      },
+      "Measurement": {
+        "_parent": {
+          "type": "Document"
+        },
+        "_routing": {
+          "required": true
+        },
+        "properties": {
+          "begin": {
+            "type": "long"
+          },
+          "end": {
+            "type": "long"
+          },
+          "measurement": {
+            "type": "text"
+          },
+          "measurementid": {
+            "type": "long"
+          },
+          "model_type": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "operator_concept_id": {
+            "type": "integer"
+          },
+          "type": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "value": {
+            "type": "float"
+          }
+        }
+      },
+      "DrugExposure": {
+        "_parent": {
+          "type": "Document"
+        },
+        "_routing": {
+          "required": true
+        },
+        "properties": {
+          "begin": {
+            "type": "long"
+          },
+          "date": {
+            "type": "nested",
+            "properties": {
+              "date": {
+                "type": "date"
+              },
+              "subject": {
+                "type": "text"
+              },
+              "timestamp": {
+                "type": "long"
+              },
+              "type": {
+                "type": "text"
+              }
+            }
+          },
+          "drug_exposure_OHDSI_code": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "drug_exposure_OHDSI_text": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "drug_exposure_RXNORM_code": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "drug_exposure_RXNORM_text": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "drug_exposure_SNOMEDCT_US_code": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "drug_exposure_SNOMEDCT_US_text": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "drug_exposure_cui": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "drug_exposure_raw": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "drug_exposure_sno_rx_16ab_text": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "drug_exposure_tui": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "effectiveDrugDose": {
+            "type": "text"
+          },
+          "end": {
+            "type": "long"
+          },
+          "model_type": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "quantity": {
+            "type": "float"
+          },
+          "type": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "unit": {
+            "type": "text"
+          }
+        }
+      },
+      "ConditionOccurrence": {
+        "_parent": {
+          "type": "Document"
+        },
+        "_routing": {
+          "required": true
+        },
+        "properties": {
+          "begin": {
+            "type": "long"
+          },
+          "condition_occurrence": {
+            "type": "text"
+          },
+          "condition_occurrence_OHDSI_code": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "condition_occurrence_OHDSI_text": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "condition_occurrence_SNOMEDCT_US_code": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "condition_occurrence_SNOMEDCT_US_text": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "condition_occurrence_cui": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "condition_occurrence_raw": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "condition_occurrence_sno_rx_16ab_text": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "condition_occurrence_tui": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "date": {
+            "type": "nested",
+            "properties": {
+              "date": {
+                "type": "date"
+              },
+              "subject": {
+                "type": "text"
+              },
+              "timestamp": {
+                "type": "long"
+              },
+              "type": {
+                "type": "text"
+              }
+            }
+          },
+          "end": {
+            "type": "long"
+          },
+          "model_type": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "type": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      },
+      "LabTest": {
+        "_parent": {
+          "type": "Person"
+        },
+        "_routing": {
+          "required": true
+        },
+        "properties": {
+          "lab_SNOMEDCT_US_code": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "lab_SNOMEDCT_US_text": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "lab_age": {
+            "type": "long"
+          },
+          "lab_code": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "lab_cui": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "lab_date": {
+            "type": "date"
+          },
+          "lab_raw": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "lab_value_high": {
+            "type": "float"
+          },
+          "lab_value_low": {
+            "type": "float"
+          },
+          "lab_value_text": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "person_id": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "unit": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      },
+      "UnstructuredObservation": {
+        "_parent": {
+          "type": "Document"
+        },
+        "_routing": {
+          "required": true
+        },
+        "properties": {
+          "begin": {
+            "type": "long"
+          },
+          "end": {
+            "type": "long"
+          },
+          "model_type": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "observation": {
+            "type": "text"
+          },
+          "type": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      },
+      "Person": {
+        "properties": {
+          "city": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "date_of_birth": {
+            "type": "date"
+          },
+          "ethnicity": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "gender": {
+            "type": "text"
+          },
+          "geo_code": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "limits": {
+            "type": "text"
+          },
+          "locationid": {
+            "type": "long"
+          },
+          "model_type": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "person_id": {
+            "type": "text"
+          },
+          "race": {
+            "type": "text"
+          }
+        }
+      },
+      "Document": {
+        "_parent": {
+          "type": "Encounter"
+        },
+        "_routing": {
+          "required": true
+        },
+        "properties": {
+          "DocLength": {
+            "type": "long"
+          },
+          "DocumentID": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "Encounter_ID": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "Header": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "Person_ID": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "RawText": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "Section_ID": {
+            "type": "long"
+          },
+          "Section_Name": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      },
+      "Diagnosis": {
+        "_parent": {
+          "type": "Person"
+        },
+        "_routing": {
+          "required": true
+        },
+        "properties": {
+          "diagnosis_ICD10_code": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "diagnosis_ICD9_code": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "diagnosis_SNOMEDCT_US_code": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "diagnosis_SNOMEDCT_US_text": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "diagnosis_age": {
+            "type": "long"
+          },
+          "diagnosis_cui": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "diagnosis_date": {
+            "type": "date"
+          },
+          "diagnosis_raw": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "diagnosis_source_coding_vocab": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "person_id": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      },
+      "Procedure": {
+        "_parent": {
+          "type": "Person"
+        },
+        "_routing": {
+          "required": true
+        },
+        "properties": {
+          "person_id": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "procedure_CPT_code": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "procedure_ICD10_code": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "procedure_ICD9_code": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "procedure_SNOMEDCT_US_code": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "procedure_SNOMEDCT_US_text": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "procedure_age": {
+            "type": "long"
+          },
+          "procedure_cui": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "procedure_date": {
+            "type": "date"
+          },
+          "procedure_raw": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          },
+          "procedure_source_coding_vocab": {
+            "type": "text",
+            "fields": {
+              "keyword": {
+                "type": "keyword",
+                "ignore_above": 256
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

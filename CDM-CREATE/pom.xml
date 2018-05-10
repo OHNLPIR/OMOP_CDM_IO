@@ -50,6 +50,12 @@
     </build>
 
     <dependencies>
+        <!-- Elasticsearch -->
+        <dependency>
+            <groupId>edu.mayo.bigdata</groupId>
+            <artifactId>bigdata-elasticsearch-connector</artifactId>
+            <version>1.0.2</version>
+        </dependency>
         <!-- Serialization -->
         <dependency>
             <groupId>org.json</groupId>

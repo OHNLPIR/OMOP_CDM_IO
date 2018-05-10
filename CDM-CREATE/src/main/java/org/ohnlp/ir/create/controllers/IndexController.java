@@ -17,14 +17,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.IOException;
 import java.util.*;
 
 @Controller
 public class IndexController {
 
     private Properties properties;
-    private RestTemplate REST_CLIENT = new RestTemplate();
-    private String ES_REST_URL = null;
+    private MappingDefinition mapping = null;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ModelAndView resetIndex() {
@@ -40,40 +40,46 @@ public class IndexController {
 
     @RequestMapping(value = "/_mappings", method = RequestMethod.GET)
     public @ResponseBody MappingDefinition getMappings() {
-        // Initialize values from properties if needed
-        if (ES_REST_URL == null) {
-            ES_REST_URL = "http://" + properties.getEs().getHost() + ":" + properties.getEs().getHttpport() + "/"
-                    + properties.getEs().getIndexName();
-        }
-        ObjectNode idxes = REST_CLIENT.getForObject(ES_REST_URL, ObjectNode.class);
-        JsonNode mapping = idxes.get(properties.getEs().getIndexName()); // If not an alias
-        if (mapping == null) {
-            // Possible definition as alias in config
-            Iterator<JsonNode> nodes = idxes.elements();
-            while (nodes.hasNext() && mapping == null) {
-                JsonNode node = nodes.next();
-                JsonNode aliases = node.get("aliases");
-                if (aliases != null) {
-                    for (Iterator<String> it = aliases.fieldNames(); it.hasNext(); ) {
-                        String idxName = it.next();
-                        if (idxName.equalsIgnoreCase(properties.getEs().getIndexName())) {
-                            mapping = node;
-                            break;
+        if (mapping != null) {
+            return mapping;
+        } else {
+            // Initialize values from properties if needed
+            JsonNode idxes;
+            try {
+                idxes = new ObjectMapper().readTree(IndexController.class.getResourceAsStream("/index_mappings.json"));
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+            JsonNode mapping = idxes.get(properties.getEs().getIndexName()); // If not an alias
+            if (mapping == null) {
+                // Possible definition as alias in config
+                Iterator<JsonNode> nodes = idxes.elements();
+                while (nodes.hasNext() && mapping == null) {
+                    JsonNode node = nodes.next();
+                    JsonNode aliases = node.get("aliases");
+                    if (aliases != null) {
+                        for (Iterator<String> it = aliases.fieldNames(); it.hasNext(); ) {
+                            String idxName = it.next();
+                            if (idxName.equalsIgnoreCase(properties.getEs().getIndexName())) {
+                                mapping = node;
+                                break;
+                            }
                         }
                     }
                 }
             }
-        }
-        MappingDefinition ret = new MappingDefinition();
-        if (mapping != null) {
-            try {
-                MappingDefinition.IndexDefinition def = new ObjectMapper().treeToValue(mapping, MappingDefinition.IndexDefinition.class);
-                ret.setIndex(def);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
+            MappingDefinition ret = new MappingDefinition();
+            if (mapping != null) {
+                try {
+                    MappingDefinition.IndexDefinition def = new ObjectMapper().treeToValue(mapping, MappingDefinition.IndexDefinition.class);
+                    ret.setIndex(def);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
             }
+            return ret;
         }
-        return ret;
     }
 
     @RequestMapping(value = "/_user", method = RequestMethod.POST)
