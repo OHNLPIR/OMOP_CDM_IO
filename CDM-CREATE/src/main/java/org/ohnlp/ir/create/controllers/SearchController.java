@@ -4,18 +4,20 @@ package org.ohnlp.ir.create.controllers;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import edu.mayo.bigdata.elasticsearch.connection.ConnectionManager;
+import edu.mayo.bigdata.elasticsearch.connection.Environment;
 import edu.mayo.bsi.uima.server.rest.models.ServerRequest;
 import edu.mayo.bsi.uima.server.rest.models.ServerResponse;
+import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.action.search.SearchScrollRequest;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.sort.SortBuilders;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.ohnlp.ir.create.Properties;
@@ -29,41 +31,49 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.logging.Logger;
 
 @Controller
 public class SearchController {
 
-    private TransportClient client;
     private Properties properties;
     private RestTemplate REST_CLIENT = new RestTemplate();
     private String UIMA_REST_URL = null;
+    private ConnectionManager BIGDATA_ES_CLIENT;
+    private RestHighLevelClient ES_CLIENT;
+
+    public void init() {
+        String user = properties.getEs().getUser();
+        String pass = properties.getEs().getPass();
+        try {
+            BIGDATA_ES_CLIENT = new ConnectionManager(user, pass, Environment.DEV);
+            Field f = BIGDATA_ES_CLIENT.getClass().getDeclaredField("restHighLevelClient");
+            f.setAccessible(true);
+            ES_CLIENT = (RestHighLevelClient) f.get(BIGDATA_ES_CLIENT);
+        } catch (NoSuchFieldException | IllegalAccessException | IOException e) {
+            throw new RuntimeException("Error connecting to elasticsearch", e);
+        }
+    }
 
     @RequestMapping(value = "/_search", method = RequestMethod.POST)
     public @ResponseBody
     QueryResult postMapper(@RequestBody Query query) throws IOException {
-        if (client == null) {
-            Settings settings = Settings.builder() // TODO cleanup
-                    .put("cluster.name", properties.getEs().getClusterName()).build();
-            client = new PreBuiltTransportClient(settings)
-                    .addTransportAddress(
-                            new InetSocketTransportAddress(
-                                    InetAddress.getByName(properties.getEs().getHost()),
-                                    properties.getEs().getPort()));
+        if (ES_CLIENT == null) {
+            init();
         }
         processQuery(query);
         QueryBuilder esQuery = query.toESQuery();
-        SearchResponse resp = client.prepareSearch(properties.getEs().getIndexName())
-                .setQuery(esQuery)
-                .setSize(1000)
-                .setScroll(new TimeValue(60000))
-                .addSort(SortBuilders.scoreSort())
-                .setFetchSource(new String[]{"DocumentID", "Section_Name", "Section_ID", "Encounter_ID"}, new String[]{})
-                .execute()
-                .actionGet();
+        SearchSourceBuilder sourceQuery = new SearchSourceBuilder()
+                .query(esQuery)
+                .size(1000)
+                .sort(SortBuilders.scoreSort())
+                .fetchSource(new String[]{"DocumentID", "Section_Name", "Section_ID", "Encounter_ID"}, new String[]{});
+        SearchRequest req = new SearchRequest(properties.getEs().getIndexName())
+                .source(sourceQuery)
+                .scroll(TimeValue.timeValueMinutes(1));
+        SearchResponse resp = BIGDATA_ES_CLIENT.getSearchResponse(req);
         return processResponse(resp, query);
     }
 
@@ -72,7 +82,7 @@ public class SearchController {
      *
      * @param query
      */
-    private void processQuery(Query query) {
+    private void processQuery(Query query) throws IOException {
         // Initialize values from properties if needed
         if (UIMA_REST_URL == null) {
             UIMA_REST_URL = "http://" + properties.getUima().getHost() + ":" + properties.getUima().getPort() + "/";
@@ -81,18 +91,23 @@ public class SearchController {
             query.setCdmQuery(getCDMObjects(query.getUnstructured()));
         }
         if (query.getStructured() != null && query.getStructured().size() > 0) {
-            SearchResponse scrollResp = client.prepareSearch(properties.getEs().getIndexName())
-                    .addSort(SortBuilders.scoreSort())
-                    .setScroll(new TimeValue(60000))
-                    .setFetchSource(false)
-                    .setQuery(query.getPatientIDFilterQuery())
-                    .setSize(1000).get();
+            SearchSourceBuilder sourceQuery = new SearchSourceBuilder()
+                    .query(query.getPatientIDFilterQuery())
+                    .size(1000)
+                    .sort(SortBuilders.scoreSort())
+                    .fetchSource(false);
+            SearchRequest req = new SearchRequest(properties.getEs().getIndexName())
+                    .source(sourceQuery)
+                    .scroll(TimeValue.timeValueMinutes(1));
+            SearchResponse scrollResp = BIGDATA_ES_CLIENT.getSearchResponse(req);
             ArrayList<Integer> patientIDs = new ArrayList<>();
             do {
                 for (SearchHit hit : scrollResp.getHits()) {
                     patientIDs.add(Integer.valueOf(hit.getId()));
                 }
-                scrollResp = client.prepareSearchScroll(scrollResp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
+                scrollResp = BIGDATA_ES_CLIENT
+                        .getScrollSearchResponse(new SearchScrollRequest(scrollResp.getScrollId())
+                                .scroll(TimeValue.timeValueMinutes(1)));
             } while (scrollResp.getHits().getHits().length != 0);
             query.setPatientIDFilter(patientIDs);
         }
@@ -101,26 +116,23 @@ public class SearchController {
     @RequestMapping(value = "/_patient", method = RequestMethod.POST)
     public @ResponseBody
     Patient getPatient(@RequestBody String id) {
-        if (client == null) {
-            Settings settings = Settings.builder() // TODO cleanup
-                    .put("cluster.name", properties.getEs().getClusterName()).build();
-            try {
-                client = new PreBuiltTransportClient(settings)
-                        .addTransportAddress(
-                                new InetSocketTransportAddress(
-                                        InetAddress.getByName(properties.getEs().getHost()),
-                                        properties.getEs().getPort()));
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
+        if (ES_CLIENT == null) {
+            init();
         }
         QueryBuilder esQuery = QueryBuilders.idsQuery("Person").addIds(id);
-        SearchResponse resp = client.prepareSearch(properties.getEs().getIndexName())
-                .setQuery(esQuery)
-                .setFetchSource(true)
-                .setSize(1)
-                .execute()
-                .actionGet();
+        SearchSourceBuilder sourceQuery = new SearchSourceBuilder()
+                .query(esQuery)
+                .size(1)
+                .fetchSource(true);
+        SearchRequest req = new SearchRequest(properties.getEs().getIndexName())
+                .types("Person")
+                .source(sourceQuery);
+        SearchResponse resp = null;
+        try {
+            resp = BIGDATA_ES_CLIENT.getSearchResponse(req);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         SearchHit[] results = resp.getHits().getHits();
         if (results.length == 0) {
             return null;
@@ -167,21 +179,15 @@ public class SearchController {
     @RequestMapping(value = "/_text", method = RequestMethod.POST)
     public @ResponseBody
     JsonNode getDocumentText(@RequestBody String docID) throws IOException {
-        if (client == null) {
-            Settings settings = Settings.builder() // TODO cleanup
-                    .put("cluster.name", properties.getEs().getClusterName()).build();
-            client = new PreBuiltTransportClient(settings)
-                    .addTransportAddress(
-                            new InetSocketTransportAddress(
-                                    InetAddress.getByName(properties.getEs().getHost()),
-                                    properties.getEs().getPort()));
+        if (ES_CLIENT == null) {
+            init();
         }
         QueryBuilder textQuery = QueryBuilders.matchQuery("DocumentID", docID);
-        SearchResponse resp = client.prepareSearch(properties.getEs().getIndexName())
-                .setFetchSource(new String[]{"RawText"}, new String[0])
-                .setQuery(textQuery)
-                .execute()
-                .actionGet();
+        SearchSourceBuilder srcQuery = new SearchSourceBuilder().query(textQuery).fetchSource(new String[]{"RawText"}, new String[0]);
+        SearchResponse resp = BIGDATA_ES_CLIENT.getSearchResponse(
+                new SearchRequest(properties.getEs().getIndexName())
+                .source(srcQuery)
+        );
         if (resp.getHits().totalHits < 1) {
             return new ObjectMapper().readValue(new JSONObject().put("text", "No record found for " + docID).toString(), ObjectNode.class);
         } else if (resp.getHits().totalHits > 1) {
@@ -191,7 +197,7 @@ public class SearchController {
         return new ObjectMapper().readValue(new JSONObject().put("text", retHit.getSource().getOrDefault("RawText", "")).toString(), ObjectNode.class);
     }
 
-    private QueryResult processResponse(SearchResponse resp, Query query) {
+    private QueryResult processResponse(SearchResponse resp, Query query) throws IOException {
         QueryResult result = new QueryResult();
         Map<String, Patient> patientMap = new HashMap<>();
         Map<String, Integer> patientFreqMap = new HashMap<>();
@@ -234,7 +240,7 @@ public class SearchController {
                 hits.add(qHit);
                 patientFreqMap.merge(pid, 1, (k, v) -> v + 1);
             }
-            resp = client.prepareSearchScroll(resp.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
+            resp = BIGDATA_ES_CLIENT.getScrollSearchResponse(new SearchScrollRequest(resp.getScrollId()).scroll(TimeValue.timeValueMinutes(1)));
         } while (resp.getHits().getHits().length != 0);
 
         // Associated Patients

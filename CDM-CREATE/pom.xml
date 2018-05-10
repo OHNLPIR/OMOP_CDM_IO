@@ -21,6 +21,17 @@
         <version>2.0.0.RELEASE</version>
     </parent>
 
+    <repositories>
+        <repository>
+            <id>alm_lib_proxy_maven.org_maven</id>
+            <name>alm_proxy_maven_org</name>
+            <url>http://nexus.mayo.edu/content/groups/alm_public_read_maven/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <build>
         <plugins>
             <plugin>

@@ -1,16 +1,10 @@
 {
-  "_host": "Server IP or username",
-  "host": "localhost",
-
-  "_port": "Integer Port Number for Elasticsearch Index (default: 9300)",
-  "port": 9300,
-
-  "_http_port": "Integer Port Number for Elasticsearch HTTP Index (default: 9200)",
-  "http_port": 9200,
-
-  "_cluster": "The name of the ElasticSearch cluster (default: elasticsearch)",
-  "cluster": "elasticsearch",
-
   "_index_name": "The name of the index",
-  "index_name": "index"
+  "index_name": "index",
+
+  "_user": "Elasticsearch Username",
+  "user": "user",
+
+  "_pass": "Elasticsearch Password",
+  "pass": "password"
 }

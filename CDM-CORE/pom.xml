@@ -17,7 +17,18 @@
     <properties>
         <ctakes.version>4.0.0</ctakes.version>
     </properties>
-    
+
+    <repositories>
+        <repository>
+            <id>alm_lib_proxy_maven.org_maven</id>
+            <name>alm_proxy_maven_org</name>
+            <url>http://nexus.mayo.edu/content/groups/alm_public_read_maven/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <build>
         <resources>
             <resource>
@@ -406,9 +417,9 @@
             <version>5.6.2</version>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>transport</artifactId>
-            <version>5.6.2</version>
+            <groupId>edu.mayo.bigdata</groupId>
+            <artifactId>bigdata-elasticsearch-connector</artifactId>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>

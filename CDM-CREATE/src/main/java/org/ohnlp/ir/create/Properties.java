@@ -38,6 +38,10 @@ public class Properties {
         private String clusterName;
         @NotBlank
         private int httpport;
+        @NotBlank
+        private String user;
+        @NotBlank
+        private String pass;
 
         public int getHttpport() {
             return httpport;
@@ -77,6 +81,22 @@ public class Properties {
 
         public void setClusterName(String clusterName) {
             this.clusterName = clusterName;
+        }
+
+        public String getUser() {
+            return user;
+        }
+
+        public void setUser(String user) {
+            this.user = user;
+        }
+
+        public String getPass() {
+            return pass;
+        }
+
+        public void setPass(String pass) {
+            this.pass = pass;
         }
     }
 

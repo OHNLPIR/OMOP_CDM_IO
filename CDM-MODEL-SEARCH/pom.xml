@@ -27,9 +27,9 @@
             <version>5.6.2</version>
         </dependency>
         <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>transport</artifactId>
-            <version>5.6.2</version>
+            <groupId>edu.mayo.bigdata</groupId>
+            <artifactId>bigdata-elasticsearch-connector</artifactId>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>

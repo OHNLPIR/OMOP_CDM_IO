@@ -1,35 +1,44 @@
 package edu.mayo.omopindexer.indexing;
 
-import edu.mayo.omopindexer.model.CDMModel;
+import edu.mayo.bigdata.elasticsearch.connection.ConnectionManager;
+import edu.mayo.bigdata.elasticsearch.connection.Environment;
 import edu.mayo.omopindexer.model.CDMPerson;
 import edu.mayo.omopindexer.model.GeneratedEncounter;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.nio.entity.NStringEntity;
 import org.elasticsearch.action.ActionFuture;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.index.IndexRequestBuilder;
-import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.action.ActionListener;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.delete.DeleteRequest;
+import org.elasticsearch.action.delete.DeleteRequestBuilder;
+import org.elasticsearch.action.delete.DeleteResponse;
+import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.ResponseListener;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.VersionType;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.reindex.DeleteByQueryAction;
+import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
 import org.elasticsearch.join.query.HasParentQueryBuilder;
-import org.elasticsearch.transport.client.PreBuiltTransportClient;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.*;
-import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.net.HttpURLConnection;
-import java.net.InetAddress;
-import java.net.URL;
 import java.util.*;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Handler class with methods for the ElasticSearch indexing pipeline
@@ -38,10 +47,9 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class ElasticSearchIndexer extends Thread {
 
     private static ElasticSearchIndexer INSTANCE;
-    private String HOST;
-    private int HTTP_PORT;
     private String INDEX;
-    private Client ES_CLIENT;
+    private RestHighLevelClient ES_CLIENT;
+    private RestClient ES_LOWLEVEL_CLIENT;
     private BlockingDeque<RequestPair> requestQueue = new LinkedBlockingDeque<>(10000);
     private boolean terminate = false;
     private int MAX_CONCURRENT_QUEUED = 0;
@@ -51,7 +59,6 @@ public class ElasticSearchIndexer extends Thread {
         try {
             INSTANCE = new ElasticSearchIndexer();
             INSTANCE.init();
-            INSTANCE.initializeESIndex();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -76,14 +83,18 @@ public class ElasticSearchIndexer extends Thread {
         JSONTokener tokenizer =
                 new JSONTokener(new FileInputStream(jsonFile));
         JSONObject obj = new JSONObject(tokenizer);
-        HOST = obj.getString("host");
-        int PORT = obj.getInt("port");
-        HTTP_PORT = obj.getInt("http_port");
-        String CLUSTER = obj.getString("cluster");
         INDEX = obj.getString("index_name");
-        Settings s = Settings.builder()
-                .put("cluster.name", CLUSTER).put("client.transport.sniff", true).put().build();
-        ES_CLIENT = new PreBuiltTransportClient(s).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(HOST), PORT));
+        String user = obj.getString("user");
+        String pass = obj.getString("pass");
+        ConnectionManager bigdataClient = new ConnectionManager(user, pass, Environment.DEV);
+        try {
+            Field f = bigdataClient.getClass().getDeclaredField("restHighLevelClient");
+            f.setAccessible(true);
+            ES_CLIENT = (RestHighLevelClient) f.get(bigdataClient);
+            ES_LOWLEVEL_CLIENT = bigdataClient.getRestClientBuilder().build();
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        }
         int numIndexingCores;
         if (System.getProperty("indexing.threads") != null) {
             numIndexingCores = Integer.valueOf(System.getProperty("indexing.threads"));
@@ -94,69 +105,6 @@ public class ElasticSearchIndexer extends Thread {
     }
 
     /**
-     * Constructs indexes in Elasticsearch as appropriate based on configuration values
-     */
-    private void initializeESIndex() throws IOException, ClassNotFoundException, NoSuchMethodException,
-            IllegalAccessException, InvocationTargetException, InstantiationException {
-        // Construct setting information for index
-        JSONObject settings = new JSONObject().put("index", new JSONObject().put("number_of_shards", 20).put("number_of_replicas", 0));
-        // Construct mapping information for index
-        // Get Model files via reflection
-        String prefix = "edu.mayo.omopindexer.model.";
-        List<CDMModel> models = new LinkedList<>();
-        for (CDMModel.Types type : CDMModel.Types.values()) {
-            Class<? extends CDMModel> modelClazz = (Class<? extends CDMModel>) Class.forName(prefix + type);
-            Constructor<? extends CDMModel> c = modelClazz.getDeclaredConstructor();
-            c.setAccessible(true); // Set accessible to true to override private constructor restrictions
-            CDMModel model = c.newInstance();
-            models.add(model);
-        }
-        JSONObject mapping = new JSONObject();
-        Map<String, JSONObject> childMappings = new HashMap<>();
-        for (CDMModel model : models) {
-            // https://www.elastic.co/guide/en/elasticsearch/reference/1.7/mapping-parent-field.html
-            JSONObject childObject = new JSONObject();
-            JSONObject _parent = new JSONObject();
-            _parent.put("type", "Document");
-            childObject.put("_parent", _parent);
-            childObject.put("properties", model.getJSONMapping());
-            childMappings.put(model.getModelTypeName(), childObject);
-        }
-        mapping.put("Document", new JSONObject().put("_parent", new JSONObject().put("type", "Encounter")));
-        mapping.put("Encounter",
-                new JSONObject()
-                        .put("_parent", new JSONObject().put("type", "Person"))
-                        .put("properties", GeneratedEncounter.generateEmpty().getJSONMapping()));
-        JSONObject personObj = new JSONObject();
-        personObj.put("properties", CDMPerson.generateEmpty().getJSONMapping());
-        mapping.put("Person", personObj);
-        for (Map.Entry<String, JSONObject> e : childMappings.entrySet()) {
-            mapping.put(e.getKey(), e.getValue());
-        }
-        // Wrapper object sent to ES
-        JSONObject submitToES = new JSONObject();
-        submitToES.put("mappings", mapping);
-        submitToES.put("settings", settings);
-        System.out.print(submitToES.toString());
-        try {
-            String base = "http://" + HOST + ":" + HTTP_PORT + "/" + INDEX;
-            URL indexURL = new URL(base);
-            HttpURLConnection conn = (HttpURLConnection) indexURL.openConnection();
-            conn.setRequestMethod("PUT");
-            conn.setDoOutput(true);
-            conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Accept", "application/json");
-            OutputStreamWriter osw = new OutputStreamWriter(conn.getOutputStream());
-            osw.write(submitToES.toString());
-            osw.flush();
-            osw.close();
-            conn.getResponseCode(); // Force update
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * Indexes the given document to ElasticSearch index
      */
     public void indexSerialized(CDMToJSONSerializer docSerializer) {
@@ -164,10 +112,13 @@ public class ElasticSearchIndexer extends Thread {
         JSONObject document = jsons.pollFirst();
         String docID = document.getString("DocumentID");
         // Clean up any children if the document already exists as they were re-generated
-        DeleteByQueryRequestBuilder cleanupQuery = DeleteByQueryAction.INSTANCE.newRequestBuilder(ES_CLIENT).source(INDEX)
-                .filter(new HasParentQueryBuilder("Document", QueryBuilders.termQuery("DocumentID", docID.toLowerCase()), false))
-                .setSlices(10);
-        Collection<IndexRequestBuilder> iReqs = new LinkedList<>();
+//        QueryBuilder cleanupQuery = new HasParentQueryBuilder("Document", QueryBuilders.termQuery("DocumentID", docID.toLowerCase()), false);
+//        try {
+//            cleanupQuery.toXContent(XContentFactory.jsonBuilder(), Params.).toString()
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+        Collection<IndexRequest> iReqs = new LinkedList<>();
         String encounterID = document.getString("Encounter_ID");
         String personID = document.getString("Person_ID");
         // Index its parent person
@@ -175,23 +126,23 @@ public class ElasticSearchIndexer extends Thread {
         if (person == null) {
             return; // Continue without indexing since its parent person will not exist
         }
-        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Person", personID).setVersion(person.getVersion()).setVersionType(VersionType.EXTERNAL).setSource(person.getAsJSON().toString(), XContentType.JSON));
+        iReqs.add(new IndexRequest(INDEX, "Person", personID).version(person.getVersion()).versionType(VersionType.EXTERNAL).source(person.getAsJSON().toString(), XContentType.JSON));
         // Index the relevant encounter
         GeneratedEncounter encounterModel = EncounterStaging.get(encounterID);
         if (encounterModel == null) {
             return; // Continue without indexing since its parent encounter will not exist
         }
-        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Encounter", encounterID).setRouting(personID).setParent(personID).setSource(encounterModel.getAsJSON().toString(), XContentType.JSON));
+        iReqs.add(new IndexRequest(INDEX, "Encounter", encounterID).routing(personID).parent(personID).source(encounterModel.getAsJSON().toString(), XContentType.JSON));
         // Index document itself
-        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Document", docID).setSource(document.toString(), XContentType.JSON).setParent(encounterID).setRouting(personID));
+        iReqs.add(new IndexRequest(INDEX, "Document", docID).source(document.toString(), XContentType.JSON).parent(encounterID).routing(personID));
         // Index its children
         JSONObject nextChild;
         while ((nextChild = jsons.pollFirst()) != null) {
-            iReqs.add(ES_CLIENT.prepareIndex(INDEX, nextChild.getString("type")).setParent(docID).setRouting(personID).setSource(nextChild.toString(), XContentType.JSON));
+            iReqs.add(new IndexRequest(INDEX, nextChild.getString("type")).parent(docID).routing(personID).source(nextChild.toString(), XContentType.JSON));
         }
         // Add the request to the request queue for processing
         try {
-            requestQueue.putFirst(new RequestPair(cleanupQuery, iReqs));
+            requestQueue.putFirst(new RequestPair(null, iReqs));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -217,26 +168,53 @@ public class ElasticSearchIndexer extends Thread {
                 writer.write("Processing " + reqs.size() + "\r\n");
                 writer.flush();
                 if (flag) {
-                    BulkRequestBuilder opBuilder = ES_CLIENT.prepareBulk();
-                    LinkedList<ActionFuture> barriers = new LinkedList<>(); // Storage for action futures to resynchronize with
+                    BulkRequest opBuilder = new BulkRequest();
+                    LinkedList<AtomicBoolean> barriers = new LinkedList<>(); // Storage for action futures to resynchronize with
                     for (RequestPair req : reqs) {
                         // - Await deletion completion
-//                        barriers.add(req.deleteSearch.execute());
+                        final AtomicBoolean completionFlag = new AtomicBoolean(false);
+                        if (req.deleteSearch != null) {
+                            HttpEntity ent = new NStringEntity(req.deleteSearch.source().toString());
+                            ES_LOWLEVEL_CLIENT.performRequestAsync("POST", INDEX + "/_delete_by_query", Collections.EMPTY_MAP, ent, new ResponseListener() {
+                                @Override
+                                public void onSuccess(Response response) {
+                                    synchronized (completionFlag) {
+                                        completionFlag.set(true);
+                                        completionFlag.notifyAll();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Exception e) {
+                                    synchronized (completionFlag) {
+                                        completionFlag.set(true);
+                                        completionFlag.notifyAll();
+                                    }
+                                }
+                            });
+                        }
+                        barriers.add(completionFlag);
                         // - Add indexing requests
-                        for (IndexRequestBuilder iReq : req.indexReqs) {
+                        for (IndexRequest iReq : req.indexReqs) {
                             opBuilder.add(iReq);
                         }
                     }
-                    // Wait for barrier resynchronization
-                    for (ActionFuture future : barriers) {
-                        try {
-                            future.get();
-                        } catch (InterruptedException | ExecutionException e) {
-                            e.printStackTrace();
+//                     Wait for barrier resynchronization
+                    for (final AtomicBoolean future : barriers) {
+                        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+                        synchronized (future) {
+                            while (!future.get()) {
+                                try {
+                                    future.wait(10000L);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
+
                     }
                     // Execute the indexing requests
-                    opBuilder.execute();
+                    ES_CLIENT.bulk(opBuilder);
                 }
                 if (!terminate || requestQueue.size() > 0) { // Continue consuming if we are either not terminated or still have stuff in queue
                     if (reqs.size() < MAX_CONCURRENT_QUEUED) {
@@ -261,10 +239,10 @@ public class ElasticSearchIndexer extends Thread {
      * Used to store a delete request with its associated index request (clean up children first then index)
      */
     private static class RequestPair {
-        DeleteByQueryRequestBuilder deleteSearch;
-        Collection<IndexRequestBuilder> indexReqs;
+        SearchRequest deleteSearch;
+        Collection<IndexRequest> indexReqs;
 
-        RequestPair(DeleteByQueryRequestBuilder deleteSearch, Collection<IndexRequestBuilder> indexReqs) {
+        RequestPair(SearchRequest deleteSearch, Collection<IndexRequest> indexReqs) {
             this.deleteSearch = deleteSearch;
             this.indexReqs = indexReqs;
         }
