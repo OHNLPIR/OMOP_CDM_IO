@@ -8,6 +8,7 @@ import edu.mayo.bigdata.elasticsearch.connection.ConnectionManager;
 import edu.mayo.bigdata.elasticsearch.connection.Environment;
 import edu.mayo.bsi.uima.server.rest.models.ServerRequest;
 import edu.mayo.bsi.uima.server.rest.models.ServerResponse;
+import edu.mayo.nlp.bsi.uima.IntegratedUIMAServer;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchScrollRequest;
@@ -43,6 +44,7 @@ public class SearchController {
     private String UIMA_REST_URL = null;
     private ConnectionManager BIGDATA_ES_CLIENT;
     private RestHighLevelClient ES_CLIENT;
+    private IntegratedUIMAServer UIMA_SERVER = new IntegratedUIMAServer();
 
     public void init() {
         String user = properties.getEs().getUser();
@@ -67,12 +69,11 @@ public class SearchController {
         QueryBuilder esQuery = query.toESQuery();
         SearchSourceBuilder sourceQuery = new SearchSourceBuilder()
                 .query(esQuery)
-                .size(1000)
+                .size(10000)
                 .sort(SortBuilders.scoreSort())
                 .fetchSource(new String[]{"DocumentID", "Section_Name", "Section_ID", "Encounter_ID"}, new String[]{});
         SearchRequest req = new SearchRequest(properties.getEs().getIndexName())
-                .source(sourceQuery)
-                .scroll(TimeValue.timeValueMinutes(1));
+                .source(sourceQuery);
         SearchResponse resp = BIGDATA_ES_CLIENT.getSearchResponse(req);
         return processResponse(resp, query);
     }
@@ -93,7 +94,7 @@ public class SearchController {
         if (query.getStructured() != null && query.getStructured().size() > 0) {
             SearchSourceBuilder sourceQuery = new SearchSourceBuilder()
                     .query(query.getPatientIDFilterQuery())
-                    .size(1000)
+                    .size(10000)
                     .sort(SortBuilders.scoreSort())
                     .fetchSource(false);
             SearchRequest req = new SearchRequest(properties.getEs().getIndexName())
@@ -153,15 +154,59 @@ public class SearchController {
         }
     }
 
+    private Map<String, Patient> getPatients(Collection<String> ids) {
+        if (ES_CLIENT == null) {
+            init();
+        }
+        QueryBuilder esQuery = QueryBuilders.idsQuery("Person").addIds(ids.toArray(new String[ids.size()]));
+        SearchSourceBuilder sourceQuery = new SearchSourceBuilder()
+                .query(esQuery)
+                .size(10000)
+                .fetchSource(true);
+        SearchRequest req = new SearchRequest(properties.getEs().getIndexName())
+                .types("Person")
+                .source(sourceQuery)
+                .scroll(TimeValue.timeValueMinutes(1L));
+        Map<String, Patient> ret = new HashMap<>();
+        try {
+            SearchResponse resp = BIGDATA_ES_CLIENT.getSearchResponse(req);
+            SearchHit[] results = resp.getHits().getHits();
+            do {
+                if (results.length == 0) {
+                    return Collections.emptyMap();
+                } else {
+                    for (SearchHit hit : results) {
+                        JSONObject source = new JSONObject(hit.getSourceAsString());
+                        Date dob = null;
+                        Long dobMillis = source.optLong("date_of_birth", Long.MIN_VALUE);
+                        if (dobMillis != Long.MIN_VALUE) {
+                            dob = new Date(dobMillis);
+                        }
+                        Patient p = new Patient(
+                                source.optString("person_id"),
+                                source.optString("gender"),
+                                source.optString("ethnicity"),
+                                source.optString("race"),
+                                source.optString("city"),
+                                dob);
+                        ret.put(p.getId(), p);
+                    }
+                }
+                resp = BIGDATA_ES_CLIENT
+                        .getScrollSearchResponse(new SearchScrollRequest(resp.getScrollId())
+                                .scroll(TimeValue.timeValueMinutes(1)));
+            } while (resp.getHits().getHits().length != 0);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return ret;
+    }
+
     @RequestMapping(value = "/_cdm", method = RequestMethod.POST)
     public @ResponseBody
     ArrayList<JsonNode> getCDMObjects(@RequestBody String text) {
-        // Initialize values from properties if needed
-        if (UIMA_REST_URL == null) {
-            UIMA_REST_URL = "http://" + properties.getUima().getHost() + ":" + properties.getUima().getPort() + "/";
-        }
         ServerRequest req = new ServerRequest(properties.getUima().getQueue(), null, text, Collections.singleton("cdm"));
-        ServerResponse resp = REST_CLIENT.postForObject(UIMA_REST_URL, req, ServerResponse.class);
+        ServerResponse resp = UIMA_SERVER.submitJob(req);
         String cdmRespRaw = resp.getContent().get(properties.getUima().getQueue());
         JSONArray cdmResp = new JSONArray(cdmRespRaw);
         ArrayList<JsonNode> parsedCDMModels = new ArrayList<>(cdmResp.length());
@@ -183,10 +228,11 @@ public class SearchController {
             init();
         }
         QueryBuilder textQuery = QueryBuilders.matchQuery("DocumentID", docID);
-        SearchSourceBuilder srcQuery = new SearchSourceBuilder().query(textQuery).fetchSource(new String[]{"RawText"}, new String[0]);
+        SearchSourceBuilder srcQuery = new SearchSourceBuilder()
+                .query(textQuery).fetchSource(new String[]{"RawText"}, new String[0]);
         SearchResponse resp = BIGDATA_ES_CLIENT.getSearchResponse(
                 new SearchRequest(properties.getEs().getIndexName())
-                .source(srcQuery)
+                        .source(srcQuery)
         );
         if (resp.getHits().totalHits < 1) {
             return new ObjectMapper().readValue(new JSONObject().put("text", "No record found for " + docID).toString(), ObjectNode.class);
@@ -205,44 +251,52 @@ public class SearchController {
         result.setQuery(query);
         // Associated Documents
         List<DocumentHit> hits = new LinkedList<>();
-        int iteration = 0;
-        do {
-            Logger.getLogger("debug-log").info("Current iteration: " + iteration++);
-            if (iteration == 11) { // We already got top 10000 documents, assume the rest not relevant/minimal contribution to patient-level scoring
-                break;
-            }
-            for (SearchHit hit : resp.getHits()) {
-                DocumentHit qHit = new DocumentHit();
-                // Document
-                Document doc = new Document();
-                Map<String, Object> source = hit.getSource();
-                String docIDRaw = source.get("DocumentID").toString(); // TODO this is really specific/infrastructure dependent way of doing things
-                String[] docFields = docIDRaw.split("_");
-                doc.setDocLinkId(docFields[1]);
-                doc.setRevision(docFields[2]);
-                doc.setDocType(docFields[3]); //TODO
-                doc.setIndexDocID(docIDRaw);
-                doc.setSectionName(source.get("Section_Name").toString());
-                doc.setSectionID(source.get("Section_ID").toString());
-                qHit.setDoc(doc);
-                // Encounter
-                Encounter encounter = new Encounter();
-                String[] encounterParts = source.get("Encounter_ID").toString().split(":"); //mrn:encounter_tmr:dob
-                encounter.setEncounterDate(new Date(new Long(encounterParts[1])));
-                encounter.setEncounterAge(Long.valueOf(encounterParts[1]) - Long.valueOf(encounterParts[2])); // date - dob
-                qHit.setEncounter(encounter);
-                // Patient
-                String pid = docFields[0].trim();
-                // TODO: parallelize maybe
-                Patient patient = patientMap.computeIfAbsent(pid, k -> getPatient(pid));
-                qHit.setPatient(patient);
-                qHit.setScore(hit.getScore());
-                hits.add(qHit);
-                patientFreqMap.merge(pid, 1, (k, v) -> v + 1);
-            }
-            resp = BIGDATA_ES_CLIENT.getScrollSearchResponse(new SearchScrollRequest(resp.getScrollId()).scroll(TimeValue.timeValueMinutes(1)));
-        } while (resp.getHits().getHits().length != 0);
-
+//        int iteration = 0;
+//        do {
+//            Logger.getLogger("debug-log").info("Current iteration: " + iteration++);
+//            if (iteration == 1) { // We already got top 10000 documents, assume the rest not relevant/minimal contribution to patient-level scoring
+//                break;
+//            }
+        for (SearchHit hit : resp.getHits()) {
+            DocumentHit qHit = new DocumentHit();
+            // Document
+            Document doc = new Document();
+            Map<String, Object> source = hit.getSource();
+            String docIDRaw = source.get("DocumentID").toString(); // TODO this is really specific/infrastructure dependent way of doing things
+            String[] docFields = docIDRaw.split("_");
+            doc.setDocLinkId(docFields[1]);
+            doc.setRevision(docFields[2]);
+            doc.setDocType(docFields[3]); //TODO
+            doc.setIndexDocID(docIDRaw);
+            doc.setSectionName(source.get("Section_Name").toString());
+            doc.setSectionID(source.get("Section_ID").toString());
+            qHit.setDoc(doc);
+            // Encounter
+            Encounter encounter = new Encounter();
+            String[] encounterParts = source.get("Encounter_ID").toString().split(":"); //mrn:encounter_tmr:dob
+            encounter.setEncounterDate(new Date(new Long(encounterParts[1])));
+            encounter.setEncounterAge(Long.valueOf(encounterParts[1]) - Long.valueOf(encounterParts[2])); // date - dob
+            qHit.setEncounter(encounter);
+            // Patient
+            String pid = docFields[0].trim();
+            Patient patient = patientMap.computeIfAbsent(pid, k -> new Patient(pid));
+            qHit.setPatient(patient);
+            qHit.setScore(hit.getScore());
+            hits.add(qHit);
+            patientFreqMap.merge(pid, 1, (k, v) -> v + 1);
+        }
+//            resp = BIGDATA_ES_CLIENT.getScrollSearchResponse(new SearchScrollRequest(resp.getScrollId()).scroll(TimeValue.timeValueMinutes(1)));
+//        } while (resp.getHits().getHits().length != 0);
+        // Grab fully populated patient demographic information and repopulate here
+        Map<String, Patient> fullyPopulatedPatients = getPatients(patientMap.keySet());
+        fullyPopulatedPatients.forEach((s,p) -> {
+            Patient target = patientMap.get(s);
+            target.setGender(p.getGender());
+            target.setEthnicity(p.getEthnicity());
+            target.setRace(p.getRace());
+            target.setCity(p.getCity());
+            target.setDob(p.getDob());
+        });
         // Associated Patients
         // - Order them
         List<Map.Entry<String, Integer>> sortable = new ArrayList<>(patientFreqMap.entrySet());

@@ -18,6 +18,10 @@ public class Patient {
 
     public Patient() {};
 
+    public Patient(String id) {
+        this.id = id;
+    }
+
     public Patient(String id, String gender, String ethnicity, String race, String city, Date dob) {
         this.id = id;
         this.gender = gender;

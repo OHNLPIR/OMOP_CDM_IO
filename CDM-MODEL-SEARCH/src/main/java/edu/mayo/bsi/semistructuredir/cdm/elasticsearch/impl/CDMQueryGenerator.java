@@ -103,6 +103,9 @@ public class CDMQueryGenerator {
             }
             BoolQueryBuilder elementQuery = QueryBuilders.boolQuery();
             for (Object key : cdm.keySet()) {
+                if (key.toString().equals("begin") || key.toString().equals("end")) {
+                    continue;
+                }
                 Object value = cdm.get(key.toString());
                 if (value.toString().isEmpty()) {
                     continue;
@@ -117,13 +120,13 @@ public class CDMQueryGenerator {
         if (personIDs.size() > 0) {
             BoolQueryBuilder root = QueryBuilders.boolQuery();
             if (personIDs.size() == 1) {
-                root.must(QueryBuilders.termQuery("person_id", personIDs.get(0)));
+                root.filter(QueryBuilders.termQuery("person_id", personIDs.get(0)));
             } else {
                 BoolQueryBuilder persons = QueryBuilders.boolQuery();
                 for (int id : personIDs) {
                     persons.should(QueryBuilders.termQuery("person_id", id));
                 }
-                root.must(persons);
+                root.filter(persons);
             }
             QueryBuilder encounterFilterQuery = new HasParentQueryBuilder("Person", root, false); // Default is to just check for a person that matches criteria
             if (this.encounterAgeDirty) { // If we do have encounter age limits, we want to add to encounter filter
@@ -138,7 +141,7 @@ public class CDMQueryGenerator {
                 } else {
                     encounterAgeQuery.to(null);
                 }
-                encounterFilterQuery = QueryBuilders.boolQuery().must(encounterFilterQuery).must(encounterAgeQuery);
+                encounterFilterQuery = QueryBuilders.boolQuery().filter(encounterFilterQuery).filter(encounterAgeQuery);
             }
             if (this.encounterDateDirty) {
                 RangeQueryBuilder encounterDateQuery = QueryBuilders.rangeQuery("encounter_date");
@@ -154,10 +157,10 @@ public class CDMQueryGenerator {
                 }
                 encounterFilterQuery =  // If filter is already bool add clause otherwise construct a new bool query with 2 clauses
                         encounterFilterQuery instanceof BoolQueryBuilder ?
-                                ((BoolQueryBuilder) encounterFilterQuery).must(encounterDateQuery) :
-                                QueryBuilders.boolQuery().must(encounterFilterQuery).must(encounterDateQuery);
+                                ((BoolQueryBuilder) encounterFilterQuery).filter(encounterDateQuery) :
+                                QueryBuilders.boolQuery().filter(encounterFilterQuery).filter(encounterDateQuery);
             }
-            document.must(new HasParentQueryBuilder("Encounter", encounterFilterQuery, false));
+            document.filter(new HasParentQueryBuilder("Encounter", encounterFilterQuery, false));
         }
         return document;
     }

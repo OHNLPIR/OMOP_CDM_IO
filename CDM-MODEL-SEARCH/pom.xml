@@ -20,6 +20,17 @@
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <id>alm_lib_proxy_maven.org_maven</id>
+            <name>alm_proxy_maven_org</name>
+            <url>http://nexus.mayo.edu/content/groups/alm_public_read_maven/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.elasticsearch</groupId>

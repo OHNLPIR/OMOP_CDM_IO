@@ -22,6 +22,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: edu.mayo.bsi.uima-server:UIMA-Server-REST:1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: edu.mayo.bigdata:bigdata-elasticsearch-connector:1.0.2" level="project" />
     <orderEntry type="library" name="Maven: edu.mayo.bigdata:bigdata-yaml-utils:1.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.9.4" level="project" />
@@ -40,7 +41,7 @@
     <orderEntry type="library" name="Maven: org.json:json:20171018" level="project" />
     <orderEntry type="library" name="Maven: org.xerial:sqlite-jdbc:3.21.0.1" level="project" />
     <orderEntry type="library" name="Maven: com.mchange:c3p0:0.9.5.2" level="project" />
-    <orderEntry type="library" name="Maven: com.mchange:mchange-commons-java:0.2.3.4" level="project" />
+    <orderEntry type="library" name="Maven: com.mchange:mchange-commons-java:0.2.11" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-web:2.0.0.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter:2.0.0.RELEASE" level="project" />
     <orderEntry type="library" name="Maven: org.springframework.boot:spring-boot-starter-logging:2.0.0.RELEASE" level="project" />

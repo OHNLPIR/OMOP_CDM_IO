@@ -52,8 +52,6 @@ public class Query {
 
     public QueryBuilder toESQuery() {
         BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery();
-        QueryBuilder textQuery = QueryGeneratorFactory.newTextQuery().rawTextQuery("RawText", getUnstructured()).build();
-        queryBuilder.should(textQuery);
         if (cdmQuery != null && cdmQuery.size() > 0) {
             CDMQueryGenerator cdmQuery = QueryGeneratorFactory.newCDMQuery();
             for (JsonNode node : getCdmQuery()) {
@@ -119,25 +117,20 @@ public class Query {
                     }
                 }
             }
-            queryBuilder.should(cdmQuery.build());
+            queryBuilder = (BoolQueryBuilder) cdmQuery.build();
         }
-
+        queryBuilder.filter(QueryBuilders.typeQuery("Document"));
+        QueryBuilder textQuery = QueryGeneratorFactory.newTextQuery().rawTextQuery("RawText", getUnstructured()).build();
+        queryBuilder.should(textQuery);
         if (patientIDFilter != null) {
             QueryBuilder query;
             if (patientIDFilter.size() == 0) {
-                // Hacky way to always fail for all filter by adding a has parent check that will always fail (person with encounter parent)
-                query = new HasParentQueryBuilder("Encounter", QueryBuilders.matchAllQuery(), false);
+                // Hacky way to always fail for all filter by adding check for a nonexistant person id
+                query = QueryBuilders.termsQuery("Person_ID", Collections.singleton(-99999));
             } else {
-                query = QueryBuilders.termsQuery("person_id", patientIDFilter);
+                query = QueryBuilders.termsQuery("Person_ID", patientIDFilter);
             }
-            queryBuilder.filter(new HasParentQueryBuilder(
-                    "Encounter",
-                    new HasParentQueryBuilder(
-                            "Person",
-                            query,
-                            false),
-                    false)
-            );
+            queryBuilder.filter(query);
         }
 //        if (structured != null && structured.size() > 0) { // TODO boost scores for soft-match/non-filtering clauses in structured query
 //            BoolQueryBuilder temp = QueryBuilders.boolQuery();
