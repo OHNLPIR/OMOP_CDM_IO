@@ -71,7 +71,8 @@ public class SearchController {
                 .query(esQuery)
                 .size(10000)
                 .sort(SortBuilders.scoreSort())
-                .fetchSource(new String[]{"DocumentID", "Section_Name", "Section_ID", "Encounter_ID"}, new String[]{});
+                .fetchSource(new String[]{"DocumentID", "Section_Name", "Section_ID", "Encounter_ID"}, new String[]{})
+                .minScore(0.01f);
         SearchRequest req = new SearchRequest(properties.getEs().getIndexName())
                 .source(sourceQuery)
                 .scroll(TimeValue.timeValueMinutes(1));
@@ -286,7 +287,11 @@ public class SearchController {
                 hits.add(qHit);
                 patientFreqMap.merge(pid, 1, (k, v) -> v + 1);
             }
-            resp = BIGDATA_ES_CLIENT.getScrollSearchResponse(new SearchScrollRequest(resp.getScrollId()).scroll(TimeValue.timeValueMinutes(1)));
+            if (query.getStructured() != null && query.getStructured().size() > 0) { // Limit to one iteration for no-filter queries for performance
+                resp = BIGDATA_ES_CLIENT.getScrollSearchResponse(new SearchScrollRequest(resp.getScrollId()).scroll(TimeValue.timeValueMinutes(1)));
+            } else {
+                break;
+            }
         } while (resp.getHits().getHits().length != 0);
         // Grab fully populated patient demographic information and repopulate here
         Map<String, Patient> fullyPopulatedPatients = getPatients(patientMap.keySet());
