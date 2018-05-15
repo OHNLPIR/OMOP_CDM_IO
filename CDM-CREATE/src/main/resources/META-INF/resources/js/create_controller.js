@@ -318,7 +318,7 @@ function MappingDefinition(mapping) {
 var app = angular.module("CREATEApp", []);
 app.controller("CREATECtrl", function ($scope, $http) {
     // Global Constants
-    this.CLAUSE_TYPES = ["Must", "Should", "Should Not", "Must Not"];
+    this.CLAUSE_TYPES = ["Must", "Must Not"];
     this.VIEW_TYPES = ["Patient", "Document"];
     this.TASK_TYPES = ["Cohort Discovery", "Document Search", "Continue Previous Saved Task"];
     // Model and functions

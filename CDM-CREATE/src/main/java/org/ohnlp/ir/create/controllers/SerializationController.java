@@ -139,6 +139,7 @@ public class SerializationController {
             getResultFK.setInt(2, QUERY_FK);
             rs = getResultFK.executeQuery();
             if (!rs.next()) {
+                ret.setHits(new LinkedList<>());
                 conn.commit();
                 conn.setAutoCommit(true);
                 return ret;
