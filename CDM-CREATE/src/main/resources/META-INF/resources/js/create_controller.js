@@ -556,7 +556,7 @@ app.filter('startFrom', function () {
 app.filter('range', function () {
     return function (val, limit, current) {
         var arr = [];
-        if (val < 8) {
+        if (val <= 8) {
             for (var i = 0; i < val; i++) {
                 arr.push(i);
             }

@@ -245,24 +245,24 @@
         <br/>
     </div>
 </div>
-<div class="row" id="pager-document-view" style="border-top: 1px solid #808080"
+<div class="row" id="pager-page-view" style="border-top: 1px solid #808080"
      ng-if="CREATE.model.hits.length > 0 && CREATE.model.completed === true">
     <div class="col-xs-12 text-center">
         <ul class="pagination">
-            <li ng-class="{disabled: CREATE.model.currentPage === 0}">
+            <li ng-if="CREATE.model.currentPage !== 0">
                 <a href="#"
                    ng-click="CREATE.model.currentPage !== 0 ? CREATE.model.currentPage = CREATE.model.currentPage - 1 : ''">
                     &larr;
                 </a>
             </li>
-            <li ng-repeat="count in CREATE.model.getNumPagesCnt(currView) | range:CREATE.model.pageSize:(CREATE.model.currentPage+1) track by $index"
+            <li ng-repeat="count in CREATE.model.getNumPagesCnt(CREATE.currView) | range:CREATE.model.pageSize:(CREATE.model.currentPage+1) track by $index"
                 ng-class="{active: CREATE.model.currentPage === count, disabled: !(count|isNum)}">
                 <a href="#" ng-if="count|isNum" ng-click="CREATE.model.currentPage = count">{{count+1}}</a>
                 <a href="#" ng-if="!(count|isNum)">{{count}}</a>
             </li>
-            <li ng-class="{disabled: CREATE.model.currentPage === CREATE.model.numberOfPages() - 1}">
+            <li ng-if="CREATE.model.currentPage !== CREATE.model.getNumPagesCnt(CREATE.currView) - 1">
                 <a href="#"
-                   ng-click="CREATE.model.currentPage !== CREATE.model.numberOfPages() - 1 ? CREATE.model.currentPage = CREATE.model.currentPage + 1 : ''">
+                   ng-click="CREATE.model.currentPage !== CREATE.model.getNumPagesCnt(CREATE.currView) - 1 ? CREATE.model.currentPage = CREATE.model.currentPage + 1 : ''">
                     &rarr;
                 </a>
             </li>
@@ -339,7 +339,7 @@
                      ng-if="CREATE.currPatientDocHits.length > 0 && CREATE.model.completed === true">
                     <div class="col-xs-12 text-center">
                         <ul class="pagination">
-                            <li ng-class="{disabled: CREATE.currentPage === 0}">
+                            <li ng-if="CREATE.currentPage !== 0">
                                 <a href="#"
                                    ng-click="CREATE.currentPage !== 0 ? CREATE.currentPage = CREATE.currentPage - 1 : ''">
                                     &larr;
@@ -350,7 +350,7 @@
                                 <a href="#" ng-if="count|isNum" ng-click="CREATE.currentPage = count">{{count+1}}</a>
                                 <a href="#" ng-if="!(count|isNum)">{{count}}</a>
                             </li>
-                            <li ng-class="{disabled: CREATE.currentPage === CREATE.numberOfPages() - 1}">
+                            <li ng-if="CREATE.currentPage !== CREATE.numberOfPages() - 1">
                                 <a href="#"
                                    ng-click="CREATE.currentPage !== CREATE.numberOfPages() - 1 ? CREATE.currentPage = CREATE.currentPage + 1 : ''">
                                     &rarr;
