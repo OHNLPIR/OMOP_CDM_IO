@@ -27,7 +27,7 @@
     <div class="col-sm-12" id="header-text">
         <h2 class="text-center"
             style="line-height:40px; height: 100px; padding-bottom: 30px;color: #ffffff; padding-top: 30px; margin:0 auto">
-            Cohort Retrieval Enhanced by the Analysis of Text</h2>
+            CREATe - Cohort Retrieval Enhanced by the Analysis of Text</h2>
     </div>
 </div>
 <!-- Navbar -->

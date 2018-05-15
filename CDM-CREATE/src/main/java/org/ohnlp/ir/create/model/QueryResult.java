@@ -65,14 +65,18 @@ public class QueryResult {
             List<DocumentHit> unsortedHits = e.getValue();
             ArrayList<DocumentHit> docHits = new ArrayList<>(unsortedHits.size());
             double totalScore = 0;
+            int numDocs = 0;
             for (DocumentHit doc : unsortedHits) {
-                totalScore += doc.getScore();
+                if (numDocs < 100) {
+                    totalScore += doc.getScore();
+                    numDocs++;
+                }
                 docHits.add(doc);
             }
             docHits.sort((d1, d2) -> Double.compare(d2.getScore(),d1.getScore()));
             hit.setDocs(docHits);
             hit.setPatient(e.getKey());
-            hit.setScore(totalScore/docHits.size());
+            hit.setScore(totalScore/numDocs);
             this.patientHits.add(hit);
         }
         this.patientHits.sort((h1, h2) -> {
