@@ -18,6 +18,6 @@ public class RawTextQuery implements TextQueryGenerator.TextQuery{
     }
 
     public QueryBuilder build() {
-        return QueryBuilders.matchQuery(field, text);
+        return QueryBuilders.matchQuery(field, text).cutoffFrequency(0.001f);
     }
 }

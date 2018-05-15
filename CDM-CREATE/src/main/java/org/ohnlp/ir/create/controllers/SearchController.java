@@ -73,7 +73,8 @@ public class SearchController {
                 .sort(SortBuilders.scoreSort())
                 .fetchSource(new String[]{"DocumentID", "Section_Name", "Section_ID", "Encounter_ID"}, new String[]{});
         SearchRequest req = new SearchRequest(properties.getEs().getIndexName())
-                .source(sourceQuery);
+                .source(sourceQuery)
+                .scroll(TimeValue.timeValueMinutes(1));
         SearchResponse resp = BIGDATA_ES_CLIENT.getSearchResponse(req);
         return processResponse(resp, query);
     }
@@ -251,45 +252,45 @@ public class SearchController {
         result.setQuery(query);
         // Associated Documents
         List<DocumentHit> hits = new LinkedList<>();
-//        int iteration = 0;
-//        do {
-//            Logger.getLogger("debug-log").info("Current iteration: " + iteration++);
-//            if (iteration == 1) { // We already got top 10000 documents, assume the rest not relevant/minimal contribution to patient-level scoring
-//                break;
-//            }
-        for (SearchHit hit : resp.getHits()) {
-            DocumentHit qHit = new DocumentHit();
-            // Document
-            Document doc = new Document();
-            Map<String, Object> source = hit.getSource();
-            String docIDRaw = source.get("DocumentID").toString(); // TODO this is really specific/infrastructure dependent way of doing things
-            String[] docFields = docIDRaw.split("_");
-            doc.setDocLinkId(docFields[1]);
-            doc.setRevision(docFields[2]);
-            doc.setDocType(docFields[3]); //TODO
-            doc.setIndexDocID(docIDRaw);
-            doc.setSectionName(source.get("Section_Name").toString());
-            doc.setSectionID(source.get("Section_ID").toString());
-            qHit.setDoc(doc);
-            // Encounter
-            Encounter encounter = new Encounter();
-            String[] encounterParts = source.get("Encounter_ID").toString().split(":"); //mrn:encounter_tmr:dob
-            encounter.setEncounterDate(new Date(new Long(encounterParts[1])));
-            encounter.setEncounterAge(Long.valueOf(encounterParts[1]) - Long.valueOf(encounterParts[2])); // date - dob
-            qHit.setEncounter(encounter);
-            // Patient
-            String pid = docFields[0].trim();
-            Patient patient = patientMap.computeIfAbsent(pid, k -> new Patient(pid));
-            qHit.setPatient(patient);
-            qHit.setScore(hit.getScore());
-            hits.add(qHit);
-            patientFreqMap.merge(pid, 1, (k, v) -> v + 1);
-        }
-//            resp = BIGDATA_ES_CLIENT.getScrollSearchResponse(new SearchScrollRequest(resp.getScrollId()).scroll(TimeValue.timeValueMinutes(1)));
-//        } while (resp.getHits().getHits().length != 0);
+        int iteration = 0;
+        do {
+            Logger.getLogger("debug-log").info("Current iteration: " + iteration++);
+            if (iteration == 6) { // Cut out because we aalready retrieved top 50k, assume rest not relevant
+                break;
+            }
+            for (SearchHit hit : resp.getHits()) {
+                DocumentHit qHit = new DocumentHit();
+                // Document
+                Document doc = new Document();
+                Map<String, Object> source = hit.getSource();
+                String docIDRaw = source.get("DocumentID").toString(); // TODO this is really specific/infrastructure dependent way of doing things
+                String[] docFields = docIDRaw.split("_");
+                doc.setDocLinkId(docFields[1]);
+                doc.setRevision(docFields[2]);
+                doc.setDocType(docFields[3]); //TODO
+                doc.setIndexDocID(docIDRaw);
+                doc.setSectionName(source.get("Section_Name").toString());
+                doc.setSectionID(source.get("Section_ID").toString());
+                qHit.setDoc(doc);
+                // Encounter
+                Encounter encounter = new Encounter();
+                String[] encounterParts = source.get("Encounter_ID").toString().split(":"); //mrn:encounter_tmr:dob
+                encounter.setEncounterDate(new Date(new Long(encounterParts[1])));
+                encounter.setEncounterAge(Long.valueOf(encounterParts[1]) - Long.valueOf(encounterParts[2])); // date - dob
+                qHit.setEncounter(encounter);
+                // Patient
+                String pid = docFields[0].trim();
+                Patient patient = patientMap.computeIfAbsent(pid, k -> new Patient(pid));
+                qHit.setPatient(patient);
+                qHit.setScore(hit.getScore());
+                hits.add(qHit);
+                patientFreqMap.merge(pid, 1, (k, v) -> v + 1);
+            }
+            resp = BIGDATA_ES_CLIENT.getScrollSearchResponse(new SearchScrollRequest(resp.getScrollId()).scroll(TimeValue.timeValueMinutes(1)));
+        } while (resp.getHits().getHits().length != 0);
         // Grab fully populated patient demographic information and repopulate here
         Map<String, Patient> fullyPopulatedPatients = getPatients(patientMap.keySet());
-        fullyPopulatedPatients.forEach((s,p) -> {
+        fullyPopulatedPatients.forEach((s, p) -> {
             Patient target = patientMap.get(s);
             target.setGender(p.getGender());
             target.setEthnicity(p.getEthnicity());

@@ -26,6 +26,13 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Maven: edu.mayo.bigdata:bigdata-elasticsearch-connector:1.0.2" level="project" />
+    <orderEntry type="library" name="Maven: edu.mayo.bigdata:bigdata-yaml-utils:1.0.1" level="project" />
+    <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.8.7" level="project" />
+    <orderEntry type="library" name="Maven: org.elasticsearch.client:elasticsearch-rest-high-level-client:6.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.elasticsearch.client:elasticsearch-rest-client:6.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.elasticsearch.plugin:parent-join-client:6.0.1" level="project" />
+    <orderEntry type="library" name="Maven: org.elasticsearch.plugin:aggs-matrix-stats-client:6.0.1" level="project" />
     <orderEntry type="library" name="Maven: org.elasticsearch:elasticsearch:5.6.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-core:6.6.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.lucene:lucene-analyzers-common:6.6.1" level="project" />

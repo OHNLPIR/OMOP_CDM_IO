@@ -255,7 +255,7 @@
                     &larr;
                 </a>
             </li>
-            <li ng-repeat="count in CREATE.model.getNumPagesAsArr() | range:CREATE.model.pageSize:CREATE.model.currentPage+1"
+            <li ng-repeat="count in CREATE.model.getNumPagesCnt(currView) | range:CREATE.model.pageSize:(CREATE.model.currentPage+1) track by $index"
                 ng-class="{active: CREATE.model.currentPage === count, disabled: !(count|isNum)}">
                 <a href="#" ng-if="count|isNum" ng-click="CREATE.model.currentPage = count">{{count+1}}</a>
                 <a href="#" ng-if="!(count|isNum)">{{count}}</a>
@@ -345,7 +345,7 @@
                                     &larr;
                                 </a>
                             </li>
-                            <li ng-repeat="count in CREATE.getNumPagesAsArr() | range:CREATE.pageSize:CREATE.currentPage+1"
+                            <li ng-repeat="count in CREATE.numberOfPages() | range:CREATE.pageSize:(CREATE.currentPage+1) track by $index "
                                 ng-class="{active: CREATE.currentPage === count, disabled: !(count|isNum)}">
                                 <a href="#" ng-if="count|isNum" ng-click="CREATE.currentPage = count">{{count+1}}</a>
                                 <a href="#" ng-if="!(count|isNum)">{{count}}</a>

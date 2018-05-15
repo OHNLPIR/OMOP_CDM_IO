@@ -103,7 +103,11 @@ public class CDMQueryGenerator {
             }
             BoolQueryBuilder elementQuery = QueryBuilders.boolQuery();
             for (Object key : cdm.keySet()) {
+                String keyName = key.toString();
                 if (key.toString().equals("begin") || key.toString().equals("end")) {
+                    continue;
+                }
+                if (keyName.contains("raw") || keyName.contains("tui") || (keyName.contains("text") && !keyName.contains("OHDSI")) ||  (keyName.contains("code") && !keyName.contains("OHDSI"))) {
                     continue;
                 }
                 Object value = cdm.get(key.toString());
@@ -111,7 +115,12 @@ public class CDMQueryGenerator {
                     continue;
                 }
                 if (!(value instanceof JSONArray) && !value.toString().equals("[]")) {
-                    elementQuery.should(QueryBuilders.matchQuery(key.toString(), value));
+                    if ((keyName.contains("code") && keyName.contains("OHDSI"))) {
+                        String[] codes = value.toString().split(" ");
+                        elementQuery.filter(QueryBuilders.termsQuery(key.toString(), codes));
+                    } else {
+                        elementQuery.should(QueryBuilders.matchQuery(key.toString(), value));
+                    }
                 }
                 // TODO add support for nested
             }

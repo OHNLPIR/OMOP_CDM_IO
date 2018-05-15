@@ -241,8 +241,19 @@ function Model(query, hits, patientHits) {
         return this.patientHits;
     };
 
-    this.getNumPagesAsArr = function () { // Hack to allow for ng-repeat on set integer value
+    this.getNumPagesCnt = function (currView) {
+        if (currView === 'Document') {
+            return this.numberOfPages();
+        } else {
+            return Math.ceil(this.getPatientHits().length / this.pageSize);
+        }
+    };
+
+    this.getNumPagesAsArr = function (currView) { // Hack to allow for ng-repeat on set integer value
         var limit = this.numberOfPages();
+        if (currView === 'Patient') {
+            limit = Math.ceil(this.getPatientHits().length / this.pageSize);
+        }
         if (limit === this.currPageCount) {
             return this.currNumPagesArr;
         } else {
@@ -545,8 +556,13 @@ app.filter('startFrom', function () {
 app.filter('range', function () {
     return function (val, limit, current) {
         var arr = [];
+        if (val < 8) {
+            for (var i = 0; i < val; i++) {
+                arr.push(i);
+            }
+            return arr;
+        }
         if (current < 6) {
-
             for (var i = 0; i < 8; i++)
                 arr.push(i);
             arr.push("...");
