@@ -159,8 +159,8 @@
     <dependencies>
         <!-- Utility Libs -->
         <dependency>
-            <groupId>edu.mayo.bsi</groupId>
-            <artifactId>UMLS-VTS</artifactId>
+            <groupId>edu.mayo.bsi.nlp</groupId>
+            <artifactId>VLTS</artifactId>
             <version>0.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
