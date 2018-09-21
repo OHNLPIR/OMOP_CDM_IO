@@ -14,6 +14,8 @@ repository is specialized for Mayo's BioBank clinical note collection and will n
 - A multithreaded computing environment
 - OHDSI ATHENA csv specifications (can be found at http://athena.ohdsi.org/)
 - cTAKES dictionary resources (can be found at http://ctakes.apache.org/)
+- Most of the necessary dependencies are Maven-managed; there are, however, two important exceptions.
+    - The [UMLS-VTS](https://github.com/OHNLPIR/UMLS_VTS) and [UIMA-Stream-Server](https://github.com/OHNLPIR/UIMA-Stream-Server) libraries must downloaded, compiled, and made available in your local Maven repository (e.g. by running their respective `install` targets). 
 
 ## Runtime Arguments
 ### Required Arguments
