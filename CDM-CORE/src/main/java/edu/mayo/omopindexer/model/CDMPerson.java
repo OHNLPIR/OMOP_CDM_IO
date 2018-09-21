@@ -1,6 +1,6 @@
 package edu.mayo.omopindexer.model;
 
-import edu.mayo.bsi.umlsvts.vocabutils.SNOMEDCTUtils;
+import edu.mayo.bsi.nlp.vts.SNOMEDCT;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -260,52 +260,52 @@ public class CDMPerson implements CDMModel {
         }
 
         public static CDMPerson_RACE fromSNOMEDCTCode(String code) {
-            if (SNOMEDCTUtils.isChild(code, "415229000")) { // By SNOMED Racial Group
-                if (SNOMEDCTUtils.isChild(code, "413490006")) {
+            if (SNOMEDCT.isChild(code, "415229000")) { // By SNOMED Racial Group
+                if (SNOMEDCT.isChild(code, "413490006")) {
                     return AIAN;
                 }
-                if (SNOMEDCTUtils.isChild(code, "413581001")) { // Asian subtypes
-                    return SNOMEDCTUtils.isChild(code, "413582008") ? ASIAN : NHPI;
+                if (SNOMEDCT.isChild(code, "413581001")) { // Asian subtypes
+                    return SNOMEDCT.isChild(code, "413582008") ? ASIAN : NHPI;
                 }
-                if (SNOMEDCTUtils.isChild(code, "413464008")) {
+                if (SNOMEDCT.isChild(code, "413464008")) {
                     return BAA;
                 }
-                if (SNOMEDCTUtils.isChild(code, "414408004")) {
+                if (SNOMEDCT.isChild(code, "414408004")) {
                     return HL;
                 }
-                if (SNOMEDCTUtils.isChild(code, "413773004")) {
+                if (SNOMEDCT.isChild(code, "413773004")) {
                     return WHITE;
                 }
                 return null;
-            } else if (SNOMEDCTUtils.isChild(code, "372148003")) { // By SNOMED Ethnic Group TODO double check validity of mappings
-                if (SNOMEDCTUtils.isChild(code, "66920001")) { // Amerind
+            } else if (SNOMEDCT.isChild(code, "372148003")) { // By SNOMED Ethnic Group TODO double check validity of mappings
+                if (SNOMEDCT.isChild(code, "66920001")) { // Amerind
                     return AIAN;
                 }
-                if (SNOMEDCTUtils.isChild(code, "315280000") // Asian - Ethnic Group
-                        || SNOMEDCTUtils.isChild(code, "108342005") // South Asian and/or Australian Aborigine
-                        || SNOMEDCTUtils.isChild(code, "186044009") // South East Asian
-                        || SNOMEDCTUtils.isChild(code, "24812003")) { // Mongol
+                if (SNOMEDCT.isChild(code, "315280000") // Asian - Ethnic Group
+                        || SNOMEDCT.isChild(code, "108342005") // South Asian and/or Australian Aborigine
+                        || SNOMEDCT.isChild(code, "186044009") // South East Asian
+                        || SNOMEDCT.isChild(code, "24812003")) { // Mongol
                     return ASIAN;
                 }
-                if (SNOMEDCTUtils.isChild(code, "414661004") // Melanesian
-                        || SNOMEDCTUtils.isChild(code, "18575005") // Oceanian
-                        || SNOMEDCTUtils.isChild(code, "186039002") // New Zealand Maori
-                        || SNOMEDCTUtils.isChild(code, "186040000") // Cook Island Maori
-                        || SNOMEDCTUtils.isChild(code, "186039002") // Niuean
-                        || SNOMEDCTUtils.isChild(code, "186042008") // Tokelauan
+                if (SNOMEDCT.isChild(code, "414661004") // Melanesian
+                        || SNOMEDCT.isChild(code, "18575005") // Oceanian
+                        || SNOMEDCT.isChild(code, "186039002") // New Zealand Maori
+                        || SNOMEDCT.isChild(code, "186040000") // Cook Island Maori
+                        || SNOMEDCT.isChild(code, "186039002") // Niuean
+                        || SNOMEDCT.isChild(code, "186042008") // Tokelauan
                         ) {
                     return NHPI;
                 }
-                if (SNOMEDCTUtils.isChild(code, "413465009") // Afro-caribbean
-                        || SNOMEDCTUtils.isChild(code, "413466005") // Afro-Caucasian
-                        || SNOMEDCTUtils.isChild(code, "315240009")) { // Black - Ethnic Group
+                if (SNOMEDCT.isChild(code, "413465009") // Afro-caribbean
+                        || SNOMEDCT.isChild(code, "413466005") // Afro-Caucasian
+                        || SNOMEDCT.isChild(code, "315240009")) { // Black - Ethnic Group
                     return BAA;
                 }
-                if (SNOMEDCTUtils.isChild(code, "315239007") && !SNOMEDCTUtils.isChild(code, "186019001")) { // Mixed ethnic but not other
+                if (SNOMEDCT.isChild(code, "315239007") && !SNOMEDCT.isChild(code, "186019001")) { // Mixed ethnic but not other
                     return BAA;
                 }
-                if (SNOMEDCTUtils.isChild(code, "28409002") // Spaniard
-                        || SNOMEDCTUtils.isChild(code, "80208004") // Portuguese
+                if (SNOMEDCT.isChild(code, "28409002") // Spaniard
+                        || SNOMEDCT.isChild(code, "80208004") // Portuguese
                         ) {
                     return HL; // No option for native south american?
                 }

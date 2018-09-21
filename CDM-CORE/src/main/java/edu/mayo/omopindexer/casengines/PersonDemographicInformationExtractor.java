@@ -1,6 +1,6 @@
 package edu.mayo.omopindexer.casengines;
 
-import edu.mayo.bsi.umlsvts.UMLSLookup;
+import edu.mayo.bsi.nlp.vts.UMLS;
 import edu.mayo.omopindexer.indexing.PersonStaging;
 import edu.mayo.omopindexer.model.CDMPerson;
 import edu.mayo.omopindexer.model.CDMPerson.CDMPerson_RACE;
@@ -63,8 +63,8 @@ public class PersonDemographicInformationExtractor extends JCasAnnotator_ImplBas
                     if (fs instanceof UmlsConcept) {
                         UmlsConcept umlsConcept = (UmlsConcept)fs;
                         try {
-                            for (String snomedCode : UMLSLookup.getSourceCodesForVocab(
-                                    UMLSLookup.UMLSSourceVocabulary.SNOMEDCT_US, umlsConcept.getCui())) {
+                            for (String snomedCode : UMLS.getSourceCodesForVocab(
+                                    UMLS.UMLSSourceVocabulary.SNOMEDCT_US, umlsConcept.getCui())) {
                                 CDMPerson_RACE ethnicity = CDMPerson_RACE.fromSNOMEDCTCode(snomedCode);
                                 if (ethnicity != null) {
                                     person.electEthnicity(ethnicity);
