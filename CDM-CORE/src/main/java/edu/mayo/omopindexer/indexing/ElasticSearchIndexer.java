@@ -165,7 +165,7 @@ public class ElasticSearchIndexer extends Thread {
         String docID = document.getString("DocumentID");
         // Clean up any children if the document already exists as they were re-generated
         DeleteByQueryRequestBuilder cleanupQuery = DeleteByQueryAction.INSTANCE.newRequestBuilder(ES_CLIENT).source(INDEX)
-                .filter(new HasParentQueryBuilder("Document", QueryBuilders.termQuery("DocumentID", docID.toLowerCase()), false))
+                .filter(new HasParentQueryBuilder("Note", QueryBuilders.termQuery("DocumentID", docID.toLowerCase()), false))
                 .setSlices(10);
         Collection<IndexRequestBuilder> iReqs = new LinkedList<>();
         String encounterID = document.getString("Encounter_ID");
@@ -183,7 +183,7 @@ public class ElasticSearchIndexer extends Thread {
         }
         iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Encounter", encounterID).setRouting(personID).setParent(personID).setSource(encounterModel.getAsJSON().toString(), XContentType.JSON));
         // Index document itself
-        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Document", docID).setSource(document.toString(), XContentType.JSON).setParent(encounterID).setRouting(personID));
+        iReqs.add(ES_CLIENT.prepareIndex(INDEX, "Note", docID).setSource(document.toString(), XContentType.JSON).setParent(encounterID).setRouting(personID));
         // Index its children
         JSONObject nextChild;
         while ((nextChild = jsons.pollFirst()) != null) {
