@@ -100,7 +100,31 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                     end = Math.max(end, t.getEnd());
                 }
             }
-            CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMConditionOccurrence(begin, end, mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
+
+            for (String ohdsiID : mentionText.getOrDefault("OHDSI_code", "").split(" ")) {
+                CDMNLPArtifact artifact = new CDMNLPArtifact();
+                artifact.setOffset(begin);
+                artifact.setLexicalVariant(mention.getCoveredText());
+                artifact.setSnippet(new ArrayList<>(diseaseToSentence.get(mention)).get(0).getCoveredText()); // Should only ever be one sentence
+                artifact.setNlpDate(new Date());
+                artifact.setNlpDatetime(artifact.getNlpDate());
+                artifact.setNlpSystem("ctakes");
+                try {
+                    artifact.setNoteNlpConceptID(Integer.parseInt(ohdsiID));
+                    CDMModelStaging.stage(
+                            JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(),
+                            artifact
+                    );
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            }
+
+
+            CDMModelStaging.stage(
+                    JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(),
+                    new CDMConditionOccurrence(begin, end, mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0]))
+            );
         }
 
         // - Sign and Symptom
@@ -121,6 +145,25 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                     end = Math.max(end, t.getEnd());
                 }
             }
+            for (String ohdsiID : mentionText.getOrDefault("OHDSI_code", "").split(" ")) {
+                CDMNLPArtifact artifact = new CDMNLPArtifact();
+                artifact.setOffset(begin);
+                artifact.setLexicalVariant(mention.getCoveredText());
+                artifact.setSnippet(new ArrayList<>(signSymptomToSentence.get(mention)).get(0).getCoveredText()); // Should only ever be one sentence
+                artifact.setNlpDate(new Date());
+                artifact.setNlpDatetime(artifact.getNlpDate());
+                artifact.setNlpSystem("ctakes");
+                try {
+                    artifact.setNoteNlpConceptID(Integer.parseInt(ohdsiID));
+                    CDMModelStaging.stage(
+                            JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(),
+                            artifact
+                    );
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            }
+
             CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMConditionOccurrence(begin, end, mentionText, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.CONDITION).toArray(new CDMDate[0])));
         }
 
@@ -161,6 +204,26 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                     end = Math.max(end, t.getEnd());
                 }
             }
+
+            for (String ohdsiID : mentionText.getOrDefault("OHDSI_code", "").split(" ")) {
+                CDMNLPArtifact artifact = new CDMNLPArtifact();
+                artifact.setOffset(begin);
+                artifact.setLexicalVariant(mention.getCoveredText());
+                artifact.setSnippet(new ArrayList<>(medicationToSentence.get(mention)).get(0).getCoveredText()); // Should only ever be one sentence
+                artifact.setNlpDate(new Date());
+                artifact.setNlpDatetime(artifact.getNlpDate());
+                artifact.setNlpSystem("ctakes");
+                try {
+                    artifact.setNoteNlpConceptID(Integer.parseInt(ohdsiID));
+                    CDMModelStaging.stage(
+                            JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(),
+                            artifact
+                    );
+                } catch (Throwable t) {
+                    t.printStackTrace();
+                }
+            }
+
             CDMModelStaging.stage(JCasUtil.selectSingle(jCas, DocumentID.class).getDocumentID(), new CDMDrugExposure(begin, end, mentionText, null, null, effectiveDrugDose, generateDateModels(dateMentions, CDMDate.CDMDate_Subject.DRUG).toArray(new CDMDate[0]))); // TODO
         }
 
@@ -315,8 +378,10 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                     periodUnit = periodLy;
                 }
                 // - Do nothing with frequencies for now (not represented in date information
-                if (freq1 != null) {}
-                if (freq2 != null) {}
+                if (freq1 != null) {
+                }
+                if (freq2 != null) {
+                }
                 boolean periodModify = (freq4 != null && freq4.toLowerCase().contains("other")) || everyOther != null;
                 if (period1 != null && period1.length() > 0 && periodUnit != null) {
                     period1 = normalizeNumber(s);
@@ -356,10 +421,18 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                     if (m.group(i) != null) {
                         int v = Integer.valueOf(m.group(i));
                         switch (i) {
-                            case 1: sum += v * 365 * 24 * 60 * 60 * 1000; break; // Not that accurate but best we can do...
-                            case 2: sum += v * 30.5 * 24 * 60 * 60 * 1000; break; // Same here
-                            case 3: sum += v * 7 * 24 * 60 * 60 * 1000; break;
-                            case 4: sum += v * 24 * 60 * 60 * 1000; break;
+                            case 1:
+                                sum += v * 365 * 24 * 60 * 60 * 1000;
+                                break; // Not that accurate but best we can do...
+                            case 2:
+                                sum += v * 30.5 * 24 * 60 * 60 * 1000;
+                                break; // Same here
+                            case 3:
+                                sum += v * 7 * 24 * 60 * 60 * 1000;
+                                break;
+                            case 4:
+                                sum += v * 24 * 60 * 60 * 1000;
+                                break;
                         }
                     }
                 }
@@ -372,9 +445,15 @@ public class JCAStoOMOPCDMAnnotator extends JCasAnnotator_ImplBase {
                     if (m.group(i) != null) {
                         int v = Integer.valueOf(m.group(i));
                         switch (i) {
-                            case 1: sum += v * 60 * 60 * 1000; break;
-                            case 2: sum += v * 60 * 1000; break;
-                            case 3: sum += v * 1000; break;
+                            case 1:
+                                sum += v * 60 * 60 * 1000;
+                                break;
+                            case 2:
+                                sum += v * 60 * 1000;
+                                break;
+                            case 3:
+                                sum += v * 1000;
+                                break;
                         }
                     }
                 }

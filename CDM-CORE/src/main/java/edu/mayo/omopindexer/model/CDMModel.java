@@ -17,6 +17,7 @@ public interface CDMModel {
         CDMConditionOccurrence,
         CDMDrugExposure,
         CDMMeasurement,
-        CDMUnstructuredObservation
+        CDMUnstructuredObservation,
+        CDMNlpArtifact
     }
 }
